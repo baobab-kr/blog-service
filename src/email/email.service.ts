@@ -17,7 +17,6 @@ export class EmailService {
   constructor(
     @Inject(emailConfig.KEY) private config: ConfigType<typeof emailConfig>,
   ) {
-    console.log(config.auth.user, config.auth.pass)
     this.transporter = nodemailer.createTransport({
       service: config.service,
       auth: {
@@ -25,7 +24,6 @@ export class EmailService {
         pass: config.auth.pass
       }
     });
-    console.log(config.auth.user, config.auth.pass)
   }
 
   async sendMemberJoinVerification(emailAddress: string, username: string, signupVerifyToken: string) {

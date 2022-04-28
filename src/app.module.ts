@@ -20,4 +20,5 @@ import { validationSchema } from './config/validationSchema';
   controllers: [AppController, UsersController],
   providers: [AppService, UsersService, EmailService],
 })
+
 export class AppModule {}
