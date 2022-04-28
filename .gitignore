@@ -3,6 +3,7 @@
 
 # env
 .*.env
+!.stage.env
 
 # compiled output
 /dist
