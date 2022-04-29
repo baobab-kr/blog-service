@@ -6,21 +6,26 @@ import * as uuid from 'uuid';
 export class UsersService {
   constructor(private emailService:EmailService) {};
 
-  async createUser(userid: string, username: string, password: string) {
-    await this.checkUserExists(userid);
+  async createUser(userid: string, email: string, username: string, password: string) {
+    await this.checkUserIdExists(userid);
+    await this.checkUserNameExists(username);
 
     const signupVerifyToken = uuid.v1();
 
-    await this.saveUser(userid, username, password, signupVerifyToken);
-    await this.sendMemberJoinEmail(userid, username, signupVerifyToken);
+    await this.saveUser(userid, email, username, password, signupVerifyToken);
+    await this.sendMemberJoinEmail(email, username, signupVerifyToken);
   }
 
-  private checkUserExists(userid: string) {
+  private checkUserIdExists(userid: string) {
     console.log(userid);
   }
 
-  private saveUser(userid: string, username: string, password: string, signupVerifyToken: string) {
-    console.log(userid, username, password, signupVerifyToken);
+  private checkUserNameExists(username: string) {
+    console.log(username);
+  }
+
+  private saveUser(userid: string, email: string, username: string, password: string, signupVerifyToken: string) {
+    console.log(userid, email, username, password, signupVerifyToken);
   }
 
   private async sendMemberJoinEmail(email: string, username: string, signupVerifyToken: string) {

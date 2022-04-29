@@ -9,8 +9,8 @@ export class UsersController {
 
   @Post('/register')
   async createUser(@Body() createUserDto: CreateUserDto): Promise<void> {
-    const { userid, username, password } = createUserDto;
-    await this.usersService.createUser(userid, username, password);
+    const { userid, email, username, password } = createUserDto;
+    await this.usersService.createUser(userid, email, username, password);
   }
 
   @Post('/email-verify')
