@@ -1,6 +1,8 @@
-import { IsEmail, IsString, Matches, MaxLength, MinLength } from 'class-validator';
+import { IsEmail, IsString, Matches, MaxLength, MinLength,  } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class CreateUserDto {
+  @Transform(params => params.value.trim()) 
   @IsString()
   @MinLength(4)
   @MaxLength(15)
@@ -12,10 +14,12 @@ export class CreateUserDto {
   )
   readonly userid: string;
 
+  @Transform(params => params.value.trim()) 
   @IsString()
   @IsEmail()
   readonly email: string;
 
+  @Transform(params => params.value.trim()) 
   @IsString()
   @MinLength(2)
   @MaxLength(9)
