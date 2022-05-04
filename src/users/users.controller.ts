@@ -15,22 +15,19 @@ export class UsersController {
   
   @Post('/check-userid')
   @HttpCode(200)
-  async checkUserid(@Body() createUserDto: CreateUserDto): Promise<void> {
-    const { userid } = createUserDto;
+  async checkUserid(@Body() userid: string): Promise<void> {
     await this.usersService.checkUserIdExists(userid);
   }
 
   @Post('/check-username')
   @HttpCode(200)
-  async checkUsername(@Body() createUserDto: CreateUserDto): Promise<void> {
-    const { username } = createUserDto;
+  async checkUsername(@Body() username: string): Promise<void> {
     await this.usersService.checkUserNameExists(username);
   }
 
   @Post('/check-email')
   @HttpCode(200)
-  async checkEmail(@Body() createUserDto: CreateUserDto): Promise<void> {
-    const { email } = createUserDto;
+  async checkEmail(@Body() email: string): Promise<void> {
     await this.usersService.emailExists(email);
   }
 

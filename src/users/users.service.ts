@@ -31,6 +31,7 @@ export class UsersService {
 
   public async checkUserNameExists(username: string) {
     const user = await this.usersRepository.findOne({ username: username });
+    console.log(user)
     if(user !== undefined) {
       throw new HttpException('Duplicated UserID', HttpStatus.CONFLICT)
     } else {
