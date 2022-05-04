@@ -1,4 +1,4 @@
-import { Injectable, Post, Query, UnprocessableEntityException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Post, Query, UnprocessableEntityException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { sign } from 'crypto';
 import { EmailService } from 'src/email/email.service';
@@ -14,41 +14,37 @@ export class UsersService {
     ) {};
 
   async createUser(userid: string, username: string, email: string, password: string) {
-    const useridExist = await this.checkUserIdExists(userid);
-    if (useridExist) {
-      throw new UnprocessableEntityException("해당 유저 ID로는 가입할 수 없습니다.");
-    }
-
-    const usernameExist = await this.checkUserNameExists(username);
-    if (usernameExist) {
-      throw new UnprocessableEntityException("해당 유저 이름으로는 가입할 수 없습니다.");
-    }
-
-    const emailExist = await this.emailExists(email);
-    if (emailExist) {
-      throw new UnprocessableEntityException("해당 이메일로는 가입할 수 없습니다.");
-    }
-
     const signupVerifyToken = uuid.v1();
 
     await this.saveUser(userid, email, username, password, signupVerifyToken);
     await this.sendMemberJoinEmail(email, username, signupVerifyToken);
   }
 
-  private async checkUserIdExists(userid: string) {
+  public async checkUserIdExists(userid: string) {
     const user = await this.usersRepository.findOne({ userid: userid });
-
-    return user !== undefined;
+    if(user !== undefined) {
+      throw new HttpException('Duplicated UserID', HttpStatus.CONFLICT)
+    } else {
+      return '사용 가능한 아이디 입니다.'
+    }
   }
 
-  private async checkUserNameExists(username: string) {
+  public async checkUserNameExists(username: string) {
     const user = await this.usersRepository.findOne({ username: username });
-    return user !== undefined;
+    if(user !== undefined) {
+      throw new HttpException('Duplicated UserID', HttpStatus.CONFLICT)
+    } else {
+      return '사용 가능한 유저 이름 입니다.'
+    }
   }
 
-  private async emailExists(email: string) {
+  public async emailExists(email: string) {
     const user = await this.usersRepository.findOne({ email: email });
-    return user !== undefined;
+    if(user !== undefined) {
+      throw new HttpException('Duplicated UserID', HttpStatus.CONFLICT)
+    } else {
+      return '사용 가능한 메일 주소 입니다.'
+    }
   }
 
   private async saveUser(userid: string, username: string, email: string, password: string, signupVerifyToken: string) {
