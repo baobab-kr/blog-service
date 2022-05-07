@@ -5,6 +5,21 @@
   |EndPoint|JSON|Query Param|Path Param|Response|  
   |---|---|---|---|---|
   |POST /users/register|{"userid":"iwantbaobab", "email": "baobab@baobab.blog","username":"baobab", "password": "baobab123@@##"}|||201|  
+
+- 이메일 중복 확인 API  
+  |EndPoint|JSON|Query Param|Path Param|Response|  
+  |---|---|---|---|---|
+  |POST /users/check-email|{"email":"iwantbaobab@gmail.com"}|||200|
+
+- 유저 ID 중복 확인 API  
+  |EndPoint|JSON|Query Param|Path Param|Response|  
+  |---|---|---|---|---|
+  |POST /users/check-email|{"userid":"iwantbaobab"}|||200|
+
+- 유저이름 중복 확인 API  
+  |EndPoint|JSON|Query Param|Path Param|Response|  
+  |---|---|---|---|---|
+  |POST /users/check-username|{"username":"홍길동"}|||200|
   
 - 이메일 인증 API  
   |EndPoint|JSON|Query Param|Path Param|Response|  

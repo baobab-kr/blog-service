@@ -24,7 +24,7 @@ export class CreateUserDto {
   @MinLength(2)
   @MaxLength(9)
   @Matches(
-    /^[A-Za-z0-9+]*$/,
+    /^[ㄱ-ㅎ가-힣A-Za-z0-9+]*$/,
     {
       message: '유저 이름은 한글, 영문자, 숫자만 조합할 수 있습니다.',
     },
@@ -35,7 +35,7 @@ export class CreateUserDto {
   @Matches(
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,15}$/,
     {
-      message: '암호는 영문자, 숫자, 특수문자를 조합하여 비밀번호를 만들 수 있습니다.',
+      message: '암호는 대문자, 소문자, 숫자, 특수문자를 조합하여 비밀번호를 만들 수 있습니다. 특수문자는 !, @, $, %, *, &만 사용할 수 있습니다.',
     },
   )
   readonly password: string;
