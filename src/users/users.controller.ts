@@ -19,16 +19,16 @@ export class UsersController {
     await this.usersService.checkUserIdExists(userid);
   }
 
+  @Post('/check-email')
+  @HttpCode(200)
+  async checkEmail(@Body() email: string): Promise<void> {
+    await this.usersService.checkEmailExists(email);
+  }
+
   @Post('/check-username')
   @HttpCode(200)
   async checkUsername(@Body() username: string): Promise<void> {
     await this.usersService.checkUserNameExists(username);
-  }
-
-  @Post('/check-email')
-  @HttpCode(200)
-  async checkEmail(@Body() email: string): Promise<void> {
-    await this.usersService.emailExists(email);
   }
 
   @Post('/email-verify')

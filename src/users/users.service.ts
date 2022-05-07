@@ -13,52 +13,58 @@ export class UsersService {
     @InjectRepository(Users) private usersRepository:Repository<Users>,
     ) {};
 
-  async createUser(userid: string, username: string, email: string, password: string) {
+  async createUser(userid: string, email: string, username: string, password: string) {
     const signupVerifyToken = uuid.v1();
+    await this.checkUserIdExists(userid)
+    await this.checkUserNameExists(username)
+    await this.checkEmailExists(email)
 
     await this.saveUser(userid, email, username, password, signupVerifyToken);
     await this.sendMemberJoinEmail(email, username, signupVerifyToken);
   }
 
   public async checkUserIdExists(userid: string) {
-    const user = await this.usersRepository.findOne({ userid: userid });
+    const userIdValue: string = typeof userid !== typeof "" ? Object.values(userid)[0] : userid
+    const user = await this.usersRepository.findOne({userid: userIdValue});
     if(user !== undefined) {
       throw new HttpException('Duplicated UserID', HttpStatus.CONFLICT)
     } else {
       return '사용 가능한 아이디 입니다.'
     }
   }
-
-  public async checkUserNameExists(username: string) {
-    const user = await this.usersRepository.findOne({ username: username });
-    console.log(user)
+  
+  public async checkEmailExists(email: string) {
+    const emailValue: string = typeof email !== typeof "" ? Object.values(email)[0] : email
+    const user = await this.usersRepository.findOne({email: emailValue});
     if(user !== undefined) {
-      throw new HttpException('Duplicated UserID', HttpStatus.CONFLICT)
+      throw new HttpException('Duplicated E-Mail Address', HttpStatus.CONFLICT)
+    } else {
+      return '사용 가능한 메일 주소 입니다.'
+    }
+  }
+  
+  public async checkUserNameExists(username: string) {
+    const userNameValue: string = typeof username !== typeof "" ? Object.values(username)[0] : username
+    const user = await this.usersRepository.findOne({username: userNameValue});
+    if(user !== undefined) {
+      throw new HttpException('Duplicated Username', HttpStatus.CONFLICT)
     } else {
       return '사용 가능한 유저 이름 입니다.'
     }
   }
 
-  public async emailExists(email: string) {
-    const user = await this.usersRepository.findOne({ email: email });
-    if(user !== undefined) {
-      throw new HttpException('Duplicated UserID', HttpStatus.CONFLICT)
-    } else {
-      return '사용 가능한 메일 주소 입니다.'
-    }
-  }
 
-  private async saveUser(userid: string, username: string, email: string, password: string, signupVerifyToken: string) {
+  private async saveUser(userid: string,  email: string, username: string, password: string, signupVerifyToken: string) {
     const user = new Users();
     user.userid = userid
-    user.username = username
     user.email = email
+    user.username = username
     user.password = password
     user.signupVerifyToken = signupVerifyToken;
     await this.usersRepository.save(user)
   }
 
-  private async sendMemberJoinEmail(username: string, email: string, signupVerifyToken: string) {
+  private async sendMemberJoinEmail(email: string, username: string, signupVerifyToken: string) {
     await this.emailService.sendMemberJoinVerification(email, username, signupVerifyToken);
   }
 
