@@ -1,8 +1,8 @@
-import { HttpException, HttpStatus, Injectable, Post, Query, UnprocessableEntityException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { sign } from 'crypto';
+import { defaultThrottleConfig } from 'rxjs/internal/operators/throttle';
 import { EmailService } from 'src/email/email.service';
-import { Repository } from 'typeorm';
+import { Repository, Connection } from 'typeorm';
 import * as uuid from 'uuid';
 import { Users } from './entity/user.entity';
 
@@ -11,6 +11,7 @@ export class UsersService {
   constructor(
     private emailService:EmailService,
     @InjectRepository(Users) private usersRepository:Repository<Users>,
+    private connection: Connection,
     ) {};
 
   async createUser(userid: string, email: string, username: string, password: string) {
@@ -19,7 +20,7 @@ export class UsersService {
     await this.checkUserNameExists(username)
     await this.checkEmailExists(email)
 
-    await this.saveUser(userid, email, username, password, signupVerifyToken);
+    await this.saveUserUsingQueryRunnner(userid, email, username, password, signupVerifyToken);
     await this.sendMemberJoinEmail(email, username, signupVerifyToken);
   }
 
@@ -54,14 +55,27 @@ export class UsersService {
   }
 
 
-  private async saveUser(userid: string,  email: string, username: string, password: string, signupVerifyToken: string) {
-    const user = new Users();
-    user.userid = userid
-    user.email = email
-    user.username = username
-    user.password = password
-    user.signupVerifyToken = signupVerifyToken;
-    await this.usersRepository.save(user)
+  private async saveUserUsingQueryRunnner(userid: string,  email: string, username: string, password: string, signupVerifyToken: string) {
+    const queryRunner = this.connection.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+  
+    try {
+      const user = new Users();
+      user.userid = userid
+      user.email = email
+      user.username = username
+      user.password = password
+      user.signupVerifyToken = signupVerifyToken;
+      await this.usersRepository.save(user)
+
+      await queryRunner.commitTransaction();
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   private async sendMemberJoinEmail(email: string, username: string, signupVerifyToken: string) {
