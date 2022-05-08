@@ -1,6 +1,6 @@
-import { Body, Controller,HttpCode,Post, Query } from '@nestjs/common';
+import { Body, Controller,HttpCode,Post } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { VerifyEmailDto } from './dto/verify-email.dto';
+import { VerifyCodeReceiverDto } from './dto/verify-code-receiver.dto';
 import { UsersService } from './users.service';
 
 @Controller('users')
@@ -9,8 +9,8 @@ export class UsersController {
 
   @Post('/register')
   async createUser(@Body() createUserDto: CreateUserDto): Promise<void> {
-    const { userid, email, username, password } = createUserDto;
-    await this.usersService.createUser(userid, email, username, password);
+    const { userid, email, username, password, inputVerifyCode } = createUserDto;
+    await this.usersService.createUser(userid, email, username, password, inputVerifyCode);
   }
   
   @Post('/check-userid')
@@ -31,10 +31,10 @@ export class UsersController {
     await this.usersService.checkUserNameExists(username);
   }
 
-  @Post('/email-verify')
-  async verifyEmail(@Query() verifyEmailDto: VerifyEmailDto): Promise<string> {
-    const { signupVerifyToken } = verifyEmailDto;
-  
-    return await this.usersService.verifyEmail(signupVerifyToken);
+  @Post('/register-code')
+  @HttpCode(200)
+  async sendMemberJoinEmail(@Body() verifyCodeReceiverDto: VerifyCodeReceiverDto): Promise<void> {
+    const { email, username } = verifyCodeReceiverDto;
+    await this.usersService.sendMemberJoinEmail(email, username);
   }
 }

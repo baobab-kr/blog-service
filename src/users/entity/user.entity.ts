@@ -32,9 +32,6 @@ export class Users {
     @Column({nullable:true})
     token: string
 
-    @Column()
-    signupVerifyToken: string
-
     @Column({nullable:true})
     expire_time: number
 }
