@@ -1,4 +1,4 @@
-import { IsEmail, IsString, Matches, MaxLength, MinLength,  } from 'class-validator';
+import { IsEmail, IsNumber, IsString, Matches, MaxLength, MinLength,  } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class CreateUserDto {
@@ -39,4 +39,7 @@ export class CreateUserDto {
     },
   )
   readonly password: string;
+
+  @IsNumber()
+  readonly inputVerifyCode: number;
 }

@@ -1,29 +1,29 @@
-import { HttpException, HttpStatus, Injectable, Post, Query, UnprocessableEntityException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { sign } from 'crypto';
+import { AuthService } from 'src/auth/auth.service';
 import { EmailService } from 'src/email/email.service';
-import { Repository } from 'typeorm';
-import * as uuid from 'uuid';
+import { Repository, Connection } from 'typeorm';
 import { Users } from './entity/user.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     private emailService:EmailService,
+    private authService:AuthService,
     @InjectRepository(Users) private usersRepository:Repository<Users>,
+    private connection: Connection,
     ) {};
 
-  async createUser(userid: string, email: string, username: string, password: string) {
-    const signupVerifyToken = uuid.v1();
+  async createUser(userid: string, email: string, username: string, password: string, inputVerifyCode: number) {
     await this.checkUserIdExists(userid)
     await this.checkUserNameExists(username)
     await this.checkEmailExists(email)
-
-    await this.saveUser(userid, email, username, password, signupVerifyToken);
-    await this.sendMemberJoinEmail(email, username, signupVerifyToken);
+    
+    await this.checkMemberJoinEmail(username, inputVerifyCode);
+    await this.saveUserUsingQueryRunnner(userid, email, username, password);
   }
 
-  public async checkUserIdExists(userid: string) {
+  async checkUserIdExists(userid: string) {
     const userIdValue: string = typeof userid !== typeof "" ? Object.values(userid)[0] : userid
     const user = await this.usersRepository.findOne({userid: userIdValue});
     if(user !== undefined) {
@@ -33,7 +33,7 @@ export class UsersService {
     }
   }
   
-  public async checkEmailExists(email: string) {
+  async checkEmailExists(email: string) {
     const emailValue: string = typeof email !== typeof "" ? Object.values(email)[0] : email
     const user = await this.usersRepository.findOne({email: emailValue});
     if(user !== undefined) {
@@ -54,21 +54,39 @@ export class UsersService {
   }
 
 
-  private async saveUser(userid: string,  email: string, username: string, password: string, signupVerifyToken: string) {
-    const user = new Users();
-    user.userid = userid
-    user.email = email
-    user.username = username
-    user.password = password
-    user.signupVerifyToken = signupVerifyToken;
-    await this.usersRepository.save(user)
+  private async saveUserUsingQueryRunnner(userid: string,  email: string, username: string, password: string) {
+    const queryRunner = this.connection.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+  
+    try {
+      const user = new Users();
+      user.userid = userid
+      user.email = email
+      user.username = username
+      user.password = password
+      await this.usersRepository.save(user)
+
+      await queryRunner.commitTransaction();
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
   }
 
-  private async sendMemberJoinEmail(email: string, username: string, signupVerifyToken: string) {
-    await this.emailService.sendMemberJoinVerification(email, username, signupVerifyToken);
+  private async createVerifyCode(): Promise<number> {
+    const verifyCode = Math.floor(Math.random() * 1000000);
+    return verifyCode;
   }
 
-  async verifyEmail(signupVerifyToken: string): Promise<string> {
-    throw new Error('Method not implemented.');
+  async sendMemberJoinEmail(email: string, username: string) {
+    const verifyCode: number = await this.createVerifyCode();
+    await this.emailService.sendMemberJoinVerification(email, username, verifyCode);
+  }
+
+  private async checkMemberJoinEmail(username: string, inputVerifyCode: number):Promise<void> {
+    await this.authService.checkVerifyCode(username, inputVerifyCode);
   }
 }

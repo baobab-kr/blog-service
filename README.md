@@ -4,7 +4,7 @@
   
   |EndPoint|JSON|Query Param|Path Param|Response|  
   |---|---|---|---|---|
-  |POST /users/register|{"userid":"iwantbaobab", "email": "baobab@baobab.blog","username":"baobab", "password": "baobab123@@##"}|||201|  
+  |POST /users/register|{"userid":"iwantbaobab", "email": "baobab@baobab.blog","username":"baobab", "password": "baobab123@@##", "inputVerifyCode":"123456"}|||201|  
 
 - 이메일 중복 확인 API  
   |EndPoint|JSON|Query Param|Path Param|Response|  
@@ -24,12 +24,12 @@
 - 이메일 인증 API  
   |EndPoint|JSON|Query Param|Path Param|Response|  
   |---|---|---|---|---|
-  |POST /users/email-verify|{"signupVerifyToken":"문자열"}|||201|      
+  |POST /users/register-code|{"username":"홍길동", "email":"baobab@baobab.blog"}|||200|      
   
 - 로그인 API  
   |EndPoint|JSON|Query Param|Path Param|Response|  
   |---|---|---|---|---|
-  |POST /users/login|{"email":"baobab@baobab.blog", "password": "baobab123@@##"}|||201|  
+  |POST /users/login|{"email":"baobab@baobab.blog", "password": "baobab123@@##"}|||200|  
 
 - 회원 정보 조회 API  
   |EndPoint|JSON|Query Param|Path Param|Response|  
