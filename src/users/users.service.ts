@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthService } from 'src/auth/auth.service';
+import { Payload } from 'src/auth/security/payload.interface';
 import { EmailService } from 'src/email/email.service';
 import { Repository, Connection } from 'typeorm';
 import { SavedUserDto } from './dto/saved-user.dto';
@@ -111,5 +112,14 @@ export class UsersService {
     if(!valid) {
       throw new HttpException('Invalid Password', HttpStatus.UNAUTHORIZED)
     } 
+  }
+
+  async tokenValidateUser(payload: Payload) {
+    const username = payload.username;
+    const userInfo = await this.usersRepository.findOne({username});
+    if(!userInfo) {
+      throw new HttpException('User Does Not Exist.', HttpStatus.UNAUTHORIZED)
+    } 
+    return userInfo;
   }
 }
