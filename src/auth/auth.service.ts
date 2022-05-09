@@ -1,12 +1,16 @@
-import { BadRequestException, CacheInterceptor, CACHE_MANAGER, Inject, Injectable, UnprocessableEntityException, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, CacheInterceptor, CACHE_MANAGER, Inject, Injectable, UseInterceptors } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import * as bcrypt from 'bcrypt';
+import { Payload } from './security/payload.interface';
+import { SavedUserDto } from 'src/users/dto/saved-user.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 @UseInterceptors(CacheInterceptor)
 export class AuthService {
   constructor(
-    @Inject(CACHE_MANAGER) private cacheManager: Cache 
+    private jwtService:JwtService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) {}
 
   async checkVerifyCode(username: string, inputVerifyCode: number): Promise<void> {
@@ -24,5 +28,14 @@ export class AuthService {
 
   async comparePassword(inputPassword: string, savedPassword: string): Promise<boolean> {
     return await bcrypt.compare(inputPassword, savedPassword);
+  }
+
+  async createJwtToken(savedUserInfo: SavedUserDto): Promise<{accessToken: string} | undefined> {
+    const payload: Payload = { 
+      id: savedUserInfo.id, 
+      username: savedUserInfo.username 
+    };
+
+    return { accessToken: this.jwtService.sign(payload) };
   }
 }

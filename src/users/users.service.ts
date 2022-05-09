@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { AuthService } from 'src/auth/auth.service';
 import { EmailService } from 'src/email/email.service';
 import { Repository, Connection } from 'typeorm';
+import { SavedUserDto } from './dto/saved-user.dto';
 import { Users } from './entity/user.entity';
 
 @Injectable()
@@ -22,10 +23,11 @@ export class UsersService {
     await this.saveUserUsingQueryRunnner(userid, email, username, password);
   }
 
-  async login(userid: string, password: string) {
-    await this.validateUserId(userid);
-    await this.validatePassword(userid, password);
-    // 4. JWT 토큰 발행하기
+  async login(userid: string, password: string): Promise<{accessToken: string} | undefined>  {
+    const savedUserInfo: SavedUserDto = await this.getUserInfo(userid);
+    await this.validateUser(password, savedUserInfo.password);
+    const jwt = await this.authService.createJwtToken(savedUserInfo);
+    return jwt;
   }
 
   
@@ -96,16 +98,16 @@ export class UsersService {
     await this.authService.checkVerifyCode(username, inputVerifyCode);
   }
 
-  async validateUserId(userid: string) {
+  async getUserInfo(userid: string):Promise<SavedUserDto> {
     const user = await this.usersRepository.findOne({userid});
     if(user === undefined) {
       throw new HttpException('Invalid UserID', HttpStatus.UNAUTHORIZED)
-    } 
+    }
+    return user;
   }
-  
-  async validatePassword(userid: string, password: string) {
-    const user = await this.usersRepository.findOne({userid});
-    const valid = await this.authService.comparePassword(password, user.password);
+
+  async validateUser(inputPassword: string, savedPassword: string) {
+    const valid = await this.authService.comparePassword(inputPassword, savedPassword);
     if(!valid) {
       throw new HttpException('Invalid Password', HttpStatus.UNAUTHORIZED)
     } 
