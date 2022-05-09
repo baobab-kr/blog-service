@@ -68,7 +68,6 @@ export class UsersService {
     
     await queryRunner.connect();
     await queryRunner.startTransaction();
-    console.log('saveUser Function Execute');
     try {
       const user = new Users();
       user.userid = userid
