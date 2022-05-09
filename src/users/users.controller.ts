@@ -1,5 +1,6 @@
 import { Body, Controller,HttpCode,Post } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
+import { LoginUserDto } from './dto/login-user.dto';
 import { VerifyCodeReceiverDto } from './dto/verify-code-receiver.dto';
 import { UsersService } from './users.service';
 
@@ -36,5 +37,12 @@ export class UsersController {
   async sendMemberJoinEmail(@Body() verifyCodeReceiverDto: VerifyCodeReceiverDto): Promise<void> {
     const { email, username } = verifyCodeReceiverDto;
     await this.usersService.sendMemberJoinEmail(email, username);
+  }
+
+  @Post('/login')
+  @HttpCode(200)
+  async login(@Body() loginUserDto: LoginUserDto): Promise<void> {
+    const { userid, password } = loginUserDto;
+    await this.usersService.login(userid, password);
   }
 }

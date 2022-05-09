@@ -14,7 +14,7 @@ export class Users {
     @Column()
     email: string
 
-    @Column({length:15})
+    @Column({length:100})
     password: string
 
     @Column({nullable:true})
