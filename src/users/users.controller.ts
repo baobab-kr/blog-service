@@ -1,7 +1,10 @@
-import { Body, Controller,HttpCode,Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
+import { LoginUserDto } from './dto/login-user.dto';
 import { VerifyCodeReceiverDto } from './dto/verify-code-receiver.dto';
 import { UsersService } from './users.service';
+import { Request, Response } from 'express';
+import { AuthGuard } from 'src/auth/security/auth.guard';
 
 @Controller('users')
 export class UsersController {
@@ -37,4 +40,20 @@ export class UsersController {
     const { email, username } = verifyCodeReceiverDto;
     await this.usersService.sendMemberJoinEmail(email, username);
   }
+
+  @Post('/login')
+  @HttpCode(200)
+  async login(@Body() loginUserDto: LoginUserDto, @Res() res: Response): Promise<any> {
+    const { userid, password } = loginUserDto;
+    const jwt = await this.usersService.login(userid, password);
+    res.setHeader('Authorization', 'Bearer ' + jwt.accessToken);
+    return res.json(jwt);
+  }
+
+  @Get('/authenticate')
+  @UseGuards(AuthGuard)
+  isAuthenticated(@Req() req: Request): any { 
+  const user: any = req.user;
+  return user;
+}
 }

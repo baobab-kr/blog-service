@@ -1,23 +1,9 @@
-import { IsEmail, IsNumber, IsString, Matches, MaxLength, MinLength,  } from 'class-validator';
+import { IsNumber, IsString, Matches, MaxLength, MinLength,  } from 'class-validator';
 import { Transform } from 'class-transformer';
 
-export class CreateUserDto {
-  @Transform(params => params.value.trim()) 
-  @IsString()
-  @MinLength(4)
-  @MaxLength(15)
-  @Matches(
-    /^[A-Za-z0-9+]*$/,
-    {
-      message: '아이디는 영문자, 숫자를 조합할 수 있습니다.',
-    },
-  )
-  readonly userid: string;
-
-  @Transform(params => params.value.trim()) 
-  @IsString()
-  @IsEmail()
-  readonly email: string;
+export class SavedUserDto {
+  @IsNumber()
+  readonly id: number;
 
   @Transform(params => params.value.trim()) 
   @IsString()
@@ -39,7 +25,4 @@ export class CreateUserDto {
     },
   )
   readonly password: string;
-
-  @IsNumber()
-  readonly inputVerifyCode: number;
 }
