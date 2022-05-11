@@ -4,6 +4,7 @@ import { AppModule } from './app.module';
 
 import * as dotenv from 'dotenv';
 import * as path from 'path';
+import * as cookieParser from 'cookie-parser';
 
 dotenv.config({
   path: path.resolve(
@@ -17,6 +18,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({
     transform: true,
   }));
+  app.use(cookieParser());
   await app.listen(3000);
 }
 bootstrap();

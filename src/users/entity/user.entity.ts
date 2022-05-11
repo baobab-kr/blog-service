@@ -30,8 +30,5 @@ export class Users {
     avatar_image: string
 
     @Column({nullable:true})
-    token: string
-
-    @Column({nullable:true})
-    expire_time: number
+    currentRefreshToken: string
 }

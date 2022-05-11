@@ -8,6 +8,7 @@ import { EmailModule } from './email/email.module';
 import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Users } from './users/entity/user.entity';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [

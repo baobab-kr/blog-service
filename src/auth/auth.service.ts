@@ -4,6 +4,7 @@ import * as bcrypt from 'bcrypt';
 import { Payload } from './security/payload.interface';
 import { SavedUserDto } from 'src/users/dto/saved-user.dto';
 import { JwtService } from '@nestjs/jwt';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 @UseInterceptors(CacheInterceptor)
@@ -21,21 +22,89 @@ export class AuthService {
     }
   }
 
-  async encrpytionPassword(password: string): Promise<string> {
-    const encryptedPassword = await bcrypt.hash(password, 10);
-    return encryptedPassword;
+  async encrpytionData(data: string): Promise<string> {
+    const encryptedData = await bcrypt.hash(data, 10);
+    return encryptedData;
   }
 
   async comparePassword(inputPassword: string, savedPassword: string): Promise<boolean> {
     return await bcrypt.compare(inputPassword, savedPassword);
   }
 
-  async createJwtToken(savedUserInfo: SavedUserDto): Promise<{accessToken: string} | undefined> {
+  async createJwtAccessToken(savedUserInfo: SavedUserDto): Promise<{accessToken: string} | undefined> {
     const payload: Payload = { 
       id: savedUserInfo.id, 
       username: savedUserInfo.username 
     };
-
     return { accessToken: this.jwtService.sign(payload) };
+  }
+
+  async getCookieWithJwtAccessToken(savedUserInfo: SavedUserDto) {
+    const payload: Payload = { 
+      id: savedUserInfo.id, 
+      username: savedUserInfo.username 
+    };
+    const token = this.jwtService.sign(
+      payload,
+      { 
+        secret: 'SECRET',
+        expiresIn: 3*1000,
+      }
+    )
+
+    return {
+      accessToken: token,
+      accessOption: {
+        domain: 'localhost',
+        path: '/',
+        httpOnly: true,
+        maxAge: 3*1000
+      },
+    };
+  }
+
+  async getCookieWithJwtRefreshToken(savedUserInfo: SavedUserDto) {
+    const payload: Payload = { 
+      id: savedUserInfo.id, 
+      username: savedUserInfo.username 
+    };
+    const token = this.jwtService.sign(
+      payload,
+      { 
+        secret: 'SECRET',
+        expiresIn: 7*24*60*60*1000, // 7 day
+      }
+    )
+
+    return {
+      refreshToken: token,
+      refreshOption: {
+        domain: 'localhost',
+        path: '/',
+        httpOnly: true,
+        maxAge: 7*24*60*60*1000,
+      },
+    };
+  }
+  
+  async getUserRefreshTokenMatches( refreshToken: string, currentRefreshToken: string): Promise<Boolean> {
+    return await bcrypt.compare(refreshToken, currentRefreshToken);
+  }
+
+  getCookiesForLogOut() {
+    return {
+      accessOption: {
+        domain: 'localhost',
+        path: '/',
+        httpOnly: true,
+        maxAge: 0,
+      },
+      refreshOption: {
+        domain: 'localhost',
+        path: '/',
+        httpOnly: true,
+        maxAge: 0,
+      },
+    };
   }
 }
