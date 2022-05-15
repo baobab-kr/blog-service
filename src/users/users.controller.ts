@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { VerifyCodeReceiverDto } from './dto/verify-code-receiver.dto';
@@ -7,6 +7,7 @@ import { Request, Response } from 'express';
 import { JwtAccessTokenGuard } from 'src/auth/security/jwtAccessToken.guard';
 import { JwtRefreshTokenGuard } from 'src/auth/security/jwtRefreshToken.guard';
 import { AuthService } from 'src/auth/auth.service';
+import { SavedUserDto } from './dto/saved-user.dto';
 import { Payload } from 'src/auth/security/payload.interface';
 
 @Controller('users')
@@ -49,42 +50,50 @@ export class UsersController {
 
   @Post('/login')
   @HttpCode(200)
-  async login(@Body() loginUserDto: LoginUserDto, @Res() res: Response): Promise<any> {
+  async login(@Body() loginUserDto: LoginUserDto, @Res({passthrough:true}) res: Response): Promise<any> {
     const { userid, password } = loginUserDto;
     const { accessToken, accessOption, refreshToken, refreshOption, user } = await this.usersService.login(userid, password);
     res.setHeader('Authorization', 'Bearer ' + accessToken);
-    res.cookie('Authentication', accessToken, accessOption);
-    res.cookie('Refresh', refreshToken, refreshOption);
+    res.cookie('AccessToken', accessToken, accessOption);
+    res.cookie('RefreshToken', refreshToken, refreshOption);
     return user;
   }
 
-  @HttpCode(200)
-  @Get('/access-token')
+  @Get('')
   @UseGuards(JwtAccessTokenGuard)
-  isAuthenticated(@Req() req: Request): any { 
+  isAuthenticated(@Req() req: Request): Promise<SavedUserDto> { 
     const user: any = req.user;
+    user.password = undefined
+    user.currentRefreshToken = undefined
     return user;
   }
 
-  @HttpCode(200)
-  @Get('/refresh-token')
+  @Get('/refresh')
   @UseGuards(JwtRefreshTokenGuard)
-  async refresh(@Req() req: Request, @Res() res: Response): Promise<any> { 
+  async refresh(@Req() req: Request, @Res({passthrough:true}) res: Response): Promise<any> { 
     const user: any = req.user;
     if (user) {
-      const { accessToken, accessOption } = await this.authService.getCookieWithJwtAccessToken(user.username);
-      res.cookie('Authentication', accessToken, accessOption);
-      return {user};
+      const payload: Payload = {
+        id: user.id,
+        username: user.username
+      }
+      const { accessToken, accessOption } = await this.authService.getCookieWithJwtAccessToken(payload);
+      res.setHeader('Authorization', 'Bearer ' + accessToken);
+      res.cookie('AccessToken', accessToken, accessOption);
+      user.password = undefined
+      user.currentRefreshToken = undefined
+      return user;
     }
   }
 
   @Get('/logout')
   @UseGuards(JwtRefreshTokenGuard)
-  async logOut(@Res() res: Response, payload: Payload) {
-    const id = payload.id;
+  async logOut(@Req() req: Request, @Res({passthrough:true}) res: Response):Promise<void> {
+    const user: any = req.user;
+    const id = user.id;
     const { accessOption, refreshOption } = this.authService.getCookiesForLogOut();
     await this.usersService.removeRefreshToken(id);
-    res.cookie('Authentication', '', accessOption);
-    res.cookie('Refresh', '', refreshOption);
+    res.cookie('AccessToken', '', accessOption);
+    res.cookie('RefreshToken', '', refreshOption);
   }
 }

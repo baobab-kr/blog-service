@@ -3,6 +3,7 @@ import { ExtractJwt, Strategy, VerifiedCallback } from 'passport-jwt';
 import { PassportStrategy } from "@nestjs/passport";
 import { Payload } from "./payload.interface";
 import { UsersService } from "src/users/users.service";
+import { Request } from 'express';
 
 @Injectable()
 export class JwtAccessStrategy extends PassportStrategy(Strategy, 'jwt-access-token'){
@@ -10,14 +11,22 @@ export class JwtAccessStrategy extends PassportStrategy(Strategy, 'jwt-access-to
     private usersService: UsersService
   ) {
     super({
-        jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-        ignoreExpiration: true,
-        secretOrKey: 'SECRET',
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (request: Request) => 
+        {
+          return request?.cookies?.AccessToken;
+        }
+      ]),
+      ignoreExpiration: false,
+      secretOrKey: 'SECRET',
     })
   }
 
   async validate(payload: Payload, done: VerifiedCallback): Promise<any> {
+    console.log(payload)
     const user = await this.usersService.tokenValidateUser(payload);
+    // console.log(user)
+    user.password = undefined
     return done(null, user);
   }
 }

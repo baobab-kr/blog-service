@@ -4,6 +4,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { Payload } from 'src/auth/security/payload.interface';
 import { EmailService } from 'src/email/email.service';
 import { Repository, Connection } from 'typeorm';
+import { ResUserDto } from './dto/res-user.dto';
 import { SavedUserDto } from './dto/saved-user.dto';
 import { Users } from './entity/user.entity';
 
@@ -25,18 +26,25 @@ export class UsersService {
   }
 
   async login(userid: string, password: string)  {
-    const savedUserInfo: SavedUserDto = await this.getUserInfo(userid);
+    const savedUserInfo: any = await this.getUserInfo(userid);
+    const payload: Payload = {
+      id: savedUserInfo.id,
+      username: savedUserInfo.username
+    }
     await this.validateUser(password, savedUserInfo.password);
-    const { accessToken, accessOption } = await this.authService.getCookieWithJwtAccessToken(savedUserInfo);
+    const { accessToken, accessOption } = await this.authService.getCookieWithJwtAccessToken(payload);
     const { refreshToken, refreshOption } = await this.authService.getCookieWithJwtRefreshToken(savedUserInfo);
     await this.updateRefreshTokenInUser(refreshToken, savedUserInfo);
 
+    const resUserDto: any = savedUserInfo
+    resUserDto.password = undefined
+    resUserDto.currentRefreshToken = undefined
     return {
       accessToken,
       accessOption,
       refreshToken,
       refreshOption,
-      user: savedUserInfo,
+      user: resUserDto,
     };
   }
 
@@ -130,9 +138,6 @@ export class UsersService {
   }
 
   async updateRefreshTokenInUser(refreshToken: string, savedUserInfo: SavedUserDto): Promise<void> {
-    if (refreshToken) {
-      refreshToken = await this.authService.encrpytionData(refreshToken);
-    }
     const username = savedUserInfo.username
     await this.usersRepository.update(
       { username },
@@ -140,8 +145,8 @@ export class UsersService {
     );
   }
 
-  async getUserRefreshTokenMatches( refreshToken: string, username: string): Promise<{result: boolean}> {
-    const savedUserInfo = await this.getUserInfo(username)
+  async getUserRefreshTokenMatches( refreshToken: string, user): Promise<{result: boolean}> {
+    const savedUserInfo = user
     const isRefreshTokenMatch = this.authService.getUserRefreshTokenMatches(refreshToken, savedUserInfo.currentRefreshToken);
     if (isRefreshTokenMatch) return { result: true };
     else throw new UnauthorizedException();

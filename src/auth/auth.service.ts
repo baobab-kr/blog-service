@@ -4,7 +4,6 @@ import * as bcrypt from 'bcrypt';
 import { Payload } from './security/payload.interface';
 import { SavedUserDto } from 'src/users/dto/saved-user.dto';
 import { JwtService } from '@nestjs/jwt';
-import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 @UseInterceptors(CacheInterceptor)
@@ -39,16 +38,12 @@ export class AuthService {
     return { accessToken: this.jwtService.sign(payload) };
   }
 
-  async getCookieWithJwtAccessToken(savedUserInfo: SavedUserDto) {
-    const payload: Payload = { 
-      id: savedUserInfo.id, 
-      username: savedUserInfo.username 
-    };
+  async getCookieWithJwtAccessToken(payload: Payload) {
     const token = this.jwtService.sign(
       payload,
       { 
         secret: 'SECRET',
-        expiresIn: 3*1000,
+        expiresIn: 15*1000,
       }
     )
 
@@ -58,7 +53,7 @@ export class AuthService {
         domain: 'localhost',
         path: '/',
         httpOnly: true,
-        maxAge: 3*1000
+        maxAge: 15*1000
       },
     };
   }
