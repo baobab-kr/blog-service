@@ -43,7 +43,7 @@ export class AuthService {
       payload,
       { 
         secret: 'SECRET',
-        expiresIn: 15*1000,
+        expiresIn: 30*60*1000,
       }
     )
 
@@ -53,7 +53,7 @@ export class AuthService {
         domain: 'localhost',
         path: '/',
         httpOnly: true,
-        maxAge: 15*1000
+        maxAge: 30*60*1000
       },
     };
   }

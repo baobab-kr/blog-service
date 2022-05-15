@@ -4,7 +4,6 @@ import { AuthService } from 'src/auth/auth.service';
 import { Payload } from 'src/auth/security/payload.interface';
 import { EmailService } from 'src/email/email.service';
 import { Repository, Connection } from 'typeorm';
-import { ResUserDto } from './dto/res-user.dto';
 import { SavedUserDto } from './dto/saved-user.dto';
 import { Users } from './entity/user.entity';
 
