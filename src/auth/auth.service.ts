@@ -42,8 +42,8 @@ export class AuthService {
     const token = this.jwtService.sign(
       payload,
       { 
-        secret: 'SECRET',
-        expiresIn: 30*60*1000,
+        secret: process.env.JWT_SECRET,
+        expiresIn: Number(process.env.JWT_ACCESS_EXPIRES)*1000,
       }
     )
 
@@ -53,7 +53,7 @@ export class AuthService {
         domain: 'localhost',
         path: '/',
         httpOnly: true,
-        maxAge: 30*60*1000
+        maxAge: Number(process.env.JWT_ACCESS_EXPIRES)*1000
       },
     };
   }
@@ -66,8 +66,8 @@ export class AuthService {
     const token = this.jwtService.sign(
       payload,
       { 
-        secret: 'SECRET',
-        expiresIn: 7*24*60*60*1000, // 7 day
+        secret: process.env.JWT_SECRET,
+        expiresIn: Number(process.env.JWT_REFRESH_EXPIRES)*1000, // 7 day
       }
     )
 
@@ -77,7 +77,7 @@ export class AuthService {
         domain: 'localhost',
         path: '/',
         httpOnly: true,
-        maxAge: 7*24*60*60*1000,
+        maxAge: Number(process.env.JWT_REFRESH_EXPIRES)*1000,
       },
     };
   }
