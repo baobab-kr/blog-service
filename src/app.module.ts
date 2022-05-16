@@ -6,6 +6,7 @@ import emailConfig from './config/emailConfig';
 import { validationSchema } from './config/validationSchema';
 import { UsersModule } from './users/users.module';
 import { DatabaseModule } from './config/database/database.module';
+import { BoardModule } from './Board/board.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { DatabaseModule } from './config/database/database.module';
     }),
     DatabaseModule,
     UsersModule,
+    BoardModule
   ],
   controllers: [AppController],
   providers: [AppService],

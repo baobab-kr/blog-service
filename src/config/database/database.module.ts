@@ -1,6 +1,10 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { Board } from "src/Board/repository/entity/board.entity";
+import { Comment } from "src/Board/repository/entity/comment.entity";
+import { ReComment } from "src/Board/repository/entity/recomment.entity";
+import { Tag } from "src/Board/repository/entity/tag.entity";
 import { Users } from "src/users/entity/user.entity";
 
 @Module({
@@ -16,7 +20,7 @@ import { Users } from "src/users/entity/user.entity";
                 password: configService.get('DB_PASSWORD'),
                 database: configService.get('DB_NAME'),
                 entities: [
-                    Users
+                    Users,Board,Comment,ReComment,Tag
                 ],
                 synchronize: Boolean(process.env.DB_SYNC),
             }),

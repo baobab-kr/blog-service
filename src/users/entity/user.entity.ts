@@ -1,4 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
+import { Board } from "src/Board/repository/entity/board.entity"
+import { Comment } from "src/Board/repository/entity/comment.entity"
+import { ReComment } from "src/Board/repository/entity/recomment.entity"
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm"
 
 @Entity()
 export class Users {
@@ -31,4 +34,15 @@ export class Users {
 
     @Column({nullable:true})
     currentRefreshToken: string
+
+
+    @OneToMany(()=>Board, board=> board.id , {nullable:true})
+    boards : Board[]
+    @OneToMany(()=>Comment, comment=> comment.id , {nullable:true})
+    comments : Board[]
+    @OneToMany(()=>ReComment, reComment=> reComment.id , {nullable:true})
+    reComments : Board[]
+
+
+
 }
