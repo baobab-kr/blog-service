@@ -99,7 +99,8 @@ export class UsersService {
   }
   
   private async createVerifyCode(): Promise<number> {
-    const verifyCode = Math.floor(Math.random() * 1000000);
+    let verifyCode = Math.floor(Math.random() * 1000000);
+    while (verifyCode.toString().length == 6) {verifyCode = verifyCode*10}
     return verifyCode;
   }
   

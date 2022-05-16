@@ -23,10 +23,7 @@ export class JwtAccessStrategy extends PassportStrategy(Strategy, 'jwt-access-to
   }
 
   async validate(payload: Payload, done: VerifiedCallback): Promise<any> {
-    console.log(payload)
     const user = await this.usersService.tokenValidateUser(payload);
-    // console.log(user)
-    user.password = undefined
     return done(null, user);
   }
 }
