@@ -29,7 +29,7 @@
 - 로그인 API  
   |EndPoint|JSON|Query Param|Path Param|Response|  
   |---|---|---|---|---|
-  |POST /users/login|{"email":"iwantbaobab@gmail.com", "password": "Baobab123!!@@"}|||200|  
+  |POST /users/login|{"userid":"iwantbaobab", "password": "Baobab123!!@@"}|||200|  
 
 - 리프레쉬 API  
   |EndPoint|JSON|Query Param|Path Param|Response|  
