@@ -8,6 +8,8 @@ import { UpdateBoardDTO } from '../repository/dto/update-board.dto';
 import { Tag } from '../repository/entity/tag.entity';
 import { TagRepository } from '../repository/tag.repository';
 import { IsNotEmpty } from 'class-validator';
+import { Likes } from '../repository/entity/like.entity';
+import { Repository, Like } from 'typeorm';
 
 @Injectable()
 export class BoardService {
@@ -15,7 +17,9 @@ export class BoardService {
         @InjectRepository(BoardRepository)
         private boardRepository : BoardRepository,
         @InjectRepository(TagRepository)
-        private tagRepository : TagRepository
+        private tagRepository : TagRepository,
+        @InjectRepository(Likes) 
+        private likesRepository:Repository<Likes>,
 
     ){}
     
@@ -117,8 +121,9 @@ export class BoardService {
         const board = await this.boardRepository.findOne(
             {
                 select : ["id","title","description","content","thumbnail","views","date","board_status","likes_count"],
-                where : {board_status : status, id:`${id}`},
-                relations : ["tags"]
+                relations : ["tags","likes"],
+                where : {board_status : status, id:`${id}`}
+                
             }
         );
         
@@ -238,11 +243,49 @@ export class BoardService {
 
     async CheckingWriter(id: number, writer : number){
         const board_id = await this.getBoardByUserId(writer);
-        
-        if(!(board_id.indexOf(Number(id)) > -1)){
+        const idValue: number = typeof id !== typeof "" ? Object.values(id)[0] : id
+    
+        if(!(board_id.indexOf(idValue) > -1)){
             throw new HttpException('권한이 없는 사용자입니다.', HttpStatus.CONFLICT)
         }
         return id;
     }
+
+    async LikeBoard(board_id : number, user_id : number){
+        const idValue: number = typeof board_id !== typeof "" ? Object.values(board_id)[0] : board_id
+
+        const liked = await this.likesRepository.findOne({
+            where : {board_id : idValue, user_id : user_id}
+        })
+        const board = await this.boardRepository.findOne({
+            where : { id : idValue}
+        })
+        const likes_status = 1;
+        console.log(board);
+        if(!(liked)){
+            const like = await this.likesRepository.create({
+                likes_status,
+                board_id,
+                user_id
+            })
+            board.likes_count++;
+            await this.likesRepository.save(like);
+            await this.boardRepository.save(board);
+        }else if(liked.likes_status == 0){
+            liked.likes_status = 1;
+            board.likes_count++;
+            await this.likesRepository.save(liked);
+            await this.boardRepository.save(board);
+        }else if (liked.likes_status == 1){
+            liked.likes_status = 0;
+            board.likes_count--;
+            await this.likesRepository.save(liked);
+            await this.boardRepository.save(board);
+        }
+
+
+    }
+
+    
     
 }

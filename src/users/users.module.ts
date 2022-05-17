@@ -11,11 +11,12 @@ import { BoardModule } from '../Board/board.module';
 import { Board } from '../Board/repository/entity/board.entity';
 import { ReComment } from 'src/Board/repository/entity/recomment.entity';
 import { Comment } from 'src/Board/repository/entity/comment.entity';
+import { Likes } from 'src/Board/repository/entity/like.entity';
 
 @Module({
     imports: [
         EmailModule,
-        TypeOrmModule.forFeature([Users,Board,Comment,ReComment]),
+        TypeOrmModule.forFeature([Users,Board,Comment,ReComment,Likes]),
         AuthModule,
         BoardModule
     ],

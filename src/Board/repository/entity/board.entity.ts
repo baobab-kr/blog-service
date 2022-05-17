@@ -1,7 +1,8 @@
 
-import { BaseEntity, Column, Entity, Generated, Index, JoinColumn, JoinTable, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, Generated, Index, JoinColumn, JoinTable, Like, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Tag } from './tag.entity';
 import { Users } from '../../../users/entity/user.entity';
+import { Likes } from './like.entity';
 
 
 @Entity()
@@ -32,7 +33,10 @@ export class Board extends BaseEntity{
     likes_count : number;
 
     @OneToMany(type => Tag, tag => tag.board_id)
-    tags : string[];
+    tags : Tag[];
+
+    @OneToMany(type => Likes, likes => likes.board_id)
+    likes : Likes[];
 }
 
 

@@ -252,6 +252,24 @@ export class BoardController {
 
     }
     
+
+    @Post("Like")
+    @UseGuards(JwtAccessTokenGuard)
+    async LikeBoard(
+        @Req() req : Request,
+        @Body() id : number
+    ):Promise<void>{
+        const user: any = req.user;
+        const writer : number = user.id;
+        user.password = undefined;
+        user.currentRefreshToken = undefined;
+
+        id = await this.boardService.CheckingWriter(id, writer);
+
+        const like = await this.boardService.LikeBoard(id,writer);
+
+    }
+    
     
     
 

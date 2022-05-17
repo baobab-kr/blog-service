@@ -1,5 +1,6 @@
 import { Board } from "src/Board/repository/entity/board.entity"
 import { Comment } from "src/Board/repository/entity/comment.entity"
+import { Likes } from "src/Board/repository/entity/like.entity"
 import { ReComment } from "src/Board/repository/entity/recomment.entity"
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm"
 
@@ -36,12 +37,15 @@ export class Users {
     currentRefreshToken: string
 
 
-    @OneToMany(()=>Board, board=> board.id , {nullable:true})
+    @OneToMany(()=>Board, board=> board.writer , {nullable:true})
     boards : Board[]
-    @OneToMany(()=>Comment, comment=> comment.id , {nullable:true})
-    comments : Board[]
-    @OneToMany(()=>ReComment, reComment=> reComment.id , {nullable:true})
-    reComments : Board[]
+    @OneToMany(()=>Comment, comment=> comment.writer , {nullable:true})
+    comments : Comment[]
+    @OneToMany(()=>ReComment, reComment=> reComment.writer , {nullable:true})
+    reComments : ReComment[]
+
+    @OneToMany(()=>Likes, likes=> likes.user_id , {nullable:true})
+    likes : Likes[]
 
 
 
