@@ -2,7 +2,8 @@ import { EntityRepository, getConnection, getRepository, Repository } from "type
 import { Board } from './entity/board.entity';
 import { CreateBoardDTO} from "./dto/create-board.dto";
 import { UpdateBoardDTO } from "./dto/update-board.dto";
-import { Tag } from "./entity/tag.entity";
+import { Users } from '../../users/entity/user.entity';
+import { Tag } from 'src/Board/repository/entity/tag.entity';
 
 
 @EntityRepository(Board)
@@ -38,18 +39,26 @@ export class BoardRepository extends Repository<Board> {
         await this.save(board);
         return board;
     }
-    async getBoardMain(id:number){
+    async getBoardMain(skip:number){
         const status = 0 ;
-        const limit : number = 5;
-        const start_id : number = Number(Object.values(id));
-        const end_id : number = start_id + limit;
-        console.log(end_id);
+        const limit : number = 15;
+        const take : number = skip + limit;
 
         const board = await getRepository(Board)
-        .createQueryBuilder("Board")
+        .createQueryBuilder()
         .leftJoinAndSelect("Board.id", "id")
+        .leftJoinAndSelect("Board.title", "title")
+        .leftJoinAndSelect("Board.description", "description")
+        .leftJoinAndSelect("Board.thumbnail", "thumbnail")
+        .leftJoinAndSelect("Board.views", "views")
+        .leftJoinAndSelect("Board.board_status", "board_status")
+        .leftJoinAndSelect("Board.date", "date")
+        .leftJoinAndSelect("Board.likes_count", "likes_count")
+        
         .where(`board_status = ${status}`)
-        //.limit(limit) 조인 사용하면 작동안함
+        
+        .skip(skip)
+        .take(take)
         .getRawMany();
         
         /**

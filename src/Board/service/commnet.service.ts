@@ -39,6 +39,7 @@ export class CommentService {
 
         const comment =  await this.CommentRepository.find({
             select : ["id", "writer", "content", "date"],
+            relations : ["reComments"],
             where : {
                 board_id : board_id,
                 comment_status : status

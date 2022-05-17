@@ -68,15 +68,15 @@ export class BoardService {
         //페이지 호출
         const board = await this.boardRepository.find({
         
-            select : ["id","title","description","content","thumbnail","views","date","board_status","likes_count"],
+            select : ["id","title","description","content","writer","thumbnail","views","date","board_status","likes_count"],
             where : {board_status : status},
             relations : ["tags"],
             skip : skip,
             take : take
 
         })
-
-
+        
+        //console.log(await this.boardRepository.getBoardMain(id))
         
         
 
@@ -105,7 +105,7 @@ export class BoardService {
             take : take
 
         })
-         
+        
         return board;
     }
 
@@ -242,10 +242,10 @@ export class BoardService {
     }
 
     async CheckingWriter(id: number, writer : number){
-        const board_id = await this.getBoardByUserId(writer);
+        const board_id : number[]= await this.getBoardByUserId(writer);
         const idValue: number = typeof id !== typeof "" ? Object.values(id)[0] : id
-    
-        if(!(board_id.indexOf(idValue) > -1)){
+        
+        if(!((board_id.find(e => e == idValue)))){
             throw new HttpException('권한이 없는 사용자입니다.', HttpStatus.CONFLICT)
         }
         return id;

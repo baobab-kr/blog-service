@@ -9,7 +9,7 @@ export class Comment extends BaseEntity{
     @PrimaryGeneratedColumn()
     id : number;
 
-    @ManyToOne(type => Users, user => user.comments, {eager : false})
+    @ManyToOne(type => Users, user => user.comments, {eager : true})
     @JoinColumn([{name : "writer" , referencedColumnName : "id"}])
     //@Column()
     writer : number;

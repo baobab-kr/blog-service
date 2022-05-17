@@ -8,7 +8,7 @@ export class ReComment extends BaseEntity{
     @PrimaryGeneratedColumn()
     id : number;
 
-    @ManyToOne(type => Users, user => user.reComments, {eager : false})
+    @ManyToOne(type => Users, user => user.reComments, {eager : true})
     @JoinColumn([{name : "writer" , referencedColumnName : "id"}])
     //@Column()
     writer :number;

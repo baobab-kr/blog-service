@@ -19,7 +19,7 @@ export class Board extends BaseEntity{
     @Column()
     thumbnail : string;
     
-    @ManyToOne(type => Users, user => user.boards, {eager : false})
+    @ManyToOne(type => Users, user => user.boards, {eager : true})
     @JoinColumn([{name : "writer" , referencedColumnName : "id"}])
     //@Column()
     writer : number;
