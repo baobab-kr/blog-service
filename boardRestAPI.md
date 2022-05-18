@@ -61,6 +61,7 @@
 
 - 댓글 삭제 API
   - access토큰 필요
+  
   |EndPoint|JSON|Query Param|Path Param|Response|  
   |---|---|---|---|---|
   |POST/board/DeleteComment|{"comment_id":0}|||200|  
@@ -82,12 +83,14 @@
 
 - 답글 삭제 API
   - access토큰 필요
+
   |EndPoint|JSON|Query Param|Path Param|Response|  
   |---|---|---|---|---|
   |POST/board/DeleteReComment|{"reComment_id":0}|||200|  
 
 - 좋아요
   - access토큰 필요
+
   |EndPoint|JSON|Query Param|Path Param|Response|  
   |---|---|---|---|---|
   |POST/board/Like|{"id":0}|||200|  
