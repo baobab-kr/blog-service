@@ -116,13 +116,14 @@ export class BoardService {
      * @returns 
      */
     async getBoardById(id : number) : Promise<Board>{
+        const idValue: number = typeof id !== typeof "" ? Object.values(id)[0] : id
         
         const status : number = 0;
         const board = await this.boardRepository.findOne(
             {
                 select : ["id","title","description","content","thumbnail","views","date","board_status","likes_count"],
-                relations : ["tags","likes"],
-                where : {board_status : status, id:`${id}`}
+                relations : ["tags"],
+                where : {board_status : status, id:`${idValue}`}
                 
             }
         );
@@ -244,12 +245,13 @@ export class BoardService {
     async CheckingWriter(id: number, writer : number){
         const board_id : number[]= await this.getBoardByUserId(writer);
         const idValue: number = typeof id !== typeof "" ? Object.values(id)[0] : id
-        
+        console.log(id,idValue)
         if(!((board_id.find(e => e == idValue)))){
             throw new HttpException('권한이 없는 사용자입니다.', HttpStatus.CONFLICT)
         }
         return id;
     }
+    
 
     async LikeBoard(board_id : number, user_id : number){
         const idValue: number = typeof board_id !== typeof "" ? Object.values(board_id)[0] : board_id

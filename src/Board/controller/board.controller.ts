@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, Body, Post, ValidationPipe, UseInterceptors, UploadedFile, Patch, UseGuards, Req, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Param, Query, Body, Post, ValidationPipe, UseInterceptors, UploadedFile, Patch, UseGuards, Req, HttpException, HttpStatus, HttpCode } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import {  multerMemoryOptions } from '../../configs/multer.option';
 import { BoardService } from '../service/board.service';
@@ -30,6 +30,7 @@ export class BoardController {
      * @returns void
      */
     @Post("/CreateBoard")
+    @HttpCode(200)
     @UseInterceptors(FileInterceptor("thumbnail",multerMemoryOptions))
     @UseGuards(JwtAccessTokenGuard)
     async createBoard(
@@ -52,19 +53,20 @@ export class BoardController {
      * @returns Board[]
      */
     @Post("/BoardMain")
+    @HttpCode(200)
     async getBoardMain(
-        @Body("id") id: number
+        @Body("page") page: number
     ) : Promise<Board[]>{
-        const status : number = 0;
         
-        return await this.boardService.getBoardMain(id);
+        return await this.boardService.getBoardMain(page);
     }
     /**
-     * getBoardPersonal(개인페이지 호출API)
+     * getBoardPersonal(개인페이지 호출 API)
      * @param id 
      * @returns Board[]
      */
     @Post("/BoardPersonal")
+    @HttpCode(200)
     @UseGuards(JwtAccessTokenGuard)
     async getBoardPersonal(
         @Req() req: Request,
@@ -93,9 +95,10 @@ export class BoardController {
      * @param id 
      * @returns Board
      */
-    @Get("/BoardView")
+    @Post("/BoardView")
+    @HttpCode(200)
     async getBoardById(
-        @Query('board_id') id : number
+        @Body('id') id : number
     ) : Promise<Board>{
         this.boardService.viewUp(id);
         return await this.boardService.getBoardById(id);
@@ -108,7 +111,8 @@ export class BoardController {
      * @returns void
      */
 
-    @Patch("BoardUpdate")
+    @Post("BoardUpdate")
+    @HttpCode(200)
     @UseGuards(JwtAccessTokenGuard)
     async updateBoard(
         @Req() req: Request,
@@ -128,7 +132,8 @@ export class BoardController {
      * @param id 
      * @returns void
      */
-    @Patch("BoardDelete")
+    @Post("BoardDelete")
+    @HttpCode(200)
     @UseGuards(JwtAccessTokenGuard)
     async deleteBoard(
         @Req() req: Request,
@@ -153,6 +158,7 @@ export class BoardController {
      * @returns void
      */
     @Post("/CreateComment")
+    @HttpCode(200)
     @UseGuards(JwtAccessTokenGuard)
     async createComment(
         @Req() req: Request,
@@ -172,8 +178,9 @@ export class BoardController {
      * @returns Comment[]
      */
     @Post("Comment")
+    @HttpCode(200)
     async getCommentById(
-        @Body("board_id") id : number
+        @Body("id") id : number
     ): Promise<Comment[]>{
         return await this.commentService.getCommentByBoardId(id);
     }
@@ -184,6 +191,7 @@ export class BoardController {
      * @returns void
      */
     @Patch("DeleteComment")
+    @HttpCode(200)
     @UseGuards(JwtAccessTokenGuard)
     async deleteCommentById(
         @Req() req : Request,
@@ -194,9 +202,8 @@ export class BoardController {
         user.password = undefined;
         user.currentRefreshToken = undefined;
 
-        id = await this.boardService.CheckingWriter(id, writer);
 
-        const comment = await this.commentService.deleteCommentById(id);
+        const comment = await this.commentService.deleteCommentById(id,writer);
     }
 
     /**
@@ -205,6 +212,7 @@ export class BoardController {
      * @returns void
      */
     @Post("/CreateReComment")
+    @HttpCode(200)
     @UseGuards(JwtAccessTokenGuard)
     async createReComment(
         @Req() req :Request,
@@ -224,8 +232,9 @@ export class BoardController {
      * @returns ReComment[]
      */
     @Post("ReComment")
+    @HttpCode(200)
     async getReCommentById(
-        @Body("comment_id") id : number
+        @Body("reComment_id") id : number
     ): Promise<ReComment[]>{
         return this.reCommentService.getReCommentByCommentId(id);
     }
@@ -236,24 +245,28 @@ export class BoardController {
      * @returns void
      */
     @Patch("DeleteReComment")
+    @HttpCode(200)
     @UseGuards(JwtAccessTokenGuard)
     async deleteReCommentById(
         @Req() req : Request,
-        @Body("recomment_id") id : number
+        @Body("reComment_id") id : number
     ):Promise<void>{
         const user: any = req.user;
         const writer : number = user.id;
         user.password = undefined;
         user.currentRefreshToken = undefined;
 
-        id = await this.boardService.CheckingWriter(id, writer);
-
         const recomment = await this.reCommentService.deleteReCommentById(id);
 
     }
     
-
+    /**
+     * LikeBoard (좋아요)
+     * @param req 
+     * @param id 
+     */
     @Post("Like")
+    @HttpCode(200)
     @UseGuards(JwtAccessTokenGuard)
     async LikeBoard(
         @Req() req : Request,

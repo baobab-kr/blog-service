@@ -53,8 +53,8 @@ export class CommentService {
         return comment;
     }
 
-    async deleteCommentById(id : number) {
-        return await this.CommentRepository.deleteCommentById(id);
+    async deleteCommentById(id : number, writer : number) {
+        return await this.CommentRepository.deleteCommentById(id,writer);
         
     }
 

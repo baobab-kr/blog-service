@@ -35,7 +35,7 @@ export class CreateBoardDTO{
 
 export class CreateCommentDTO{
 
-    @Transform((e)=> e.value.trim())
+    
     @IsNotEmpty({message : "값이 입력되지 않았습니다."})
     board_id : number;
 
@@ -44,14 +44,13 @@ export class CreateCommentDTO{
     @IsString()
     content : string;
 
-    @Transform((e)=> e.value.trim())
+    
     @IsNotEmpty({message : "값이 입력되지 않았습니다."})
     comment_status : number;
     
 }
 
 export class CreateReCommentDTO{
-    @Transform((e)=> e.value.trim())
     @IsNotEmpty({message : "값이 입력되지 않았습니다."})
     comment_id : number;
 
@@ -60,7 +59,6 @@ export class CreateReCommentDTO{
     @IsString()
     content : string;
 
-    @Transform((e)=> e.value.trim())
     @IsNotEmpty({message : "값이 입력되지 않았습니다."})
     recomment_status : number;
 }

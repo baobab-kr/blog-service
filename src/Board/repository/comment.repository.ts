@@ -22,7 +22,7 @@ export class CommentRepository extends Repository<Comment>{
     }//end of createCommnet
     
     
-    async deleteCommentById(id : number){
+    async deleteCommentById(id : number, writer:number){
         const status : number = 1 ;
         const idValue : number = Number(Object.values(id));
 
@@ -32,7 +32,7 @@ export class CommentRepository extends Repository<Comment>{
         .set({
             comment_status : status
         })
-        .where({id : `${idValue}`})
+        .where({id : `${idValue}`,writer})
         .execute()
 
         return comment;
