@@ -35,7 +35,7 @@ export class ReCommentService {
     async getReCommentByCommentId(id : number) : Promise<ReComment[]>{
         
         const status : number = 0 ; // 활성화 상태
-        const commnet_id : string  =  String(Object.values(id))
+        const commnet_id : number  =  Number(Object.values(id))
 
         const reComment =  await this.ReCommentRepository.find({
             select : ["id","writer","content","date"],

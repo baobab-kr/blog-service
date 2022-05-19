@@ -3,31 +3,30 @@ import { IsDate, IsNotEmpty, IsNumber, Matches, MaxLength, MinLength, IsString }
 
 
 export class CreateBoardDTO{
-    @Transform((e)=> e.value.trim())
     @IsNotEmpty({message : "값이 입력되지 않았습니다."})
     @MaxLength(30,{message : "입력가능 글자 수를 초과하였습니다."})
     @IsString()
     @Matches(/^[ㄱ-ㅎ|가-힣|a-z|A-Z|0-9|]+$/)
-    title? : string;
+    title : string;
 
     
-    @Transform((e)=> e.value.trim())
+    
     @IsNotEmpty({message : "값이 입력되지 않았습니다."})
     @MaxLength(200,{message : "입력가능 글자 수를 초과하였습니다."})
     @IsString()
     @Matches(/^[ㄱ-ㅎ|가-힣|a-z|A-Z|0-9|]+$/)
-    description? : string;
+    description : string;
 
     
     @IsNotEmpty({message : "값이 입력되지 않았습니다."})
     @IsString()
-    content? : string;
+    content : string;
 
-    @Transform((e)=> e.value.trim())
+    
     @IsNotEmpty({message : "값이 입력되지 않았습니다."})
-    board_status? : number; 
+    board_status : number; 
 
-    tag_name : string[];
+    tag_name? : string[];
     
 }
 

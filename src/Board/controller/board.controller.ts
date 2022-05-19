@@ -55,7 +55,7 @@ export class BoardController {
     @Post("/BoardMain")
     @HttpCode(200)
     async getBoardMain(
-        @Body("page") page: number
+        @Body() page: number
     ) : Promise<Board[]>{
         
         return await this.boardService.getBoardMain(page);
@@ -98,9 +98,10 @@ export class BoardController {
     @Post("/BoardView")
     @HttpCode(200)
     async getBoardById(
-        @Body('id') id : number
+        @Body() id : number
     ) : Promise<Board>{
-        this.boardService.viewUp(id);
+        await this.boardService.CheckBoardById(id);
+        await this.boardService.viewUp(id);
         return await this.boardService.getBoardById(id);
     }
     
@@ -116,7 +117,7 @@ export class BoardController {
     @UseGuards(JwtAccessTokenGuard)
     async updateBoard(
         @Req() req: Request,
-        @Body("id") id : number,
+        @Body() id : number,
         @Body() UpdateBoardDTO : UpdateBoardDTO
     ) : Promise<void>{
         const user: any = req.user;
@@ -137,14 +138,14 @@ export class BoardController {
     @UseGuards(JwtAccessTokenGuard)
     async deleteBoard(
         @Req() req: Request,
-        @Body("id") id : number
+        @Body() id : number
     ):Promise<void>{
         const user: any = req.user;
         const writer : number = user.id;
         user.password = undefined;
         user.currentRefreshToken = undefined;
 
-        id = await this.boardService.CheckingWriter(id, writer);
+        await this.boardService.CheckingWriter(id, writer);
         
         const board = await this.boardService.deleteBoard(id);
         
@@ -180,9 +181,9 @@ export class BoardController {
     @Post("Comment")
     @HttpCode(200)
     async getCommentById(
-        @Body("id") id : number
+        @Body() board_id : number
     ): Promise<Comment[]>{
-        return await this.commentService.getCommentByBoardId(id);
+        return await this.commentService.getCommentByBoardId(board_id);
     }
     
     /**
@@ -195,7 +196,7 @@ export class BoardController {
     @UseGuards(JwtAccessTokenGuard)
     async deleteCommentById(
         @Req() req : Request,
-        @Body("comment_id") id : number
+        @Body() comment_id : number
     ) : Promise<void> {
         const user: any = req.user;
         const writer : number = user.id;
@@ -203,7 +204,7 @@ export class BoardController {
         user.currentRefreshToken = undefined;
 
 
-        const comment = await this.commentService.deleteCommentById(id,writer);
+        const comment = await this.commentService.deleteCommentById(comment_id,writer);
     }
 
     /**
@@ -234,9 +235,9 @@ export class BoardController {
     @Post("ReComment")
     @HttpCode(200)
     async getReCommentById(
-        @Body("reComment_id") id : number
+        @Body() comment_id : number
     ): Promise<ReComment[]>{
-        return this.reCommentService.getReCommentByCommentId(id);
+        return this.reCommentService.getReCommentByCommentId(comment_id);
     }
 
     /**
@@ -249,14 +250,14 @@ export class BoardController {
     @UseGuards(JwtAccessTokenGuard)
     async deleteReCommentById(
         @Req() req : Request,
-        @Body("reComment_id") id : number
+        @Body() reComment_id : number
     ):Promise<void>{
         const user: any = req.user;
         const writer : number = user.id;
         user.password = undefined;
         user.currentRefreshToken = undefined;
 
-        const recomment = await this.reCommentService.deleteReCommentById(id);
+        const recomment = await this.reCommentService.deleteReCommentById(reComment_id);
 
     }
     
@@ -277,7 +278,7 @@ export class BoardController {
         user.password = undefined;
         user.currentRefreshToken = undefined;
 
-        id = await this.boardService.CheckingWriter(id, writer);
+        await this.boardService.CheckingWriter(id, writer);
 
         const like = await this.boardService.LikeBoard(id,writer);
 

@@ -35,8 +35,8 @@ export class CommentService {
     async getCommentByBoardId(id : number) : Promise<Comment[]>{
         
         const status : number = 0 ; // 활성화 상태
-        const board_id : string  =  String(Object.values(id))
-
+        const board_id : number  =  Number(Object.values(id))
+        console.log(board_id,id);
         const comment =  await this.CommentRepository.find({
             select : ["id", "writer", "content", "date"],
             relations : ["reComments"],
@@ -44,6 +44,7 @@ export class CommentService {
                 board_id : board_id,
                 comment_status : status
             },
+            
             
         });
         

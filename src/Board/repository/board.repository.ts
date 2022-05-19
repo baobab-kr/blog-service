@@ -109,15 +109,25 @@ export class BoardRepository extends Repository<Board> {
     }
     
     async updateBoardById(id : number , UpdateBoardDTO : UpdateBoardDTO){
+        let {title, description,content} = await getConnection()
+        .createQueryBuilder()
+        .select(["title","description","content"])
+        .where(`id = ${id}`)
+        .getOne();
+
+        title = UpdateBoardDTO.title;
+        description = UpdateBoardDTO.description;
+        content = UpdateBoardDTO.content;
+        const idValue :number = typeof id == typeof {} ?Number(Object.values(id)[0]) : Number(id);
         
-        const {title, description,content} = UpdateBoardDTO;
+        
         const board = await getConnection()
         .createQueryBuilder()
         .update(Board)
         .set({
             title, description,content
         })
-        .where(`id = ${id}`)
+        .where(`id = ${idValue}`)
         .execute();
         
 
@@ -127,13 +137,15 @@ export class BoardRepository extends Repository<Board> {
     async deleteBoardById(id : number){
         const status : number = 1;
         
+        const idValue :number = typeof id == typeof {} ?Number(Object.values(id)[0]) : Number(id);
+        
         const board = await getConnection()
         .createQueryBuilder()
         .update(Board)
         .set({
             board_status : status
         })
-        .where(`id = ${id}`)
+        .where(`id = ${idValue}`)
         .execute();
         
 

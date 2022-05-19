@@ -7,7 +7,7 @@ import { CreateBoardDTO } from '../repository/dto/create-board.dto';
 import { UpdateBoardDTO } from '../repository/dto/update-board.dto';
 import { Tag } from '../repository/entity/tag.entity';
 import { TagRepository } from '../repository/tag.repository';
-import { IsNotEmpty } from 'class-validator';
+import { isEmpty, IsNotEmpty } from 'class-validator';
 import { Likes } from '../repository/entity/like.entity';
 import { Repository, Like } from 'typeorm';
 
@@ -116,6 +116,7 @@ export class BoardService {
      * @returns 
      */
     async getBoardById(id : number) : Promise<Board>{
+
         const idValue: number = typeof id !== typeof "" ? Object.values(id)[0] : id
         
         const status : number = 0;
@@ -165,23 +166,38 @@ export class BoardService {
      * @returns void
      */
     async updateBoard(UpdateBoardDTO:UpdateBoardDTO, id :number) : Promise<void>{
-        //const update = await this.boardRepository.save({id : id,UpdateBoardDTO})
-        /*
-        const board = await this.boardRepository.findOne(id);
-        console.log(Object.values(UpdateBoardDTO.title));
-        board.title = String(Object.values(UpdateBoardDTO.title));
-        board.description = String(UpdateBoardDTO.description);
-        board.content = String(UpdateBoardDTO.content);
-        board.board_status = Number(UpdateBoardDTO.board_status);
-        */
-        const board = await this.boardRepository.updateBoardById(id,UpdateBoardDTO);
+        
+        const idValue :number = typeof id == typeof {} ?Number(Object.values(id)[0]) : Number(id);
+        
+        let board = await this.boardRepository.findOne({
+            where : {id : idValue}
+        });
+        if(UpdateBoardDTO.title!=undefined){
+            console.log("title")
+            board.title = UpdateBoardDTO.title;
+        }
+        if(UpdateBoardDTO.description!=undefined){
+            console.log("description")
+            board.description = UpdateBoardDTO.description;
+        }
+        if(UpdateBoardDTO.content!=undefined){
+            console.log("content")
+            board.content = UpdateBoardDTO.content;
+        }
         
         //태그 수정
-        const tags_id = await this.tagRepository.find({board_id : Number(id)})
-        await this.tagRepository.delete({board_id : Number(id)});
-        if(UpdateBoardDTO.tag_name.length > 0){
+        if(UpdateBoardDTO.tag_name!=undefined){
+            const tags_id = await this.tagRepository.find({board_id : Number(idValue)})
+            
+            await this.tagRepository.delete({board_id : Number(idValue)});
+            
             const tag = this.createTag(id,UpdateBoardDTO.tag_name);
         }
+        await this.boardRepository.save(board);
+        
+        
+        
+        
         
         
     }
@@ -211,18 +227,21 @@ export class BoardService {
      * @return void
      */
     private async createTag(id : number, tags_name) : Promise<void>{
-        const board_id : number = id;
+        const idValue :number = typeof id == typeof {} ?Number(Object.values(id)[0]) : Number(id);
+        
+        const board_id : number = idValue;
         let tag ;
-
-        if(tags_name[0].length > 0 ){
-            const tags : string[] = tags_name;
-            
-            for(const tag_name of tags_name){
-                tag = await this.tagRepository.createTag(board_id, tag_name);
+        console.log(tags_name != undefined)
+        if(tags_name != undefined){
+            if(tags_name.length > 0 ){
+                const tags : string[] = tags_name;
+                
+                for(const tag_name of tags_name){
+                    tag = await this.tagRepository.createTag(board_id, tag_name);
+                }
             }
-            
-            
         }
+        
     }
     
     public async tagCount(writer : number){
@@ -244,11 +263,12 @@ export class BoardService {
 
     async CheckingWriter(id: number, writer : number){
         const board_id : number[]= await this.getBoardByUserId(writer);
-        const idValue: number = typeof id !== typeof "" ? Object.values(id)[0] : id
-        console.log(id,idValue)
-        if(!((board_id.find(e => e == idValue)))){
+        const idValue :number = typeof id == typeof {} ?Number(Object.values(id)[0]) : Number(id);
+        
+        if(!(board_id.indexOf(idValue)>-1)){
             throw new HttpException('권한이 없는 사용자입니다.', HttpStatus.CONFLICT)
         }
+        
         return id;
     }
     
@@ -286,6 +306,16 @@ export class BoardService {
         }
 
 
+    }
+
+
+    async CheckBoardById(id : number){
+        const cehckedboard = await this.boardRepository.findOne(id);
+        console.log(id,cehckedboard);
+        if(!cehckedboard){
+            throw new HttpException('해당 BOARD_ID가 존재하지 않음', HttpStatus.CONFLICT)
+        }
+        return cehckedboard;
     }
 
     
