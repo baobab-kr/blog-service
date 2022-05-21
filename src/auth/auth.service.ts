@@ -1,6 +1,6 @@
 import { BadRequestException, CacheInterceptor, CACHE_MANAGER, Inject, Injectable, UseInterceptors } from '@nestjs/common';
 import { Cache } from 'cache-manager';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { Payload } from './security/payload.interface';
 import { SavedUserDto } from 'src/users/dto/saved-user.dto';
 import { JwtService } from '@nestjs/jwt';
