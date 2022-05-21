@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthService } from 'src/auth/auth.service';
 import { Payload } from 'src/auth/security/payload.interface';
@@ -24,14 +24,29 @@ export class UsersService {
     await this.saveUserUsingQueryRunnner(userid, email, username, password);
   }
 
-  async login(userid: string, password: string): Promise<{accessToken: string} | undefined>  {
-    const savedUserInfo: SavedUserDto = await this.getUserInfo(userid);
+  async login(userid: string, password: string)  {
+    const savedUserInfo: any = await this.getUserInfo(userid);
+    const payload: Payload = {
+      id: savedUserInfo.id,
+      username: savedUserInfo.username
+    }
     await this.validateUser(password, savedUserInfo.password);
-    const jwt = await this.authService.createJwtToken(savedUserInfo);
-    return jwt;
+    const { accessToken, accessOption } = await this.authService.getCookieWithJwtAccessToken(payload);
+    const { refreshToken, refreshOption } = await this.authService.getCookieWithJwtRefreshToken(savedUserInfo);
+    await this.updateRefreshTokenInUser(refreshToken, savedUserInfo);
+
+    const resUserDto: any = savedUserInfo
+    resUserDto.password = undefined
+    resUserDto.currentRefreshToken = undefined
+    return {
+      accessToken,
+      accessOption,
+      refreshToken,
+      refreshOption,
+      user: resUserDto,
+    };
   }
 
-  
   async checkUserIdExists(userid: string) {
     const userIdValue: string = typeof userid !== typeof "" ? Object.values(userid)[0] : userid
     const user = await this.usersRepository.findOne({userid: userIdValue});
@@ -62,7 +77,6 @@ export class UsersService {
     }
   }
   
-  
   private async saveUserUsingQueryRunnner(userid: string,  email: string, username: string, password: string) {
     const queryRunner = this.connection.createQueryRunner();
     
@@ -73,7 +87,7 @@ export class UsersService {
       user.userid = userid
       user.email = email
       user.username = username
-      user.password = await this.authService.encrpytionPassword(password)
+      user.password = await this.authService.encrpytionData(password)
       await this.usersRepository.save(user)
       
       await queryRunner.commitTransaction();
@@ -85,7 +99,8 @@ export class UsersService {
   }
   
   private async createVerifyCode(): Promise<number> {
-    const verifyCode = Math.floor(Math.random() * 1000000);
+    let verifyCode = Math.floor(Math.random() * 1000000);
+    while (verifyCode.toString().length == 6) {verifyCode = verifyCode*10}
     return verifyCode;
   }
   
@@ -120,5 +135,24 @@ export class UsersService {
       throw new HttpException('User Does Not Exist.', HttpStatus.UNAUTHORIZED)
     } 
     return userInfo;
+  }
+
+  async updateRefreshTokenInUser(refreshToken: string, savedUserInfo: SavedUserDto): Promise<void> {
+    const username = savedUserInfo.username
+    await this.usersRepository.update(
+      { username },
+      { currentRefreshToken: refreshToken },
+    );
+  }
+
+  async getUserRefreshTokenMatches( refreshToken: string, user): Promise<{result: boolean}> {
+    const savedUserInfo = user
+    const isRefreshTokenMatch = this.authService.getUserRefreshTokenMatches(refreshToken, savedUserInfo.currentRefreshToken);
+    if (isRefreshTokenMatch) return { result: true };
+    else throw new UnauthorizedException();
+  }
+
+  async removeRefreshToken(id: number) {
+    return this.usersRepository.update(id, {currentRefreshToken: null});
   }
 }

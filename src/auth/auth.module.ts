@@ -10,10 +10,10 @@ import { PassportModule } from '@nestjs/passport';
       max: 1000
     }),
     JwtModule.register({
-      secret: 'SECRET',
-      signOptions: { 
-        expiresIn: '300s'
-       },
+      secret: process.env.JWT_SECRET,
+      signOptions: {
+        expiresIn: Number(process.env.JWT_ACCESS_EXPIRES)*1000
+      }
     }),
     PassportModule,
   ],

@@ -25,4 +25,6 @@ export class SavedUserDto {
     },
   )
   readonly password: string;
+
+  readonly currentRefreshToken: string;
 }

@@ -1,4 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
+import { Board } from "src/Board/repository/entity/board.entity"
+import { Comment } from "src/Board/repository/entity/comment.entity"
+import { Likes } from "src/Board/repository/entity/like.entity"
+import { ReComment } from "src/Board/repository/entity/recomment.entity"
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm"
 
 @Entity()
 export class Users {
@@ -30,8 +34,19 @@ export class Users {
     avatar_image: string
 
     @Column({nullable:true})
-    token: string
+    currentRefreshToken: string
 
-    @Column({nullable:true})
-    expire_time: number
+
+    @OneToMany(()=>Board, board=> board.writer , {nullable:true})
+    boards : Board[]
+    @OneToMany(()=>Comment, comment=> comment.writer , {nullable:true})
+    comments : Comment[]
+    @OneToMany(()=>ReComment, reComment=> reComment.writer , {nullable:true})
+    reComments : ReComment[]
+
+    @OneToMany(()=>Likes, likes=> likes.user_id , {nullable:true})
+    likes : Likes[]
+
+
+
 }
