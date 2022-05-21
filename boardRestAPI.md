@@ -57,7 +57,7 @@
 
   |EndPoint|JSON|Query Param|Path Param|Response|  
   |---|---|---|---|---|
-  |POST /board/Comment|{board_id:0}|||200|  
+  |POST /board/Comment|{"board_id":0}|||200|  
 
 - 댓글 삭제 API
   - access토큰 필요
@@ -79,7 +79,7 @@
 
   |EndPoint|JSON|Query Param|Path Param|Response|  
   |---|---|---|---|---|
-  |POST /board/ReComment|{comment_id:0}|||200|  
+  |POST /board/ReComment|{"comment_id":0}|||200|  
 
 - 답글 삭제 API
   - access토큰 필요
