@@ -41,9 +41,8 @@ export class BoardController {
     ) : Promise<void> {
         const user: any = req.user;
         const writer : number = user.id;
-        user.password = undefined
-        user.currentRefreshToken = undefined
-        const board = await this.boardService.createBoard(createBoardDTO,writer,file);
+
+        await this.boardService.createBoard(createBoardDTO,writer,file);
     }
     
 
@@ -56,9 +55,14 @@ export class BoardController {
     @HttpCode(200)
     async getBoardMain(
         @Body() page: number
-    ) : Promise<Board[]>{
+    ) : Promise<Object>{
         
-        return await this.boardService.getBoardMain(page);
+        const board = await this.boardService.getBoardMain(page);
+        if(board == undefined || !(board.length > 0)){
+            const noBoard = {"message" : "Board값이 없습니다."}
+            return noBoard;
+        }
+        return board;
     }
     /**
      * getBoardPersonal(개인페이지 호출 API)
@@ -71,11 +75,9 @@ export class BoardController {
     async getBoardPersonal(
         @Req() req: Request,
         @Body() page: number
-    ){
+    ) : Promise<Object>{
         const user: any = req.user;
         const writer : number = user.id;
-        user.password = undefined
-        user.currentRefreshToken = undefined
         
         const board = await this.boardService.getBoardPersonal(page,writer);
         const tagCount = await this.boardService.tagCount(writer);
@@ -84,8 +86,10 @@ export class BoardController {
             board,
             tagCount
         }
-        console.log(board);
-        
+        if(board == undefined || !(board.length > 0)){
+            const noBoard = {"message" : "Board값이 없습니다."}
+            return noBoard;
+        }
 
         return boardAndTag;
     }
@@ -98,7 +102,7 @@ export class BoardController {
     @Post("/BoardView")
     @HttpCode(200)
     async getBoardById(
-        @Body() id : number
+        @Body("board_id") id : number
     ) : Promise<Board>{
         await this.boardService.CheckBoardById(id);
         await this.boardService.viewUp(id);
@@ -112,20 +116,20 @@ export class BoardController {
      * @returns void
      */
 
-    @Post("BoardUpdate")
+    @Patch("BoardUpdate")
     @HttpCode(200)
     @UseGuards(JwtAccessTokenGuard)
     async updateBoard(
         @Req() req: Request,
-        @Body() id : number,
+        @Body("board_id") id : number,
         @Body() UpdateBoardDTO : UpdateBoardDTO
     ) : Promise<void>{
         const user: any = req.user;
         const writer : number = user.id;
-        user.password = undefined
-        user.currentRefreshToken = undefined
 
-        const board = await this.boardService.updateBoard(UpdateBoardDTO, id);
+        await this.boardService.CheckBoardById(id);
+        
+        await this.boardService.updateBoard(UpdateBoardDTO, id);
     }
 
     /**
@@ -133,18 +137,17 @@ export class BoardController {
      * @param id 
      * @returns void
      */
-    @Post("BoardDelete")
+    @Patch("BoardDelete")
     @HttpCode(200)
     @UseGuards(JwtAccessTokenGuard)
     async deleteBoard(
         @Req() req: Request,
-        @Body() id : number
+        @Body("board_id") id : number
     ):Promise<void>{
         const user: any = req.user;
         const writer : number = user.id;
-        user.password = undefined;
-        user.currentRefreshToken = undefined;
 
+        await this.boardService.CheckBoardById(id);
         await this.boardService.CheckingWriter(id, writer);
         
         const board = await this.boardService.deleteBoard(id);
@@ -175,7 +178,7 @@ export class BoardController {
     
     /**
      * getCommentById(댓글 호출 API)
-     * @param id 
+     * @param board_id 
      * @returns Comment[]
      */
     @Post("Comment")
@@ -264,23 +267,23 @@ export class BoardController {
     /**
      * LikeBoard (좋아요)
      * @param req 
-     * @param id 
+     * @param board_id 
      */
     @Post("Like")
     @HttpCode(200)
     @UseGuards(JwtAccessTokenGuard)
     async LikeBoard(
         @Req() req : Request,
-        @Body() id : number
+        @Body() board_id : number
     ):Promise<void>{
         const user: any = req.user;
         const writer : number = user.id;
         user.password = undefined;
         user.currentRefreshToken = undefined;
 
-        await this.boardService.CheckingWriter(id, writer);
+        await this.boardService.CheckingWriter(board_id, writer);
 
-        const like = await this.boardService.LikeBoard(id,writer);
+        const like = await this.boardService.LikeBoard(board_id,writer);
 
     }
     

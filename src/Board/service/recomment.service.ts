@@ -46,7 +46,6 @@ export class ReCommentService {
         });
         
         
-        //console.log(comment);
         
         return reComment;
     }

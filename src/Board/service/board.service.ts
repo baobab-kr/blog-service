@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { ConsoleLogger, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { Board } from '../repository/entity/board.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as fs from 'fs';
@@ -48,7 +48,10 @@ export class BoardService {
         
         //tag 생성
         if(!(createBoardDTO.tag_name === undefined)){
-            await this.createTag(board.id, createBoardDTO.tag_name);
+            if(createBoardDTO.tag_name.length > 0){
+                await this.createTag(board.id, createBoardDTO.tag_name);
+            }
+            
         }
         
 
@@ -76,7 +79,6 @@ export class BoardService {
 
         })
         
-        //console.log(await this.boardRepository.getBoardMain(id))
         
         
 
@@ -99,13 +101,12 @@ export class BoardService {
         const board = await this.boardRepository.find({
         
             select : ["id","title","description","content","thumbnail","views","date","board_status","likes_count"],
-            where : [{board_status : 0, writer : writer},{board_status : 1}],
+            where : [{board_status : 0, writer : writer},{board_status : 2}],
             relations : ["tags"],
             skip : skip,
             take : take
 
         })
-        
         return board;
     }
 
@@ -117,7 +118,7 @@ export class BoardService {
      */
     async getBoardById(id : number) : Promise<Board>{
 
-        const idValue: number = typeof id !== typeof "" ? Object.values(id)[0] : id
+        const idValue :number = typeof id == typeof {} ?Number(Object.values(id)[0]) : Number(id);
         
         const status : number = 0;
         const board = await this.boardRepository.findOne(
@@ -173,26 +174,25 @@ export class BoardService {
             where : {id : idValue}
         });
         if(UpdateBoardDTO.title!=undefined){
-            console.log("title")
             board.title = UpdateBoardDTO.title;
-        }
-        if(UpdateBoardDTO.description!=undefined){
-            console.log("description")
+        }if(UpdateBoardDTO.description!=undefined){
             board.description = UpdateBoardDTO.description;
-        }
-        if(UpdateBoardDTO.content!=undefined){
-            console.log("content")
+        }if(UpdateBoardDTO.content!=undefined){
             board.content = UpdateBoardDTO.content;
+        }if(UpdateBoardDTO.board_status != undefined){
+            board.board_status = UpdateBoardDTO.board_status;
         }
-        
+
         //태그 수정
         if(UpdateBoardDTO.tag_name!=undefined){
-            const tags_id = await this.tagRepository.find({board_id : Number(idValue)})
-            
-            await this.tagRepository.delete({board_id : Number(idValue)});
-            
-            const tag = this.createTag(id,UpdateBoardDTO.tag_name);
-        }
+            if(UpdateBoardDTO.tag_name.length > 0){
+                    const tags_id = await this.tagRepository.find({board_id : Number(idValue)})
+                
+                    await this.tagRepository.delete({board_id : Number(idValue)});
+                    
+                    const tag = this.createTag(id,UpdateBoardDTO.tag_name);
+                }
+            }
         await this.boardRepository.save(board);
         
         
@@ -201,6 +201,10 @@ export class BoardService {
         
         
     }
+    /**
+     * deleteBoard(게시물 삭제 함수)
+     * @param id 
+     */
     async deleteBoard(id : number) : Promise<void> {
         const board = await this.boardRepository.deleteBoardById(id);
 
@@ -231,7 +235,6 @@ export class BoardService {
         
         const board_id : number = idValue;
         let tag ;
-        console.log(tags_name != undefined)
         if(tags_name != undefined){
             if(tags_name.length > 0 ){
                 const tags : string[] = tags_name;
@@ -249,6 +252,12 @@ export class BoardService {
         
         return await this.tagRepository.tagCount(board_id);
     }
+
+    /**
+     * getBoardByUserId()
+     * @param writer 
+     * @returns 
+     */
     async getBoardByUserId(writer : number) : Promise<number[]>{
         const board =await this.boardRepository.find({
             select : ["id"],
@@ -261,6 +270,12 @@ export class BoardService {
         return board_id;
     }
 
+    /**
+     * CheckingWriter(게시판에 관한 유저 권한 확인 함수)
+     * @param id 
+     * @param writer 
+     * @returns 
+     */
     async CheckingWriter(id: number, writer : number){
         const board_id : number[]= await this.getBoardByUserId(writer);
         const idValue :number = typeof id == typeof {} ?Number(Object.values(id)[0]) : Number(id);
@@ -272,10 +287,14 @@ export class BoardService {
         return id;
     }
     
-
+    /**
+     * 좋아오 생성 함수
+     * @param board_id 
+     * @param user_id 
+     */
     async LikeBoard(board_id : number, user_id : number){
-        const idValue: number = typeof board_id !== typeof "" ? Object.values(board_id)[0] : board_id
-
+        const idValue :number = typeof board_id == typeof {} ?Number(Object.values(board_id)[0]) : Number(board_id);
+        
         const liked = await this.likesRepository.findOne({
             where : {board_id : idValue, user_id : user_id}
         })
@@ -283,7 +302,6 @@ export class BoardService {
             where : { id : idValue}
         })
         const likes_status = 1;
-        console.log(board);
         if(!(liked)){
             const like = await this.likesRepository.create({
                 likes_status,
@@ -308,14 +326,23 @@ export class BoardService {
 
     }
 
-
-    async CheckBoardById(id : number){
-        const cehckedboard = await this.boardRepository.findOne(id);
-        console.log(id,cehckedboard);
-        if(!cehckedboard){
-            throw new HttpException('해당 BOARD_ID가 존재하지 않음', HttpStatus.CONFLICT)
+    /**
+     * CheckBoardById(아이디 유무 확인 함수)
+     * @param id 
+     * @returns 
+     */
+    async CheckBoardById(id : number) : Promise<void>{
+        if(id == undefined){
+            throw new HttpException('ID 입력을 잘못 하였습니다.', HttpStatus.CONFLICT)
         }
-        return cehckedboard;
+
+
+
+        const cehckedboard = await this.boardRepository.findOne(id);
+        
+        if(!cehckedboard){
+            throw new HttpException('존재하지 않는 게시물 입니다.', HttpStatus.CONFLICT)
+        }
     }
 
     
