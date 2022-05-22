@@ -9,7 +9,7 @@ import { Tag } from '../repository/entity/tag.entity';
 import { TagRepository } from '../repository/tag.repository';
 import { isEmpty, IsNotEmpty } from 'class-validator';
 import { Likes } from '../repository/entity/like.entity';
-import { Repository, Like } from 'typeorm';
+import { Repository, Like, In } from 'typeorm';
 
 @Injectable()
 export class BoardService {
@@ -61,11 +61,11 @@ export class BoardService {
      * @param id 
      * @returns Board[]
      */
-    async getBoardMain(id:number) : Promise<Board[]> {
+    async getBoardMain(page:number) : Promise<Board[]> {
 
         const status = 0 ;
         const limit = 15 ;
-        const skip : number = Number(Object.values(id));
+        const skip : number = typeof page == typeof {} ?Number(Object.values(page)[0]) : Number(page);
         const take : number = skip + limit;
 
         //페이지 호출
@@ -86,28 +86,65 @@ export class BoardService {
     }
     /**
      * getBoardPersonal(개인페이지 호출 함수)
-     * @param skip 
+     * @param page 
      * @param writer 
      * @returns 
      */
-    async getBoardPersonal(page:number, writer : number) : Promise<Board[]> {
-
+     async getBoardPersonal(page:number, writer : number) : Promise<Board[]> {
         const status = [0,1] ;
-        const limit = 15 ;
-        const skip : number = Number(Object.values(page));
+        const limit = 15 ; 
+        const skip : number = typeof page == typeof {} ?Number(Object.values(page)[0]) : Number(page);
+        
+
         const take : number = skip + limit;
         //this.getBoardById(id);
         //const board = await this.boardRepository.getBoardMain(id);
         const board = await this.boardRepository.find({
+            
+            select : ["id","title","description","content","thumbnail","views","date","board_status","likes_count"],
+            where : {board_status : In([0,2]), writer : writer},
+            relations : ["tags"],
+            skip : skip,
+            take : take
+
+        })
+        
+        
+        return board;
+    }
+    /**
+     * getBoardGuest(게스트용 개인페이지 호출 함수)
+     * @param page 
+     * @param writer 
+     * @returns 
+     */
+    async getBoardGuest(page:number, writer : number) : Promise<Board[]> {
+
+        const limit = 15 ;
+        const skip : number = typeof page == typeof {} ?Number(Object.values(page)[0]) : Number(page);
+        const take : number = skip + limit;
+       
+        const board = await this.boardRepository.find({
         
             select : ["id","title","description","content","thumbnail","views","date","board_status","likes_count"],
-            where : [{board_status : 0, writer : writer},{board_status : 2}],
+            where : {board_status : 0, writer : writer},
             relations : ["tags"],
             skip : skip,
             take : take
 
         })
         return board;
+    }
+
+    
+
+    async getBoardPersonalTag(page:number, writer : number, tag : string):Promise<Board[]>{
+        const board = await this.boardRepository.find({
+            select : ["id","title","description","content","thumbnail","views","date","board_status","likes_count"],
+            where : [{board_status : 0, writer : writer},{board_status : 2}],
+
+        })
+        return ;
     }
 
 
@@ -250,7 +287,11 @@ export class BoardService {
     public async tagCount(writer : number){
         const board_id = await this.getBoardByUserId(writer);
         
-        return await this.tagRepository.tagCount(board_id);
+        if(board_id.length > 0){
+            return await this.tagRepository.tagCount(board_id);
+        }
+        return ;
+       
     }
 
     /**
@@ -264,9 +305,12 @@ export class BoardService {
             where : {writer}
         })
         let board_id = [];
-        board.forEach((e)=>{
-            board_id.push(e.id);
-        });
+        if(board.length > 0){
+            board.forEach((e)=>{
+                board_id.push(e.id);
+            });
+        }
+        
         return board_id;
     }
 

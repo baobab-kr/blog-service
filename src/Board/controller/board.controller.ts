@@ -11,14 +11,17 @@ import { CommentService } from '../service/commnet.service';
 import { ReCommentService } from '../service/recomment.service';
 import { JwtAccessTokenGuard } from 'src/auth/security/jwtAccessToken.guard';
 import { Request, Response } from 'express';
-
+import { ExtractJwt } from 'passport-jwt';
+import { options } from 'joi';
+import { JwtService } from '@nestjs/jwt';
 
 @Controller('board')
 export class BoardController {
     constructor(
         private boardService : BoardService,
         private commentService : CommentService,
-        private reCommentService : ReCommentService
+        private reCommentService : ReCommentService,
+        //private jwtService : JwtService
         ){}
     
 
@@ -71,27 +74,67 @@ export class BoardController {
      */
     @Post("/BoardPersonal")
     @HttpCode(200)
-    @UseGuards(JwtAccessTokenGuard)
+    //@UseGuards(JwtAccessTokenGuard)
     async getBoardPersonal(
         @Req() req: Request,
-        @Body() page: number
+        @Body("user_id") user_id : number,
+        @Body("page") page: number
     ) : Promise<Object>{
-        const user: any = req.user;
-        const writer : number = user.id;
         
-        const board = await this.boardService.getBoardPersonal(page,writer);
-        const tagCount = await this.boardService.tagCount(writer);
-        
-        const boardAndTag = {
-            board,
-            tagCount
+        let board ;
+        let tagCount ;
+
+        if(Object.keys(req.cookies).includes("AccessToken") ){
+            
+            const accessTokken = req.cookies.AccessToken;
+            const base64Payload = accessTokken.split('.')[1]; 
+            const payload = JSON.parse(Buffer.from(base64Payload, 'base64').toString());
+            const user_id_inPayload : number = payload.id;
+            if(user_id == undefined){
+                board = await this.boardService.getBoardPersonal(page,user_id_inPayload);
+                tagCount = await this.boardService.tagCount(user_id_inPayload);
+            }else{
+                if(user_id_inPayload == user_id){
+                    board = await this.boardService.getBoardPersonal(page,user_id_inPayload);
+                    tagCount = await this.boardService.tagCount(user_id_inPayload);
+                }
+            }
+            
+
         }
+        else if(user_id != undefined){
+            board = await this.boardService.getBoardGuest(page,user_id);
+            tagCount = await this.boardService.tagCount(user_id);
+        }
+
         if(board == undefined || !(board.length > 0)){
             const noBoard = {"message" : "Board값이 없습니다."}
             return noBoard;
         }
+        const boardAndTag = {
+            board,
+            tagCount
+        }
+        
+         
+        
+        
+        
+        
 
         return boardAndTag;
+    }
+    @Post("/BoardPersonalTag")
+    @HttpCode(200)
+    @UseGuards(JwtAccessTokenGuard)
+    async getBoardPersonalTag(
+        @Req() req : Request,
+        @Body() page : number,
+        @Body() tag : String
+    ):Promise<Object>{
+        await this.boardService
+
+        return ;
     }
 
     /**
