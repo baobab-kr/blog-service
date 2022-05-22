@@ -21,7 +21,7 @@ export class ReCommentRepository extends Repository<ReComment>{
     async deleteReCommentById(id : number){
         const status : number = 1 ;
         const idValue: number = typeof id !== typeof "" ? Object.values(id)[0] : id
-        console.log(idValue)
+        
         const comment = await getConnection()
         .createQueryBuilder()
         .update(ReComment)
