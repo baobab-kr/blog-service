@@ -84,12 +84,13 @@ export class BoardController {
         let board ;
         let tagCount ;
 
+        //로그인 검증
         if(Object.keys(req.cookies).includes("AccessToken") ){
             
-            const accessTokken = req.cookies.AccessToken;
-            const base64Payload = accessTokken.split('.')[1]; 
-            const payload = JSON.parse(Buffer.from(base64Payload, 'base64').toString());
-            const user_id_inPayload : number = payload.id;
+            const user_id_inPayload : number = await this.boardService.userIdInCookie(req.cookies.AccessToken);
+
+
+            //호출 페이지와 로그인 정보 비교
             if(user_id == undefined){
                 board = await this.boardService.getBoardPersonal(page,user_id_inPayload);
                 tagCount = await this.boardService.tagCount(user_id_inPayload);
@@ -101,7 +102,7 @@ export class BoardController {
             }
             
 
-        }
+        }//게스트 페이지
         else if(user_id != undefined){
             board = await this.boardService.getBoardGuest(page,user_id);
             tagCount = await this.boardService.tagCount(user_id);
@@ -115,26 +116,49 @@ export class BoardController {
             board,
             tagCount
         }
-        
-         
-        
-        
-        
-        
-
         return boardAndTag;
     }
     @Post("/BoardPersonalTag")
     @HttpCode(200)
-    @UseGuards(JwtAccessTokenGuard)
     async getBoardPersonalTag(
         @Req() req : Request,
-        @Body() page : number,
-        @Body() tag : String
+        @Body("page") page : number,
+        @Body("user_id") user_id : number,
+        @Body("tag_name") tag_name : string[]
     ):Promise<Object>{
-        await this.boardService
+        let board ;
+        let tagCount ;
 
-        return ;
+        if(Object.keys(req.cookies).includes("AccessToken") ){
+            
+            //로그인 검증
+            const user_id_inPayload : number = await this.boardService.userIdInCookie(req.cookies.AccessToken);
+
+
+            //호출 페이지와 로그인 정보 비교
+            if(user_id == undefined){
+                board = await this.boardService.getBoardPersonalTag(page,user_id_inPayload,tag_name);
+            }else{
+                if(user_id_inPayload == user_id){
+                    board = await this.boardService.getBoardPersonalTag(page,user_id_inPayload,tag_name);
+                }
+            }
+            
+
+        }
+        else if(user_id != undefined){
+            board = await this.boardService.getBoardGuest(page,user_id);
+        }
+
+        if(board == undefined || !(board.length > 0)){
+            const noBoard = {"message" : "Board값이 없습니다."}
+            return noBoard;
+        }
+        const boardAndTag = {
+            board,
+            tagCount
+        }
+        return boardAndTag;
     }
 
     /**
