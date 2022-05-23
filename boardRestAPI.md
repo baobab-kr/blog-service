@@ -29,6 +29,15 @@
   |---|---|---|---|---|
   |POST /board/BoardPersonal|{"page":0,    "user_id" : 1}|||200|  
 
+- 개인페이지 태그 검색 API
+  - user_id가 없이 access토큰만 들어왔을 시 해당 유저의 게시글 page값 부터 board_status가 0인 것(공개 게시글), 2인 것(비 공개 게시글)을 15개 반환
+  - user_id과 access토큰의 user_id가 일치할 시 해당 유저의 게시글 page값 부터 board_status가 0인 것(공개 게시글), 2인 것(비 공개 게시글)을 15개 반환
+  - user_id만 들어왔을 시 해당 유저의 게시글 page값 부터 board_status가 0인 것(공개 게시글)을 15개 반환
+
+  |EndPoint|JSON|Query Param|Path Param|Response|  
+  |---|---|---|---|---|
+  |POST /board/BoardPersonalTag|{    "page":0,    "user_id" : 1,    "tag_name" : ["태그1","태그2"]}|||200|  
+
 - 상세 페이지 호출 API
 
   |EndPoint|JSON|Query Param|Path Param|Response|  
