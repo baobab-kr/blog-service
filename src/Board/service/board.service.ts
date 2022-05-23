@@ -56,6 +56,7 @@ export class BoardService {
         
 
     }
+    
     /**
      * getBoardMain(메인페이지 호출 함수)
      * @param id 
@@ -64,7 +65,7 @@ export class BoardService {
     async getBoardMain(page:number) : Promise<Board[]> {
 
         //status공개 
-        const status : number  = 0 ;
+        const status : number[]  = [0] ;
 
         //페이지네이션
         const limit : number  = 15 ; 
@@ -73,6 +74,8 @@ export class BoardService {
         const take : number = skip + limit;
 
         //페이지 호출
+        const board = await this.boardRepository.getBoardMain(skip,take,status);
+        /*
         const board = await this.boardRepository.find({
         
             select : ["id","title","description","content","writer","thumbnail","views","date","board_status","likes_count"],
@@ -82,7 +85,7 @@ export class BoardService {
             take : take
 
         })
-        
+        */
         
         
 
@@ -105,9 +108,13 @@ export class BoardService {
         const skip : number  = pageVale * limit;
         const take : number = skip + limit;
 
+        const board = await this.boardRepository.getBoardPersonal(skip, take,writer, status)
 
+
+        return board;
         //this.getBoardById(id);
         //const board = await this.boardRepository.getBoardMain(id);
+        /*
         const board = await this.boardRepository.find({
             
             select : ["id","title","description","content","thumbnail","views","date","board_status","likes_count"],
@@ -117,9 +124,9 @@ export class BoardService {
             take : take
 
         })
+        */
         
         
-        return board;
     }
     /**
      * getBoardGuest(게스트용 개인페이지 호출 함수)
@@ -129,7 +136,7 @@ export class BoardService {
      */
     async getBoardGuest(page:number, writer : number) : Promise<Board[]> {
         //status 공개
-        const status : number = 0 ;
+        const status : number[] = [0] ;
 
         //페이지네이션
         const limit : number = 15 ; 
@@ -137,7 +144,8 @@ export class BoardService {
         const skip : number= pageVale * limit;
         const take : number = skip + limit;
         
-
+        const board = await this.boardRepository.getBoardGuest(skip, take,writer, status)
+        /*
         const board = await this.boardRepository.find({
         
             select : ["id","title","description","content","thumbnail","views","date","board_status","likes_count"],
@@ -147,6 +155,7 @@ export class BoardService {
             take : take
 
         })
+        */
         return board;
     }
 
@@ -204,6 +213,9 @@ export class BoardService {
         const idValue :number = typeof id == typeof {} ?Number(Object.values(id)[0]) : Number(id);
         
         const status : number = 0;
+
+        const board = await this.boardRepository.getBoardView(id);
+        /*
         const board = await this.boardRepository.findOne(
             {
                 select : ["id","title","description","content","thumbnail","views","date","board_status","likes_count"],
@@ -212,7 +224,7 @@ export class BoardService {
                 
             }
         );
-        
+        */
 
         if(board === undefined){
             throw new HttpException('게시물 호출 실패', HttpStatus.CONFLICT);

@@ -57,7 +57,7 @@ export class BoardController {
     @Post("/BoardMain")
     @HttpCode(200)
     async getBoardMain(
-        @Body() page: number
+        @Body("page") page: number
     ) : Promise<Object>{
         
         const board = await this.boardService.getBoardMain(page);
@@ -112,11 +112,8 @@ export class BoardController {
             const noBoard = {"message" : "Board값이 없습니다."}
             return noBoard;
         }
-        const boardAndTag = {
-            board,
-            tagCount
-        }
-        return boardAndTag;
+        
+        return board;
     }
     @Post("/BoardPersonalTag")
     @HttpCode(200)
@@ -156,11 +153,8 @@ export class BoardController {
             const noBoard = {"message" : "Board값이 없습니다."}
             return noBoard;
         }
-        const boardAndTag = {
-            board,
-            tagCount
-        }
-        return boardAndTag;
+        
+        return board;
     }
 
     /**
