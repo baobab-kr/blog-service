@@ -57,6 +57,7 @@ export class BoardController {
     @Post("/BoardMain")
     @HttpCode(200)
     async getBoardMain(
+        @Req() req: Request,
         @Body("page") page: number
     ) : Promise<Object>{
         
@@ -98,6 +99,9 @@ export class BoardController {
                 if(user_id_inPayload == user_id){
                     board = await this.boardService.getBoardPersonal(page,user_id_inPayload);
                     tagCount = await this.boardService.tagCount(user_id_inPayload);
+                }else{
+                    board = await this.boardService.getBoardGuest(page,user_id);
+                    tagCount = await this.boardService.tagCount(user_id);
                 }
             }
             
@@ -140,6 +144,8 @@ export class BoardController {
                 //로그인한 user와 작성자가 같을 때
                 if(user_id_inPayload == user_id){
                     board = await this.boardService.getBoardPersonalTag(page,user_id_inPayload,tag_name);
+                }else{
+                    board = await this.boardService.getBoardGuestTag(page,user_id,tag_name);
                 }
             }
             
