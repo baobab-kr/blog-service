@@ -11,7 +11,7 @@ export class Tag extends BaseEntity{
     @Column()
     tag_name : string;
 
-    @ManyToOne(type => Board, board => board.tags, {eager : false})
+    @ManyToOne(type => Board, board => board.tags)
     @JoinColumn([{name : "board_id", referencedColumnName : "id"}])
     board_id : number;
 

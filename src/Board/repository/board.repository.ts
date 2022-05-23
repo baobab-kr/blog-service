@@ -162,5 +162,47 @@ export class BoardRepository extends Repository<Board> {
         return board;
     }
     */
+
+    async getBoardPersonalTag(skip : number , take: number, writer : number, tag_name : string[], board_status : number[]){
+        
+
+        const board = await this.createQueryBuilder("board")
+        
+        .leftJoin("board.tags","tag")
+        .leftJoin("board.likes","likes")
+        .leftJoin("board.writer","users")
+        .select(["board.id","board.title","board.description","board.content","board.thumbnail","board.views","board.date","board.board_status","board.likes_count"])
+        .addSelect(["tag"])
+        .addSelect(["likes"])
+        .addSelect(["users.id","users.userid","users.username","users.email","users.role","users.avatar_image"])
+        .where(`tag.tag_name IN(:tag_name) `,{tag_name})
+        .andWhere(`board.writer = :writer`,{writer})
+        .andWhere(`board.board_status IN(:board_status)`,{board_status}) 
+        .andWhere(`likes.user_id = :writer`,{writer})
+        .skip(skip)
+        .take(take)
+        .getMany()
+        
+        return board ;
+    }
+
+    async getBoardGuestTag(skip : number , take: number, writer : number, tag_name : string[], board_status : number[]){
+        const board = await this.createQueryBuilder("board")
+        
+        .leftJoin("board.tags","tag")
+        .leftJoin("board.likes","likes")
+        .leftJoin("board.writer","users")
+        .select(["board.id","board.title","board.description","board.content","board.thumbnail","board.views","board.date","board.board_status","board.likes_count"])
+        .addSelect(["tag"])
+        .addSelect(["users.id","users.userid","users.username","users.email","users.role","users.avatar_image"])
+        .where(`tag.tag_name IN(:tag_name) `,{tag_name})
+        .andWhere(`board.writer = :writer`,{writer})
+        .andWhere(`board.board_status IN(:board_status)`,{board_status}) 
+        .skip(skip)
+        .take(take)
+        .getMany()
+        
+        return board ;
+    }
 }//end of BoardRepository
 

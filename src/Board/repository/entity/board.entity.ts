@@ -32,7 +32,12 @@ export class Board extends BaseEntity{
     @Column()
     likes_count : number;
 
-    @OneToMany(type => Tag, tag => tag.board_id)
+    @OneToMany(type => Tag, tag => tag.board_id,{
+        eager: true,
+        cascade: true,
+        onDelete: 'CASCADE',
+        onUpdate:'CASCADE'
+      })
     tags : Tag[];
 
     @OneToMany(type => Likes, likes => likes.board_id)

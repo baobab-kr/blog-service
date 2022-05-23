@@ -165,15 +165,9 @@ export class BoardService {
         const pageVale : number = typeof page == typeof {} ?Number(Object.values(page)[0]) : Number(page);
         const skip : number= pageVale * limit;
         const take : number = skip + limit;
-        
-        const board = await this.boardRepository.find({
-            select : ["id","title","description","content","thumbnail","views","date","board_status","likes_count"],
-            where : {board_status : In(status), writer : writer , tag_name : In(tag_name)},
-            relations : ["tags"],
-            skip : skip,
-            take : take
 
-        })
+        const board = await this.boardRepository.getBoardPersonalTag(skip, take, writer, tag_name, status);
+
         return board;
     }
 
@@ -185,7 +179,7 @@ export class BoardService {
      * @returns 
      */
      async getBoardGuestTag(page:number, writer : number, tag_name : string[]):Promise<Board[]>{
-        const status : number  = 0 ;
+        const status : number[]  = [0] ;
         
         //페이지네이션
         const limit : number = 15 ; 
@@ -193,14 +187,8 @@ export class BoardService {
         const skip : number= pageVale * limit;
         const take : number = skip + limit;
         
-        const board = await this.boardRepository.find({
-            select : ["id","title","description","content","thumbnail","views","date","board_status","likes_count"],
-            where : {board_status : status , writer : writer , tag_name : In(tag_name)},
-            relations : ["tags"],
-            skip : skip,
-            take : take
+        const board = await this.boardRepository.getBoardPersonalTag(skip, take, writer, tag_name, status);
 
-        })
 
         return board;
     }

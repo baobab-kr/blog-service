@@ -129,16 +129,18 @@ export class BoardController {
         let board ;
         let tagCount ;
 
+        //로그인 검증
         if(Object.keys(req.cookies).includes("AccessToken") ){
             
-            //로그인 검증
+            //payload의 user_id 값 반환
             const user_id_inPayload : number = await this.boardService.userIdInCookie(req.cookies.AccessToken);
 
-
-            //호출 페이지와 로그인 정보 비교
+            //로그인만 했을 경우
             if(user_id == undefined){
                 board = await this.boardService.getBoardPersonalTag(page,user_id_inPayload,tag_name);
-            }else{
+            }
+            else{
+                //로그인한 user와 작성자가 같을 때
                 if(user_id_inPayload == user_id){
                     board = await this.boardService.getBoardPersonalTag(page,user_id_inPayload,tag_name);
                 }
@@ -147,7 +149,7 @@ export class BoardController {
 
         }
         else if(user_id != undefined){
-            board = await this.boardService.getBoardGuest(page,user_id);
+            board = await this.boardService.getBoardGuestTag(page,user_id,tag_name);
         }
 
         if(board == undefined || !(board.length > 0)){
@@ -341,7 +343,7 @@ export class BoardController {
     @UseGuards(JwtAccessTokenGuard)
     async LikeBoard(
         @Req() req : Request,
-        @Body() board_id : number
+        @Body("board_id") board_id : number
     ):Promise<void>{
         const user: any = req.user;
         const writer : number = user.id;
