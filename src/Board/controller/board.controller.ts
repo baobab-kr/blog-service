@@ -61,7 +61,15 @@ export class BoardController {
         @Body("page") page: number
     ) : Promise<Object>{
         
-        const board = await this.boardService.getBoardMain(page);
+        let board ;
+
+        if(Object.keys(req.cookies).includes("AccessToken") ){
+            const user_id_inPayload : number = await this.boardService.userIdInCookie(req.cookies.AccessToken);
+            board = await this.boardService.getBoardMain(page,user_id_inPayload);
+        }else{
+            board = await this.boardService.getBoardMain(page);
+        }
+        
         if(board == undefined || !(board.length > 0)){
             const noBoard = {"message" : "Board값이 없습니다."}
             return noBoard;
@@ -100,7 +108,7 @@ export class BoardController {
                     board = await this.boardService.getBoardPersonal(page,user_id_inPayload);
                     tagCount = await this.boardService.tagCount(user_id_inPayload);
                 }else{
-                    board = await this.boardService.getBoardGuest(page,user_id);
+                    board = await this.boardService.getBoardGuest(page,user_id,user_id_inPayload);
                     tagCount = await this.boardService.tagCount(user_id);
                 }
             }
@@ -187,11 +195,25 @@ export class BoardController {
     @Post("/BoardView")
     @HttpCode(200)
     async getBoardById(
+        @Req() req : Request,
         @Body("board_id") id : number
     ) : Promise<Board>{
+
+        let board ;
+        
+        
         await this.boardService.CheckBoardById(id);
         await this.boardService.viewUp(id);
-        return await this.boardService.getBoardById(id);
+
+        
+        if(Object.keys(req.cookies).includes("AccessToken") ){
+            const user_id_inPayload : number = await this.boardService.userIdInCookie(req.cookies.AccessToken);
+            board = await this.boardService.getBoardById(id,user_id_inPayload);
+        }else{
+            board = await this.boardService.getBoardById(id);
+        }
+        
+        return board;
     }
     
     /**

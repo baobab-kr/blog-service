@@ -48,15 +48,16 @@ export class BoardRepository extends Repository<Board> {
      * @param board_status 
      * @returns 
      */
-     async getBoardMain(skip : number , take: number, board_status : number[]){
+     async getBoardMain(skip : number , take: number, board_status : number[],login_id : number){
         const board = await this.createQueryBuilder("board")
         
         .leftJoin("board.tags","tag")
-        .leftJoin("board.likes","likes")
         .leftJoin("board.writer","users")
+        .leftJoin("board.likes","likes",`likes.user_id =  ${login_id}`)
         .select(["board.id","board.title","board.description","board.content","board.thumbnail","board.views","board.date","board.board_status","board.likes_count"])
         .addSelect(["tag"])
         .addSelect(["users.id","users.userid","users.username","users.email","users.role","users.avatar_image"])
+        .addSelect(["likes"])
         .andWhere(`board.board_status IN(:board_status)`,{board_status}) 
         .skip(skip)
         .take(take)
@@ -69,15 +70,16 @@ export class BoardRepository extends Repository<Board> {
      * @param id 
      * @returns 
      */
-     async getBoardView(id : number){
+     async getBoardView(id : number,login_id : number){
         const board = await this.createQueryBuilder("board")
         
         .leftJoin("board.tags","tag")
-        .leftJoin("board.likes","likes")
         .leftJoin("board.writer","users")
+        .leftJoin("board.likes","likes",`likes.user_id =  ${login_id}`)
         .select(["board.id","board.title","board.description","board.content","board.thumbnail","board.views","board.date","board.board_status","board.likes_count"])
         .addSelect(["tag"])
         .addSelect(["users.id","users.userid","users.username","users.email","users.role","users.avatar_image"])
+        .addSelect(["likes"])
         .andWhere(`board.id = :id`,{id}) 
         .getOne()
         
@@ -158,15 +160,14 @@ export class BoardRepository extends Repository<Board> {
         const board = await this.createQueryBuilder("board")
         
         .leftJoin("board.tags","tag")
-        //.leftJoin("board.likes","likes")
         .leftJoin("board.writer","users")
+        .leftJoin("board.likes","likes",`likes.user_id =  ${writer}`)
         .select(["board.id","board.title","board.description","board.content","board.thumbnail","board.views","board.date","board.board_status","board.likes_count"])
         .addSelect(["tag"])
-        //.addSelect(["likes"])
+        .addSelect(["likes"])
         .addSelect(["users.id","users.userid","users.username","users.email","users.role","users.avatar_image"])
         .where(`board.writer = :writer`,{writer})
         .andWhere(`board.board_status IN(:board_status)`,{board_status}) 
-        //.andWhere(`likes.user_id = :writer`,{writer})
         .skip(skip)
         .take(take)
         .getMany()
@@ -182,14 +183,17 @@ export class BoardRepository extends Repository<Board> {
      * @param board_status 
      * @returns 
      */
-    async getBoardGuest(skip : number , take: number, writer : number, board_status : number[]){
+    async getBoardGuest(skip : number , take: number, writer : number, board_status : number[], login_id : number){
+        
+
         const board = await this.createQueryBuilder("board")
         
         .leftJoin("board.tags","tag")
-        .leftJoin("board.likes","likes")
         .leftJoin("board.writer","users")
+        .leftJoin("board.likes","likes",`likes.user_id =  ${login_id}`)
         .select(["board.id","board.title","board.description","board.content","board.thumbnail","board.views","board.date","board.board_status","board.likes_count"])
         .addSelect(["tag"])
+        .addSelect(["likes"])
         .addSelect(["users.id","users.userid","users.username","users.email","users.role","users.avatar_image"])
         .where(`board.writer = :writer`,{writer})
         .andWhere(`board.board_status IN(:board_status)`,{board_status}) 
@@ -215,12 +219,13 @@ export class BoardRepository extends Repository<Board> {
         const board = await this.createQueryBuilder("board")
         
         .leftJoin("board.tags","tag")
-        //.leftJoin("board.likes","likes")
         .leftJoin("board.writer","users")
+        .leftJoin("board.likes","likes",`likes.user_id =  ${writer}`)
         .select(["board.id","board.title","board.description","board.content","board.thumbnail","board.views","board.date","board.board_status","board.likes_count"])
         .addSelect(["tag"])
-        //.addSelect(["likes"])
+        
         .addSelect(["users.id","users.userid","users.username","users.email","users.role","users.avatar_image"])
+        .addSelect(["likes"])
         .where(`tag.tag_name IN(:tag_name) `,{tag_name})
         .andWhere(`board.writer = :writer`,{writer})
         .andWhere(`board.board_status IN(:board_status)`,{board_status}) 
@@ -241,15 +246,16 @@ export class BoardRepository extends Repository<Board> {
      * @param board_status 
      * @returns 
      */
-    async getBoardGuestTag(skip : number , take: number, writer : number, tag_name : string[], board_status : number[]){
+    async getBoardGuestTag(skip : number , take: number, writer : number, tag_name : string[], board_status : number[], login_id : number){
         const board = await this.createQueryBuilder("board")
         
         .leftJoin("board.tags","tag")
-        .leftJoin("board.likes","likes")
         .leftJoin("board.writer","users")
+        .leftJoin("board.likes","likes",`likes.user_id =  ${login_id}`)
         .select(["board.id","board.title","board.description","board.content","board.thumbnail","board.views","board.date","board.board_status","board.likes_count"])
         .addSelect(["tag"])
         .addSelect(["users.id","users.userid","users.username","users.email","users.role","users.avatar_image"])
+        .addSelect(["likes"])
         .where(`tag.tag_name IN(:tag_name) `,{tag_name})
         .andWhere(`board.writer = :writer`,{writer})
         .andWhere(`board.board_status IN(:board_status)`,{board_status}) 
