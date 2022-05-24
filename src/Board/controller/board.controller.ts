@@ -116,9 +116,23 @@ export class BoardController {
             const noBoard = {"message" : "Board값이 없습니다."}
             return noBoard;
         }
+
+        const boardAndTag = {
+            board,
+            tagCount
+        }
         
-        return board;
+        return boardAndTag;
     }
+
+    /**
+     * getBoardPersonalTag(개인페이지 태그 검색API)
+     * @param req 
+     * @param page 
+     * @param user_id 
+     * @param tag_name 
+     * @returns 
+     */
     @Post("/BoardPersonalTag")
     @HttpCode(200)
     async getBoardPersonalTag(
@@ -159,6 +173,8 @@ export class BoardController {
             const noBoard = {"message" : "Board값이 없습니다."}
             return noBoard;
         }
+        
+
         
         return board;
     }
