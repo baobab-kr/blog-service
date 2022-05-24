@@ -38,7 +38,7 @@ export class EmailService {
   async sendMemberJoinVerification(emailAddress: string, username: string, verifyCode: number) {
     await this.cacheManager.set(username, verifyCode);
     const emailOptions: EmailOptions = {
-      from: 'system@baobab.blog',
+      from: process.env.EMAIL_AUTH_USER,
       to: emailAddress,
       subject: '바오밥 서비스 플랫폼 - 회원가입 인증 메일',
       html: `
