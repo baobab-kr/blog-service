@@ -397,10 +397,7 @@ export class BoardController {
     ):Promise<void>{
         const user: any = req.user;
         const writer : number = user.id;
-
-
-        await this.boardService.CheckingWriter(board_id, writer);
-
+        
         await this.boardService.LikeBoard(board_id,writer);
 
     }
