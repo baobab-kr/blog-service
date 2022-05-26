@@ -294,7 +294,7 @@ export class BoardController {
         user.password = undefined
         user.currentRefreshToken = undefined
 
-        const comment = await this.commentService.createComment(createCommentDTO,writer);
+        await this.commentService.createComment(createCommentDTO,writer);
     }
     
     /**
@@ -328,7 +328,7 @@ export class BoardController {
         user.currentRefreshToken = undefined;
 
 
-        const comment = await this.commentService.deleteCommentById(comment_id,writer);
+        await this.commentService.deleteCommentById(comment_id,writer);
     }
 
     /**
@@ -348,7 +348,7 @@ export class BoardController {
         user.password = undefined
         user.currentRefreshToken = undefined
 
-        const reComment = this.reCommentService.createReComment(createReCommentDTO,writer);
+        await this.reCommentService.createReComment(createReCommentDTO,writer);
         
     }
     /**
@@ -378,10 +378,8 @@ export class BoardController {
     ):Promise<void>{
         const user: any = req.user;
         const writer : number = user.id;
-        user.password = undefined;
-        user.currentRefreshToken = undefined;
 
-        const recomment = await this.reCommentService.deleteReCommentById(reComment_id);
+        await this.reCommentService.deleteReCommentById(reComment_id);
 
     }
     
@@ -399,12 +397,11 @@ export class BoardController {
     ):Promise<void>{
         const user: any = req.user;
         const writer : number = user.id;
-        user.password = undefined;
-        user.currentRefreshToken = undefined;
+
 
         await this.boardService.CheckingWriter(board_id, writer);
 
-        const like = await this.boardService.LikeBoard(board_id,writer);
+        await this.boardService.LikeBoard(board_id,writer);
 
     }
     

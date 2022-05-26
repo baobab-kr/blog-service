@@ -23,8 +23,8 @@ export class CommentService {
      * @param createCommentDTO 
      * @returns CommentData
      */
-    async createComment(createCommentDTO: CreateCommentDTO, writer : number) : Promise<Comment>{
-        return await this.CommentRepository.createComment(createCommentDTO,writer);
+    async createComment(createCommentDTO: CreateCommentDTO, writer : number){
+        await this.CommentRepository.createComment(createCommentDTO,writer);
     }
 
     /**
@@ -32,22 +32,22 @@ export class CommentService {
      * @param id 
      * @returns id, writer, content, date
      */
-    async getCommentByBoardId(id : number) : Promise<Comment[]>{
+    async getCommentByBoardId(board_id : number) : Promise<Comment[]>{
+        console.log(board_id)
+        const status : number[] = [0] ; // 활성화 상태
         
-        const status : number = 0 ; // 활성화 상태
-        const board_id : number  =  Number(Object.values(id))
-        
+        const comment = await this.CommentRepository.getCommentById(board_id,status);
+
+        /*
         const comment =  await this.CommentRepository.find({
             select : ["id", "writer", "content", "date"],
             relations : ["reComments"],
-            where : {
-                board_id : board_id,
-                comment_status : status
-            },
+            where : {board_id : Number(Object.values(board_id)), comment_status : 0},
             
             
-        });
-        
+        });*/
+
+        console.log(comment);
         
         
         return comment;
