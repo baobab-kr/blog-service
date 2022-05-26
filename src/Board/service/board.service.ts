@@ -10,6 +10,7 @@ import { TagRepository } from '../repository/tag.repository';
 import { isEmpty, IsNotEmpty } from 'class-validator';
 import { Likes } from '../repository/entity/like.entity';
 import { Repository, Like, In } from 'typeorm';
+import { Users } from 'src/users/entity/user.entity';
 
 @Injectable()
 export class BoardService {
@@ -19,7 +20,9 @@ export class BoardService {
         @InjectRepository(TagRepository)
         private tagRepository : TagRepository,
         @InjectRepository(Likes) 
-        private likesRepository:Repository<Likes>,
+        private likesRepository : Repository<Likes>,
+        @InjectRepository(Users)
+        private usersRepository : Repository<Users>
 
     ){}
     
@@ -460,6 +463,24 @@ export class BoardService {
         return user_id_inPayload ;
     }
 
+    async getUserById(id : number) : Promise<Users>{
+        
+
+        const user = await this.usersRepository.findOne({
+            select : ["id","userid","username","email","role","avatar_image","description"],
+            where : {
+                id : id
+            }
+        })
+
+        if(!user ){
+            throw new HttpException('해당 유저가 존재하지 않습니다.', HttpStatus.CONFLICT)
+        }
+ 
+
+        return user;
+
+    }
     
     
 }

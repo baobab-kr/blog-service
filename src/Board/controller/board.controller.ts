@@ -92,6 +92,7 @@ export class BoardController {
         
         let board ;
         let tagCount ;
+        let writer;
 
         //로그인 검증
         if(Object.keys(req.cookies).includes("AccessToken") ){
@@ -101,33 +102,47 @@ export class BoardController {
 
             //호출 페이지와 로그인 정보 비교
             if(user_id == undefined){
+                //개인 자신 페이지 호출
                 board = await this.boardService.getBoardPersonal(page,user_id_inPayload);
                 tagCount = await this.boardService.tagCount(user_id_inPayload);
+                writer = await this.boardService.getUserById(user_id_inPayload);
             }else{
                 if(user_id_inPayload == user_id){
+                    //개인 로그인 한 user가 호출 user_id 같아 자신의 페이지를 호출
                     board = await this.boardService.getBoardPersonal(page,user_id_inPayload);
                     tagCount = await this.boardService.tagCount(user_id_inPayload);
+                    writer = await this.boardService.getUserById(user_id_inPayload);
                 }else{
+                    //게스트 로그인한 user와 호출 user가 다름
                     board = await this.boardService.getBoardGuest(page,user_id,user_id_inPayload);
                     tagCount = await this.boardService.tagCount(user_id);
+                    writer = await this.boardService.getUserById(user_id)
                 }
             }
             
 
-        }//게스트 페이지
+        }
         else if(user_id != undefined){
+            //게스트 user_id 입력됐고 로그인 안된 상태
+            
             board = await this.boardService.getBoardGuest(page,user_id);
             tagCount = await this.boardService.tagCount(user_id);
+            writer = await this.boardService.getUserById(user_id)
         }
 
         if(board == undefined || !(board.length > 0)){
-            const noBoard = {"message" : "Board값이 없습니다."}
+            const noBoard = {
+                "message" : "Board값이 없습니다.",
+                "writer" : writer
+            }
+
             return noBoard;
         }
-
+        
         const boardAndTag = {
             board,
-            tagCount
+            tagCount,
+            writer
         }
         
         return boardAndTag;
@@ -150,7 +165,6 @@ export class BoardController {
         @Body("tag_name") tag_name : string[]
     ):Promise<Object>{
         let board ;
-        let tagCount ;
 
         //로그인 검증
         if(Object.keys(req.cookies).includes("AccessToken") ){
