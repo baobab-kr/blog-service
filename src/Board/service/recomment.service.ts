@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BoardRepository } from '../repository/board.repository';
 import { CreateReCommentDTO } from '../repository/dto/create-board.dto';
@@ -57,5 +57,18 @@ export class ReCommentService {
         await this.ReCommentRepository.deleteReCommentById(id);
         
     }
-    
+    async getReCommentByUserId(id : number , writer : number){
+        const idValue :number = typeof id == typeof {} ?Number(Object.values(id)[0]) : Number(id);
+        
+        
+        const recomment = await this.ReCommentRepository.findOne({
+            where : {writer : writer, id : idValue}
+        })
+
+
+        if(!recomment){
+            throw new HttpException('권한이 없는 사용자입니다.', HttpStatus.CONFLICT)
+        
+        }
+    }
 }

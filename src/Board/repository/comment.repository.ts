@@ -35,17 +35,17 @@ export class CommentRepository extends Repository<Comment>{
         return comment;
     }
     
-    async deleteCommentById(id : number, writer:number){
+    async deleteCommentById(id : number){
         const status : number = 1 ;
-        const idValue : number = Number(Object.values(id));
-
+        const idValue :number = typeof id == typeof {} ?Number(Object.values(id)[0]) : Number(id);
+        
         const comment = await getConnection()
         .createQueryBuilder()
         .update(Comment)
         .set({
             comment_status : status
         })
-        .where({id : `${idValue}`,writer})
+        .where({id : `${idValue}`})
         .execute()
 
         return comment;

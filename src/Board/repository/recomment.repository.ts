@@ -32,7 +32,8 @@ export class ReCommentRepository extends Repository<ReComment>{
 
     async deleteReCommentById(id : number) :Promise<void> {
         const status : number = 1 ;
-        const idValue: number = typeof id !== typeof "" ? Object.values(id)[0] : id
+        
+        const idValue :number = typeof id == typeof {} ?Number(Object.values(id)[0]) : Number(id);
         
         const comment = await getConnection()
         .createQueryBuilder()

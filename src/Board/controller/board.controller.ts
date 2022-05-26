@@ -271,7 +271,7 @@ export class BoardController {
         await this.boardService.CheckBoardById(id);
         await this.boardService.CheckingWriter(id, writer);
         
-        const board = await this.boardService.deleteBoard(id);
+        await this.boardService.deleteBoard(id);
         
         
     }
@@ -305,7 +305,7 @@ export class BoardController {
     @Post("Comment")
     @HttpCode(200)
     async getCommentById(
-        @Body() board_id : number
+        @Body("board_id") board_id : number
     ): Promise<Comment[]>{
         return await this.commentService.getCommentByBoardId(board_id);
     }
@@ -320,15 +320,14 @@ export class BoardController {
     @UseGuards(JwtAccessTokenGuard)
     async deleteCommentById(
         @Req() req : Request,
-        @Body() comment_id : number
+        @Body("comment_id") comment_id : number
     ) : Promise<void> {
         const user: any = req.user;
         const writer : number = user.id;
-        user.password = undefined;
-        user.currentRefreshToken = undefined;
 
 
-        await this.commentService.deleteCommentById(comment_id,writer);
+        await this.commentService.getCommentByUserId(comment_id, writer);
+        await this.commentService.deleteCommentById(comment_id);
     }
 
     /**
@@ -345,8 +344,8 @@ export class BoardController {
     ) : Promise<void> {
         const user: any = req.user;
         const writer : number = user.id;
-        user.password = undefined
-        user.currentRefreshToken = undefined
+
+
 
         await this.reCommentService.createReComment(createReCommentDTO,writer);
         
@@ -359,7 +358,7 @@ export class BoardController {
     @Post("ReComment")
     @HttpCode(200)
     async getReCommentById(
-        @Body() comment_id : number
+        @Body("comment_id") comment_id : number
     ): Promise<ReComment[]>{
         return this.reCommentService.getReCommentByCommentId(comment_id);
     }
@@ -374,11 +373,12 @@ export class BoardController {
     @UseGuards(JwtAccessTokenGuard)
     async deleteReCommentById(
         @Req() req : Request,
-        @Body() reComment_id : number
+        @Body("reComment_id") reComment_id : number
     ):Promise<void>{
         const user: any = req.user;
         const writer : number = user.id;
 
+        await this.reCommentService.getReCommentByUserId(reComment_id, writer);
         await this.reCommentService.deleteReCommentById(reComment_id);
 
     }

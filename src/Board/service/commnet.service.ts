@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BoardRepository } from '../repository/board.repository';
 import { CreateCommentDTO } from '../repository/dto/create-board.dto';
@@ -33,7 +33,7 @@ export class CommentService {
      * @returns id, writer, content, date
      */
     async getCommentByBoardId(board_id : number) : Promise<Comment[]>{
-        console.log(board_id)
+
         const status : number[] = [0] ; // 활성화 상태
         
         const comment = await this.CommentRepository.getCommentById(board_id,status);
@@ -47,15 +47,27 @@ export class CommentService {
             
         });*/
 
-        console.log(comment);
         
         
         return comment;
     }
 
-    async deleteCommentById(id : number, writer : number) {
-        return await this.CommentRepository.deleteCommentById(id,writer);
+    async deleteCommentById(id : number) {
+        await this.CommentRepository.deleteCommentById(id);
         
+    }
+    async getCommentByUserId(id : number , writer : number){
+        const idValue :number = typeof id == typeof {} ?Number(Object.values(id)[0]) : Number(id);
+        
+        
+        const comment = await this.CommentRepository.findOne({
+            where : {writer : writer, id : idValue}
+        })
+
+        if(!comment){
+            throw new HttpException('권한이 없는 사용자입니다.', HttpStatus.CONFLICT)
+        
+        }
     }
 
 
