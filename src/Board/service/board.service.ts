@@ -62,7 +62,7 @@ export class BoardService {
      * @param id 
      * @returns Board[]
      */
-    async getBoardMain(page:number) : Promise<Board[]> {
+    async getBoardMain(page:number, login_id? : number) : Promise<Board[]> {
 
         //status공개 
         const status : number[]  = [0] ;
@@ -74,7 +74,7 @@ export class BoardService {
         const take : number = skip + limit;
 
         //페이지 호출
-        const board = await this.boardRepository.getBoardMain(skip,take,status);
+        const board = await this.boardRepository.getBoardMain(skip,take,status,login_id == undefined? -1 : login_id);
         /*
         const board = await this.boardRepository.find({
         
@@ -134,7 +134,7 @@ export class BoardService {
      * @param writer 
      * @returns 
      */
-    async getBoardGuest(page:number, writer : number) : Promise<Board[]> {
+    async getBoardGuest(page:number, writer : number, login_id? : number) : Promise<Board[]> {
         //status 공개
         const status : number[] = [0] ;
 
@@ -144,7 +144,7 @@ export class BoardService {
         const skip : number= pageVale * limit;
         const take : number = skip + limit;
         
-        const board = await this.boardRepository.getBoardGuest(skip, take,writer, status)
+        const board = await this.boardRepository.getBoardGuest(skip, take,writer, status,login_id == undefined? -1 : login_id)
         /*
         const board = await this.boardRepository.find({
         
@@ -187,7 +187,7 @@ export class BoardService {
      * @param tag_name
      * @returns 
      */
-     async getBoardGuestTag(page:number, writer : number, tag_name : string[]):Promise<Board[]>{
+     async getBoardGuestTag(page:number, writer : number, tag_name : string[], login_id? : number):Promise<Board[]>{
         const status : number[]  = [0] ;
         
         //페이지네이션
@@ -196,7 +196,7 @@ export class BoardService {
         const skip : number= pageVale * limit;
         const take : number = skip + limit;
         
-        const board = await this.boardRepository.getBoardPersonalTag(skip, take, writer, tag_name, status);
+        const board = await this.boardRepository.getBoardGuestTag(skip, take, writer, tag_name, status,login_id == undefined? -1 : login_id);
 
 
         return board;
@@ -208,13 +208,13 @@ export class BoardService {
      * @param id 
      * @returns 
      */
-    async getBoardById(id : number) : Promise<Board>{
+    async getBoardById(id : number , login_id? : number) : Promise<Board>{
 
         const idValue :number = typeof id == typeof {} ?Number(Object.values(id)[0]) : Number(id);
         
         const status : number = 0;
 
-        const board = await this.boardRepository.getBoardView(id);
+        const board = await this.boardRepository.getBoardView(id,login_id == undefined? -1 : login_id);
         /*
         const board = await this.boardRepository.findOne(
             {
