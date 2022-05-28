@@ -430,11 +430,11 @@ export class BoardService {
             await this.likesRepository.save(liked);
             await this.boardRepository.save(board);
         }
-
         return await this.likesRepository.findOne({
             select : ["likes_status"],
             where : {board_id : idValue, user_id : user_id}
         })
+       
     }
 
     /**
