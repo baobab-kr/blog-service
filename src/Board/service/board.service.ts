@@ -304,11 +304,8 @@ export class BoardService {
      * @param id 
      */
     async deleteBoard(id : number) : Promise<void> {
-        const idValue :number = typeof id == typeof {} ?Number(Object.values(id)[0]) : Number(id);
-
         const board = await this.boardRepository.deleteBoardById(id);
-        await this.tagRepository.delete({board_id : Number(idValue)});
-                    
+
     }
 
     //내부 사용 함수
@@ -430,11 +427,8 @@ export class BoardService {
             await this.likesRepository.save(liked);
             await this.boardRepository.save(board);
         }
-        return await this.likesRepository.findOne({
-            select : ["id", "likes_status"],
-            where : {board_id : idValue, user_id : user_id}
-        })
-       
+
+
     }
 
     /**

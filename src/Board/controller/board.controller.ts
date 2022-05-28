@@ -148,6 +148,88 @@ export class BoardController {
         return boardAndTag;
     }
 
+    @Post("/BoardPersonalTagCount")
+    @HttpCode(200)
+    async getTagCount(
+        @Req() req : Request,
+        @Body("user_id") user_id : number
+    ){
+
+        let tagCount ;
+        if(Object.keys(req.cookies).includes("AccessToken") ){
+            
+            const user_id_inPayload : number = await this.boardService.userIdInCookie(req.cookies.AccessToken);
+
+
+            //호출 페이지와 로그인 정보 비교
+            if(user_id == undefined){
+                //개인 자신 페이지 호출
+                tagCount = await this.boardService.tagCount(user_id_inPayload);
+                
+            }else{
+                if(user_id_inPayload == user_id){
+                    //개인 로그인 한 user가 호출 user_id 같아 자신의 페이지를 호출
+                    tagCount = await this.boardService.tagCount(user_id_inPayload);
+                    
+                }else{
+                    //게스트 로그인한 user와 호출 user가 다름
+                    tagCount = await this.boardService.tagCount(user_id);
+                }
+            }
+            
+
+        }
+        else if(user_id != undefined){
+            //게스트 user_id 입력됐고 로그인 안된 상태
+            tagCount = await this.boardService.tagCount(user_id);
+        }
+
+        return tagCount 
+
+    }
+    @Post("/BoardPersonalWriter")
+    @HttpCode(200)
+    async getWriter(
+        @Req() req : Request,
+        @Body("user_id") user_id : number
+    ){
+
+        
+        let writer;
+
+        //로그인 검증
+        if(Object.keys(req.cookies).includes("AccessToken") ){
+            
+            const user_id_inPayload : number = await this.boardService.userIdInCookie(req.cookies.AccessToken);
+
+
+            //호출 페이지와 로그인 정보 비교
+            if(user_id == undefined){
+                //개인 자신 페이지 호출
+                writer = await this.boardService.getUserById(user_id_inPayload);
+            }else{
+                if(user_id_inPayload == user_id){
+                    //개인 로그인 한 user가 호출 user_id 같아 자신의 페이지를 호출
+                    writer = await this.boardService.getUserById(user_id_inPayload);
+                }else{
+                    //게스트 로그인한 user와 호출 user가 다름
+                    writer = await this.boardService.getUserById(user_id)
+                }
+            }
+            
+
+        }
+        else if(user_id != undefined){
+            //게스트 user_id 입력됐고 로그인 안된 상태
+            
+            writer = await this.boardService.getUserById(user_id)
+        }
+
+        
+        
+        
+        return writer;
+    }
     /**
      * getBoardPersonalTag(개인페이지 태그 검색API)
      * @param req 
