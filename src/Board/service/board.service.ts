@@ -304,6 +304,10 @@ export class BoardService {
      * @param id 
      */
     async deleteBoard(id : number) : Promise<void> {
+        const idValue :number = typeof id == typeof {} ?Number(Object.values(id)[0]) : Number(id);
+        
+        await this.tagRepository.delete({board_id : Number(idValue)});
+                
         const board = await this.boardRepository.deleteBoardById(id);
 
     }
