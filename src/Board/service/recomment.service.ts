@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BoardRepository } from '../repository/board.repository';
 import { CreateReCommentDTO } from '../repository/dto/create-board.dto';
@@ -24,19 +24,21 @@ export class ReCommentService {
      * @param createReCommentDTO 
      * @returns 
      */
-    async createReComment(createReCommentDTO: CreateReCommentDTO , writer : number ) : Promise<ReComment>{
-        return await this.ReCommentRepository.createReComment(createReCommentDTO,writer);
+    async createReComment(createReCommentDTO: CreateReCommentDTO , writer : number ) : Promise<void>{
+        await this.ReCommentRepository.createReComment(createReCommentDTO,writer);
     }
     /**
      * getReCommentByCommentId(답글 호출 함수)
      * @param id 
      * @returns 
      */
-    async getReCommentByCommentId(id : number) : Promise<ReComment[]>{
+    async getReCommentByCommentId(comment_id : number) : Promise<ReComment[]>{
         
-        const status : number = 0 ; // 활성화 상태
-        const commnet_id : number  =  Number(Object.values(id))
+        const status : number[] = [0] ; // 활성화 상태
+        const reComment = await this.ReCommentRepository.getReCommentById(comment_id,status)
 
+
+        /*
         const reComment =  await this.ReCommentRepository.find({
             select : ["id","writer","content","date"],
             where : {
@@ -44,16 +46,29 @@ export class ReCommentService {
                 recomment_status : status
             }
         });
-        
+        */
         
         
         return reComment;
     }
 
 
-    async deleteReCommentById(id : number) {
-        return await this.ReCommentRepository.deleteReCommentById(id);
+    async deleteReCommentById(id : number): Promise<void> {
+        await this.ReCommentRepository.deleteReCommentById(id);
         
     }
-    
+    async getReCommentByUserId(id : number , writer : number){
+        const idValue :number = typeof id == typeof {} ?Number(Object.values(id)[0]) : Number(id);
+        
+        
+        const recomment = await this.ReCommentRepository.findOne({
+            where : {writer : writer, id : idValue}
+        })
+
+
+        if(!recomment){
+            throw new HttpException('권한이 없는 사용자입니다.', HttpStatus.CONFLICT)
+        
+        }
+    }
 }

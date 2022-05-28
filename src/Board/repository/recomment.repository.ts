@@ -6,7 +6,7 @@ import { CreateReCommentDTO } from "./dto/create-board.dto";
 @EntityRepository(ReComment)
 export class ReCommentRepository extends Repository<ReComment>{
     
-    async createReComment(createReCommentDTO:CreateReCommentDTO , writer:number){
+    async createReComment(createReCommentDTO:CreateReCommentDTO , writer:number):Promise<void>{
         
         const {comment_id, content, recomment_status} = createReCommentDTO;
         const date : Date = new Date();
@@ -14,13 +14,26 @@ export class ReCommentRepository extends Repository<ReComment>{
             content, comment_id, date,writer, recomment_status
         });
         await this.save(recomment);
-        return recomment;
+        
     }//end of createCommnet
+    async getReCommentById(comment_id : number, recomment_status : number[]) : Promise<ReComment[]>{
+        const comment_idValue :number = typeof comment_id == typeof {} ?Number(Object.values(comment_id)[0]) : Number(comment_id);
+        
+        const comment = await this.createQueryBuilder("re_comment")
+        .leftJoin("re_comment.writer","users")
+        .select(["re_comment.id","re_comment.content","re_comment.date"])
+        .addSelect(["users.id","users.userid","users.username","users.email","users.role","users.avatar_image"])
+        .where("re_comment.comment_id = :comment_id",{comment_id : comment_idValue})
+        .andWhere(`re_comment.recomment_status IN(:recomment_status)`,{recomment_status})
+        .getMany()
 
+        return comment;
+    }
 
-    async deleteReCommentById(id : number){
+    async deleteReCommentById(id : number) :Promise<void> {
         const status : number = 1 ;
-        const idValue: number = typeof id !== typeof "" ? Object.values(id)[0] : id
+        
+        const idValue :number = typeof id == typeof {} ?Number(Object.values(id)[0]) : Number(id);
         
         const comment = await getConnection()
         .createQueryBuilder()
@@ -31,7 +44,6 @@ export class ReCommentRepository extends Repository<ReComment>{
         .where({id : `${idValue}`})
         .execute()
 
-        return comment;
     }
 
 }//end of CommentRepository

@@ -61,7 +61,15 @@ export class BoardController {
         @Body("page") page: number
     ) : Promise<Object>{
         
-        const board = await this.boardService.getBoardMain(page);
+        let board ;
+
+        if(Object.keys(req.cookies).includes("AccessToken") ){
+            const user_id_inPayload : number = await this.boardService.userIdInCookie(req.cookies.AccessToken);
+            board = await this.boardService.getBoardMain(page,user_id_inPayload);
+        }else{
+            board = await this.boardService.getBoardMain(page);
+        }
+        
         if(board == undefined || !(board.length > 0)){
             const noBoard = {"message" : "Board값이 없습니다."}
             return noBoard;
@@ -84,6 +92,7 @@ export class BoardController {
         
         let board ;
         let tagCount ;
+        let writer;
 
         //로그인 검증
         if(Object.keys(req.cookies).includes("AccessToken") ){
@@ -93,32 +102,60 @@ export class BoardController {
 
             //호출 페이지와 로그인 정보 비교
             if(user_id == undefined){
+                //개인 자신 페이지 호출
                 board = await this.boardService.getBoardPersonal(page,user_id_inPayload);
                 tagCount = await this.boardService.tagCount(user_id_inPayload);
+                writer = await this.boardService.getUserById(user_id_inPayload);
             }else{
                 if(user_id_inPayload == user_id){
+                    //개인 로그인 한 user가 호출 user_id 같아 자신의 페이지를 호출
                     board = await this.boardService.getBoardPersonal(page,user_id_inPayload);
                     tagCount = await this.boardService.tagCount(user_id_inPayload);
+                    writer = await this.boardService.getUserById(user_id_inPayload);
                 }else{
-                    board = await this.boardService.getBoardGuest(page,user_id);
+                    //게스트 로그인한 user와 호출 user가 다름
+                    board = await this.boardService.getBoardGuest(page,user_id,user_id_inPayload);
                     tagCount = await this.boardService.tagCount(user_id);
+                    writer = await this.boardService.getUserById(user_id)
                 }
             }
             
 
-        }//게스트 페이지
+        }
         else if(user_id != undefined){
+            //게스트 user_id 입력됐고 로그인 안된 상태
+            
             board = await this.boardService.getBoardGuest(page,user_id);
             tagCount = await this.boardService.tagCount(user_id);
+            writer = await this.boardService.getUserById(user_id)
         }
 
         if(board == undefined || !(board.length > 0)){
-            const noBoard = {"message" : "Board값이 없습니다."}
+            const noBoard = {
+                "message" : "Board값이 없습니다.",
+                "writer" : writer
+            }
+
             return noBoard;
         }
         
-        return board;
+        const boardAndTag = {
+            board,
+            tagCount,
+            writer
+        }
+        
+        return boardAndTag;
     }
+
+    /**
+     * getBoardPersonalTag(개인페이지 태그 검색API)
+     * @param req 
+     * @param page 
+     * @param user_id 
+     * @param tag_name 
+     * @returns 
+     */
     @Post("/BoardPersonalTag")
     @HttpCode(200)
     async getBoardPersonalTag(
@@ -128,7 +165,6 @@ export class BoardController {
         @Body("tag_name") tag_name : string[]
     ):Promise<Object>{
         let board ;
-        let tagCount ;
 
         //로그인 검증
         if(Object.keys(req.cookies).includes("AccessToken") ){
@@ -160,6 +196,8 @@ export class BoardController {
             return noBoard;
         }
         
+
+        
         return board;
     }
 
@@ -171,11 +209,25 @@ export class BoardController {
     @Post("/BoardView")
     @HttpCode(200)
     async getBoardById(
+        @Req() req : Request,
         @Body("board_id") id : number
     ) : Promise<Board>{
+
+        let board ;
+        
+        
         await this.boardService.CheckBoardById(id);
         await this.boardService.viewUp(id);
-        return await this.boardService.getBoardById(id);
+
+        
+        if(Object.keys(req.cookies).includes("AccessToken") ){
+            const user_id_inPayload : number = await this.boardService.userIdInCookie(req.cookies.AccessToken);
+            board = await this.boardService.getBoardById(id,user_id_inPayload);
+        }else{
+            board = await this.boardService.getBoardById(id);
+        }
+        
+        return board;
     }
     
     /**
@@ -219,7 +271,7 @@ export class BoardController {
         await this.boardService.CheckBoardById(id);
         await this.boardService.CheckingWriter(id, writer);
         
-        const board = await this.boardService.deleteBoard(id);
+        await this.boardService.deleteBoard(id);
         
         
     }
@@ -242,7 +294,7 @@ export class BoardController {
         user.password = undefined
         user.currentRefreshToken = undefined
 
-        const comment = await this.commentService.createComment(createCommentDTO,writer);
+        await this.commentService.createComment(createCommentDTO,writer);
     }
     
     /**
@@ -253,7 +305,7 @@ export class BoardController {
     @Post("Comment")
     @HttpCode(200)
     async getCommentById(
-        @Body() board_id : number
+        @Body("board_id") board_id : number
     ): Promise<Comment[]>{
         return await this.commentService.getCommentByBoardId(board_id);
     }
@@ -268,15 +320,14 @@ export class BoardController {
     @UseGuards(JwtAccessTokenGuard)
     async deleteCommentById(
         @Req() req : Request,
-        @Body() comment_id : number
+        @Body("comment_id") comment_id : number
     ) : Promise<void> {
         const user: any = req.user;
         const writer : number = user.id;
-        user.password = undefined;
-        user.currentRefreshToken = undefined;
 
 
-        const comment = await this.commentService.deleteCommentById(comment_id,writer);
+        await this.commentService.getCommentByUserId(comment_id, writer);
+        await this.commentService.deleteCommentById(comment_id);
     }
 
     /**
@@ -293,10 +344,10 @@ export class BoardController {
     ) : Promise<void> {
         const user: any = req.user;
         const writer : number = user.id;
-        user.password = undefined
-        user.currentRefreshToken = undefined
 
-        const reComment = this.reCommentService.createReComment(createReCommentDTO,writer);
+
+
+        await this.reCommentService.createReComment(createReCommentDTO,writer);
         
     }
     /**
@@ -307,7 +358,7 @@ export class BoardController {
     @Post("ReComment")
     @HttpCode(200)
     async getReCommentById(
-        @Body() comment_id : number
+        @Body("comment_id") comment_id : number
     ): Promise<ReComment[]>{
         return this.reCommentService.getReCommentByCommentId(comment_id);
     }
@@ -322,14 +373,13 @@ export class BoardController {
     @UseGuards(JwtAccessTokenGuard)
     async deleteReCommentById(
         @Req() req : Request,
-        @Body() reComment_id : number
+        @Body("reComment_id") reComment_id : number
     ):Promise<void>{
         const user: any = req.user;
         const writer : number = user.id;
-        user.password = undefined;
-        user.currentRefreshToken = undefined;
 
-        const recomment = await this.reCommentService.deleteReCommentById(reComment_id);
+        await this.reCommentService.getReCommentByUserId(reComment_id, writer);
+        await this.reCommentService.deleteReCommentById(reComment_id);
 
     }
     
@@ -347,12 +397,8 @@ export class BoardController {
     ):Promise<void>{
         const user: any = req.user;
         const writer : number = user.id;
-        user.password = undefined;
-        user.currentRefreshToken = undefined;
-
-        await this.boardService.CheckingWriter(board_id, writer);
-
-        const like = await this.boardService.LikeBoard(board_id,writer);
+        
+        await this.boardService.LikeBoard(board_id,writer);
 
     }
     
