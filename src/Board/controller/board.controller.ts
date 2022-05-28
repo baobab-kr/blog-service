@@ -394,12 +394,12 @@ export class BoardController {
     async LikeBoard(
         @Req() req : Request,
         @Body("board_id") board_id : number
-    ):Promise<void>{
+    ){
         const user: any = req.user;
         const writer : number = user.id;
         
-        await this.boardService.LikeBoard(board_id,writer);
-
+        const likes = await this.boardService.LikeBoard(board_id,writer);
+        return likes;
     }
     
     
