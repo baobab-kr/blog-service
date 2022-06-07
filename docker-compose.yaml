@@ -25,4 +25,5 @@ services:
         - "3000:3000"
     volumes:
         - ./:/app/
+        - /app/node_modules
     command: ["sh", "-c", "sleep 20 && npm run start:dev"]
