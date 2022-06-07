@@ -3,6 +3,7 @@ import { BaseEntity, Column, Entity, Generated, Index, JoinColumn, JoinTable, Li
 import { Tag } from './tag.entity';
 import { Users } from '../../../users/entity/user.entity';
 import { Likes } from './like.entity';
+import { MaxLength, MinLength } from 'class-validator';
 
 
 @Entity()
@@ -14,7 +15,7 @@ export class Board extends BaseEntity{
     title : string;
     @Column()
     description : string;
-    @Column()
+    @Column("varchar",{length:4000})
     content : string;
     @Column()
     thumbnail : string;

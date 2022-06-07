@@ -304,6 +304,10 @@ export class BoardService {
      * @param id 
      */
     async deleteBoard(id : number) : Promise<void> {
+        const idValue :number = typeof id == typeof {} ?Number(Object.values(id)[0]) : Number(id);
+        
+        await this.tagRepository.delete({board_id : Number(idValue)});
+                
         const board = await this.boardRepository.deleteBoardById(id);
 
     }
@@ -399,6 +403,7 @@ export class BoardService {
      */
     async LikeBoard(board_id : number, user_id : number){
         const idValue :number = typeof board_id == typeof {} ?Number(Object.values(board_id)[0]) : Number(board_id);
+        const user_idValue :number = typeof user_id == typeof {} ?Number(Object.values(user_id)[0]) : Number(user_id);
         
         const liked = await this.likesRepository.findOne({
             where : {board_id : idValue, user_id : user_id}
@@ -427,7 +432,10 @@ export class BoardService {
             await this.likesRepository.save(liked);
             await this.boardRepository.save(board);
         }
-
+        return await this.likesRepository.find({
+            select : ["id","likes_status"],
+            where : {board_id : idValue, user_id : user_idValue}
+        })
 
     }
 
