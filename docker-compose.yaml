@@ -4,7 +4,7 @@ services:
     platform: linux/amd64
     image: mysql:8.0.28
     restart: unless-stopped
-    container_name: mysql
+    container_name: baobab-mysql
     ports:
       - "3306:3306"
     volumes:
@@ -19,6 +19,7 @@ services:
     build:
         dockerfile: ./Dockerfile
         context: .
+    container_name: baobab-api
     depends_on: 
         - mysql
     ports:
