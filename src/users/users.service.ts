@@ -31,8 +31,8 @@ export class UsersService {
       username: savedUserInfo.username
     }
     await this.validateUser(password, savedUserInfo.password);
-    const { accessToken, accessOption } = await this.authService.getCookieWithJwtAccessToken(payload);
-    const { refreshToken, refreshOption } = await this.authService.getCookieWithJwtRefreshToken(savedUserInfo);
+    const { accessToken, accessOption, accessTokenExpires } = await this.authService.getCookieWithJwtAccessToken(payload);
+    const { refreshToken, refreshOption, refreshTokenExpires } = await this.authService.getCookieWithJwtRefreshToken(savedUserInfo);
     await this.updateRefreshTokenInUser(refreshToken, savedUserInfo);
 
     const resUserDto: any = savedUserInfo
@@ -44,6 +44,8 @@ export class UsersService {
       refreshToken,
       refreshOption,
       user: resUserDto,
+      accessTokenExpires,
+      refreshTokenExpires,
     };
   }
 

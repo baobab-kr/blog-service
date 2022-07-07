@@ -52,8 +52,9 @@ export class UsersController {
   @HttpCode(200)
   async login(@Body() loginUserDto: LoginUserDto, @Res({passthrough:true}) res: Response): Promise<any> {
     const { userid, password } = loginUserDto;
-    const { accessToken, accessOption, refreshToken, refreshOption, user } = await this.usersService.login(userid, password);
-    res.setHeader('Authorization', 'Bearer ' + accessToken);
+    const { accessToken, accessOption, refreshToken, refreshOption, user, accessTokenExpires, refreshTokenExpires } = await this.usersService.login(userid, password);
+    res.setHeader('ATExpires', + accessTokenExpires);
+    res.setHeader('RTExpires', + refreshTokenExpires);
     res.cookie('AccessToken', accessToken, accessOption);
     res.cookie('RefreshToken', refreshToken, refreshOption);
     return user;
@@ -77,8 +78,8 @@ export class UsersController {
         id: user.id,
         username: user.username
       }
-      const { accessToken, accessOption } = await this.authService.getCookieWithJwtAccessToken(payload);
-      res.setHeader('Authorization', 'Bearer ' + accessToken);
+      const { accessToken, accessOption, accessTokenExpires, } = await this.authService.getCookieWithJwtAccessToken(payload);
+      res.setHeader('ATExpires', + accessTokenExpires);
       res.cookie('AccessToken', accessToken, accessOption);
       user.password = undefined
       user.currentRefreshToken = undefined

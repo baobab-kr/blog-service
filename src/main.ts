@@ -20,6 +20,7 @@ async function bootstrap() {
   }));
   app.use(cookieParser());
   app.enableCors({
+    exposedHeaders: ['ATExpires', 'RTExpires'],
     origin: 'http://localhost:2999',
     methods: 'GET,PUT,PATCH,POST,DELETE',
     credentials: true,
