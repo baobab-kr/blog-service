@@ -1,0 +1,162 @@
+@startuml
+
+
+title <b>User_ClassDiagram</b>
+
+package "DTO" {
+    class "createUserDto"{
+        -userid: string
+        --
+        -email: string
+        --
+        -username: string
+        --
+        -password: string
+        --
+        -inputVerifyCode: number
+    }   
+    class "LoginUserDto"{
+        -userid: string
+        --
+        -password: string
+    }
+    class "SaveUserDto"{
+        -username: string
+        --
+        -password: string
+        --
+        -currentRefreshToken: string
+    }
+    class "VerifyCodeReceiverDto"{
+        -email: string
+        --
+        -username: string
+    }
+}
+
+package "Controller" #DDD{
+
+    class "UserController"{
+        +createUser(createUserDto: CreateUserDto)
+        --
+        +checkUserid(userid: string)
+        --
+        +checkEmail(email: string)
+        --
+        +checkUsername(username: string)
+        --
+        +sendMemberJoinEmail(verifyCodeReceiverDto: VerifyCodeReceiverDto)
+        --
+        +login(loginUserDto: LoginUserDto, res: Response)
+        --
+        +isAuthenticated(req: Request)
+        --
+        +refresh(req: Request,res: Response)
+        --
+        +logOut(req: Request, res: Response)
+    }
+}
+package "Service" {
+    class UserService{
+        +async createUser(userid: string, email: string, username: string, password: string, inputVerifyCode: number) 
+        --
+        +login(userid: string, password: string)  
+        --
+        +checkUserIdExists(userid: string) 
+        --
+        +checkEmailExists(email: string) 
+        --
+        +async checkUserNameExists(username: string) 
+        --
+        -async saveUserUsingQueryRunnner(userid: string,  email: string, username: string, password: string) 
+        --
+        -async createVerifyCode(): Promise<number> 
+        --
+        +sendMemberJoinEmail(email: string, username: string) 
+        --
+        -async checkMemberJoinEmail(username: string, inputVerifyCode: number):Promise<void> 
+        --
+        +getUserInfo(userid: string):Promise<SavedUserDto> 
+        --
+        +validateUser(inputPassword: string, savedPassword: string) 
+        --
+        +tokenValidateUser(payload: Payload) 
+        --
+        +updateRefreshTokenInUser(refreshToken: string, savedUserInfo: SavedUserDto): Promise<void> 
+        --
+        +getUserRefreshTokenMatches( refreshToken: string, user): Promise<{result: boolean}> 
+        --
+        +removeRefreshToken(id: number) 
+    }
+    class AuthService{
+        +checkVerifyCode(username: string, inputVerifyCode: number)
+        --
+        +encrpytionData(data: string)
+        --
+        +comparePassword(inputPassword: string, savedPassword: string)
+        --
+        +createJwtAccessToken(savedUserInfo: SavedUserDto)
+        --
+        +getCookieWithJwtAccessToken(payload: Payload) 
+        --
+        +getCookieWithJwtRefreshToken(savedUserInfo: SavedUserDto) 
+        --
+        +getUserRefreshTokenMatches( refreshToken: string, currentRefreshToken: string)
+        --
+        +getCookiesForLogOut()
+    }
+    class EmailService{
+        -transporter
+        ==
+        +sendMemberJoinVerification(emailAddress: string, username: string, verifyCode: number)
+        --
+        +constructor(cacheManager: Cache, config: ConfigType)
+    }
+}
+
+package "entity"{
+    class User {
+        -id: number
+        --
+        -userid: string
+        --
+        -username: string
+        --
+        -email: string
+        --
+        -password: string
+        --
+        -role: number
+        --
+        -description: string
+        --
+        -avatar_image: string
+        --
+        -currentRefreshToken: string
+        --
+        -boards : Board[]
+        --
+        -comments : Comment[]
+        --
+        -reComments : ReComment[]
+        --
+        -likes : Likes[]
+    }
+}
+
+UserController::createUser -right..> createUserDto : << parameter >>
+UserController::sendMemberJoinEmail -right..> VerifyCodeReceiverDto : << parameter >>
+UserController::login -right..> LoginUserDto : << parameter >>
+UserService::updateRefreshTokenInUser -up..> SaveUserDto : << parameter >>
+AuthService -up..> SaveUserDto : << parameter >>
+
+UserController -down-->"1..*" UserService
+UserController -down-->"1--*" AuthService
+UserService -right-->"1--*" AuthService
+UserService -right-->"1--*" EmailService
+AuthService -[hidden]- EmailService
+
+UserService -down--> User
+
+
+@enduml
