@@ -22,7 +22,7 @@
 
 - 메인페이지 태그 검색 API
   - page값 부터 board_status가 0인 것(공개 게시글)을 15개 반환
-  - tag[] 배열에 들어있는 값에 해당하는 게시물 반환
+  - tag[] 배열에 들어있는 값이 포함된 게시물 반환
 
   |EndPoint|JSON|Query Param|Path Param|Response|  
   |---|---|---|---|---|
