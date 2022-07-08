@@ -54,28 +54,56 @@ export class BoardController {
      * @param id 
      * @returns Board[]
      */
-    @Post("/BoardMain")
-    @HttpCode(200)
-    async getBoardMain(
-        @Req() req: Request,
-        @Body("page") page: number
-    ) : Promise<Object>{
-        
-        let board ;
-
-        if(Object.keys(req.cookies).includes("AccessToken") ){
-            const user_id_inPayload : number = await this.boardService.userIdInCookie(req.cookies.AccessToken);
-            board = await this.boardService.getBoardMain(page,user_id_inPayload);
-        }else{
-            board = await this.boardService.getBoardMain(page);
-        }
-        
-        if(board == undefined || !(board.length > 0)){
-            const noBoard = {"message" : "Board값이 없습니다."}
-            return noBoard;
-        }
-        return board;
-    }
+     @Post("/BoardMain")
+     @HttpCode(200)
+     async getBoardMain(
+         @Req() req: Request,
+         @Body("page") page: number
+     ) : Promise<Object>{
+         
+         let board ;
+ 
+         if(Object.keys(req.cookies).includes("AccessToken") ){
+             const user_id_inPayload : number = await this.boardService.userIdInCookie(req.cookies.AccessToken);
+             board = await this.boardService.getBoardMain(page,user_id_inPayload);
+         }else{
+             board = await this.boardService.getBoardMain(page);
+         }
+         
+         if(board == undefined || !(board.length > 0)){
+             const noBoard = {"message" : "Board값이 없습니다."}
+             return noBoard;
+         }
+         return board;
+     }
+     /**
+     * getBoardMain(메인페이지 호출 API)
+     * @param id 
+     * @returns Board[]
+     */
+     @Post("/BoardMainTag")
+     @HttpCode(200)
+     async getBoardMainTag(
+         @Req() req: Request,
+         @Body("page") page: number,
+         @Body("tag") tag: string[]
+     ) : Promise<Object>{
+         
+         let board ;
+ 
+         if(Object.keys(req.cookies).includes("AccessToken") ){
+             const user_id_inPayload : number = await this.boardService.userIdInCookie(req.cookies.AccessToken);
+             board = await this.boardService.getBoardMainTag(page,tag,user_id_inPayload);
+         }else{
+             board = await this.boardService.getBoardMainTag(page,tag);
+         }
+         
+         if(board == undefined || !(board.length > 0)){
+             const noBoard = {"message" : "Board값이 없습니다."}
+             return noBoard;
+         }
+         return board;
+     }
     /**
      * getBoardPersonal(개인페이지 호출 API)
      * @param id 
@@ -148,6 +176,12 @@ export class BoardController {
         return boardAndTag;
     }
 
+    /**
+     * getTagCount(개인페이지 테그개수 반환)
+     * @param req 
+     * @param user_id 
+     * @returns 
+     */
     @Post("/BoardPersonalTagCount")
     @HttpCode(200)
     async getTagCount(
@@ -187,6 +221,12 @@ export class BoardController {
         return tagCount 
 
     }
+    /**
+     * getWriter(개인페이지의 작성자)
+     * @param req 
+     * @param user_id 
+     * @returns 
+     */
     @Post("/BoardPersonalWriter")
     @HttpCode(200)
     async getWriter(

@@ -65,6 +65,25 @@ export class BoardRepository extends Repository<Board> {
         
         return board ;
     }
+    async getBoardMainTag(skip : number , take: number, board_status : number[], tag_name : string[],login_id : number){
+        console.log(tag_name);
+
+        const board = await this.createQueryBuilder("board")
+        .leftJoin("board.tags","tag")
+        .leftJoin("board.writer","users")
+        .leftJoin("board.likes","likes",`likes.user_id =  ${login_id}`)
+        .select(["board.id","board.title","board.description","board.content","board.thumbnail","board.views","board.date","board.board_status","board.likes_count"])
+        .addSelect(["tag"])
+        .addSelect(["users.id","users.userid","users.username","users.email","users.role","users.avatar_image"])
+        .addSelect(["likes"])
+        .where(`tag.tag_name IN(:tag_name)`,{tag_name})
+        .andWhere(`board.board_status IN(:board_status)`,{board_status}) 
+        .skip(skip)
+        .take(take)
+        .getMany()
+        
+        return board ;
+    }
     /**
      * getBoardMain(상세 페이지 쿼리)
      * @param id 
