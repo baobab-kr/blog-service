@@ -66,7 +66,7 @@ export class BoardRepository extends Repository<Board> {
         return board ;
     }
     async getBoardMainTag(skip : number , take: number, board_status : number[], tag_name : string[],login_id : number){
-        console.log(tag_name);
+        
 
         const board = await this.createQueryBuilder("board")
         .leftJoin("board.tags","tag")

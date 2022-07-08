@@ -103,7 +103,8 @@ export class BoardService {
         //status공개 
         const status : number[]  = [0] ;
 
-        console.log(await this.CheckTag(tag[0]));
+        await this.CheckTag(tag[0]);
+        
 
         //페이지네이션
         const limit : number  = 15 ; 
