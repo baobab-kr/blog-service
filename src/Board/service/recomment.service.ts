@@ -32,10 +32,15 @@ export class ReCommentService {
      * @param id 
      * @returns 
      */
-    async getReCommentByCommentId(comment_id : number) : Promise<ReComment[]>{
+    async getReCommentByCommentId(comment_id : number , page : number) : Promise<ReComment[]>{
         
         const status : number[] = [0] ; // 활성화 상태
-        const reComment = await this.ReCommentRepository.getReCommentById(comment_id,status)
+        const limit : number = 10 ; 
+        const pageVale : number = typeof page == typeof {} ?Number(Object.values(page)[0]) : Number(page);
+        const skip : number  = pageVale * limit;
+        const take : number = skip + limit;
+
+        const reComment = await this.ReCommentRepository.getReCommentById(comment_id,status,skip,take);
 
 
         /*
@@ -50,6 +55,14 @@ export class ReCommentService {
         
         
         return reComment;
+    }
+    async getReCommentPageLength(comment_id : number){
+        const status : number[] = [0] ; // 활성화 상태
+        const limit = 10;
+
+        const reComment = await this.ReCommentRepository.getReCommentCount(comment_id ,status);
+
+        return Math.floor(reComment/limit);
     }
 
 

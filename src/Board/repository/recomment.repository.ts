@@ -16,16 +16,35 @@ export class ReCommentRepository extends Repository<ReComment>{
         await this.save(recomment);
         
     }//end of createCommnet
-    async getReCommentById(comment_id : number, recomment_status : number[]) : Promise<ReComment[]>{
+    async getReCommentById(comment_id : number, recomment_status : number[],skip : number ,take:number) : Promise<ReComment[]>{
         const comment_idValue :number = typeof comment_id == typeof {} ?Number(Object.values(comment_id)[0]) : Number(comment_id);
         
+
+
         const comment = await this.createQueryBuilder("re_comment")
         .leftJoin("re_comment.writer","users")
         .select(["re_comment.id","re_comment.content","re_comment.date"])
         .addSelect(["users.id","users.userid","users.username","users.email","users.role","users.avatar_image"])
         .where("re_comment.comment_id = :comment_id",{comment_id : comment_idValue})
         .andWhere(`re_comment.recomment_status IN(:recomment_status)`,{recomment_status})
+        .skip(skip)
+        .take(take)
         .getMany()
+
+        return comment;
+    }
+    async getReCommentCount(comment_id : number, recomment_status : number[]) {
+        const comment_idValue :number = typeof comment_id == typeof {} ?Number(Object.values(comment_id)[0]) : Number(comment_id);
+        
+
+
+        const comment = await this.createQueryBuilder("re_comment")
+        .leftJoin("re_comment.writer","users")
+        .select(["COUNT(*)"])
+        .where("re_comment.comment_id = :comment_id",{comment_id : comment_idValue})
+        .andWhere(`re_comment.recomment_status IN(:recomment_status)`,{recomment_status})
+        .groupBy()
+        .getCount();
 
         return comment;
     }

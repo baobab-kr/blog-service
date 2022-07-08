@@ -492,10 +492,19 @@ export class BoardController {
     @Post("ReComment")
     @HttpCode(200)
     async getReCommentById(
-        @Body("comment_id") comment_id : number
+        @Body("comment_id") comment_id : number,
+        @Body("page") page : number
     ): Promise<ReComment[]>{
-        return this.reCommentService.getReCommentByCommentId(comment_id);
+        return this.reCommentService.getReCommentByCommentId(comment_id, page);
     }
+    @Post("ReCommentPage")
+    @HttpCode(200)
+    async getReCommentPage(
+        @Body("comment_id") comment_id : number
+    ){
+        return await this.reCommentService.getReCommentPageLength(comment_id);
+    }
+    
 
     /**
      * deleteReCommentById(답글 삭제 API)
