@@ -427,9 +427,10 @@ export class BoardController {
     @Post("Comment")
     @HttpCode(200)
     async getCommentById(
-        @Body("board_id") board_id : number
+        @Body("board_id") board_id : number,
+        @Body("page") page : number
     ): Promise<Comment[]>{
-        return await this.commentService.getCommentByBoardId(board_id);
+        return await this.commentService.getCommentByBoardId(board_id,page);
     }
     
     /**

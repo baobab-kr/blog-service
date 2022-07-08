@@ -32,11 +32,16 @@ export class CommentService {
      * @param id 
      * @returns id, writer, content, date
      */
-    async getCommentByBoardId(board_id : number) : Promise<Comment[]>{
+    async getCommentByBoardId(board_id : number , page : number) : Promise<Comment[]>{
 
         const status : number[] = [0] ; // 활성화 상태
         
-        const comment = await this.CommentRepository.getCommentById(board_id,status);
+        const limit : number = 10 ; 
+        const pageVale : number = typeof page == typeof {} ?Number(Object.values(page)[0]) : Number(page);
+        const skip : number  = pageVale * limit;
+        const take : number = skip + limit;
+
+        const comment = await this.CommentRepository.getCommentById(board_id,status,skip,take);
 
         /*
         const comment =  await this.CommentRepository.find({

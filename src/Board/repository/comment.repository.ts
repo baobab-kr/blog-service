@@ -21,7 +21,7 @@ export class CommentRepository extends Repository<Comment>{
         await this.save(comment);
     }//end of createCommnet
     
-    async getCommentById(board_id : number, comment_status : number[]) : Promise<Comment[]>{
+    async getCommentById(board_id : number,comment_status : number[], skip :number, take :number) : Promise<Comment[]>{
         const board_idValue :number = typeof board_id == typeof {} ?Number(Object.values(board_id)[0]) : Number(board_id);
         
         const comment = await this.createQueryBuilder("comment")
@@ -30,6 +30,8 @@ export class CommentRepository extends Repository<Comment>{
         .addSelect(["users.id","users.userid","users.username","users.email","users.role","users.avatar_image"])
         .where("comment.board_id = :board_id",{board_id : board_idValue})
         .andWhere(`comment.comment_status IN(:comment_status)`,{comment_status})
+        .skip(skip)
+        .take(take)
         .getMany()
 
         return comment;
