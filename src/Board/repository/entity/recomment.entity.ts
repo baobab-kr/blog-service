@@ -13,7 +13,7 @@ export class ReComment extends BaseEntity{
     //@Column()
     writer :number;
 
-    @Column()
+    @Column("varchar",{length:4000})
     content : string;
 
     @ManyToOne(type => Comment, comment => comment.reComments)
