@@ -340,7 +340,6 @@ export class BoardController {
         
         await this.boardService.CheckBoardById(id);
         await this.boardService.viewUp(id);
-
         
         if(Object.keys(req.cookies).includes("AccessToken") ){
             const user_id_inPayload : number = await this.boardService.userIdInCookie(req.cookies.AccessToken);
@@ -432,6 +431,18 @@ export class BoardController {
     ): Promise<Comment[]>{
         return await this.commentService.getCommentByBoardId(board_id,page);
     }
+    /**
+     * getCommentById(댓글 호출 API)
+     * @param board_id 
+     * @returns Comment[]
+     */
+     @Post("CommentPage")
+     @HttpCode(200)
+     async getCommentPage(
+         @Body("board_id") board_id : number
+     ){
+         return await this.commentService.getCommentCount(board_id);
+     }
     
     /**
      * deleteCommentById(댓글 삭제 API)
