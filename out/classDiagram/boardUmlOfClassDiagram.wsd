@@ -1,0 +1,321 @@
+@startuml
+
+
+title <b>Baobab_Board_ClassDiagram</b>
+
+package "BoardController" #DDD{
+    class BoardController  {
+        +createBoard(createBoardDTO : CreateBoardDTO, file : File)
+        --
+        +getBoardMain(page : number)
+        --
+        +getBoardPersonal(page : number, user_id : number)
+        --
+        +getTagCount(user_id : number)
+        --
+        +getWriter(user_id : number)
+        --
+        +getBoardPersonalTag(page : number, user_id : number,tag_name:string[])
+        --
+        +getBoardById(board_id : string)
+        --
+        +updateBoard(board_id : string, updateBoardDTO : UpdateBoardDTO)
+        --
+        +deleteBoard(board_id : string)
+        --
+        +createComment(createCommentDTO : CreateCommentDTO)
+        --
+        +getCommentById(board_id : number)
+        --
+        +deleteCommentById(comment_id : number)
+        --
+        +createReComment(createReCommentDTO : CreateReCommentDTO)
+        --
+        +getReCommentById(comment_id : number)
+        --
+        +deleteReCommentById(reComment_id : number)
+        --
+        +LikeBoard(board_id : number)
+    }
+}
+
+package "BoardDTO"{
+    class CreateBoardDTO{
+        -title : string
+        --
+        -description : string
+        --
+        -content : string
+        --
+        -board_status : number
+        --
+        -tag_name? : string[]    
+    }
+    class UpdateBoardDTO{
+        -title? : string
+        --
+        -description? : string
+        --
+        -content? : string
+        --
+        -board_status? : number
+        --
+        -tag_name? : string[]    
+    }
+
+
+
+    class CreateCommentDTO{
+        -board_id : number
+        --
+        -content : string
+        --
+        -comment_status : number
+    }
+
+    class CreateReCommentDTO{    
+        -comment_id : number
+        --
+        -content : string
+        --
+        -recomment_status : number
+    }
+}
+
+package "BoardService" #FFF{
+
+
+    class BoardService  {
+        -skip : number
+        --
+        -take: number
+        --
+        -main_board_status : number[]
+        --
+        -personal_board_status : number[]
+        --
+        -login_id : number
+        ==
+        +createBoard(createBoardDTO : CreateBoardDTO,writer:number, file)
+        --
+        +getBoardMain(page:number, login_id? : number)
+        --
+        +getBoardPersonal(page:number, writer : number)
+        --
+        +getBoardGuest(page:number, writer : number, login_id? : number)
+        --
+        +getBoardPersonalTag(page:number, writer : number, tag_name : string[])
+        --
+        +getBoardGuestTag(page:number, writer : number, tag_name : string[], login_id? : number)
+        --
+        +getBoardById(id : number , login_id? : number)
+        --
+        +updateBoard(UpdateBoardDTO:UpdateBoardDTO, id :number)
+        --
+        +deleteBoard(id : number)
+        --
+        +viewUp(id : number)
+        --
+        -createTag(id : number, tags_name)
+        --
+        +tagCount(writer : number)
+        --
+        +getBoardByUserId(writer : number)
+        --
+        +CheckingWriter(id: number, writer : number)
+        --
+        +LikeBoard(board_id : number, user_id : number)
+        --
+        +CheckBoardById(id : number)
+        --
+        +userIdInCookie(accessToken : string) 
+        --
+        +getUserById(id : number)
+    }
+    class CommentService {
+        +createComment(createCommentDTO: CreateCommentDTO, writer : number)
+        +getCommentByBoardId(board_id : number)
+        +deleteCommentById(id : number) 
+        +getCommentByUserId(id : number , writer : number)
+    }
+    class ReCommentService {
+        +createComment(createCommentDTO: CreateCommentDTO, writer : number)
+        +getCommentByBoardId(board_id : number)
+        +deleteCommentById(id : number) 
+        +getCommentByUserId(id : number , writer : number)
+    }
+}
+package BoardRepository{
+    class BoardRepository {
+        +createBoard(createBoardDTO : CreateBoardDTO,writer:number, thumbnail : string)
+        --
+        +getBoardMain(skip : number , take: number, board_status : number[],login_id : number)
+        --
+        +getBoardView(id : number,login_id : number)
+        --
+        +updateBoardById(id : number , UpdateBoardDTO : UpdateBoardDTO)
+        --
+        +deleteBoardById(id : number)
+    }
+    class CommentRepository{
+        -status : number
+        ==
+        +createComment(createCommentDTO:CreateCommentDTO, writer : number)
+        --
+        +getCommentById(board_id : number, comment_status : number[])
+        --
+        +deleteCommentById(id : number)
+    }
+    class ReCommnetRepository{
+        -status : number
+        ==
+        +createReComment(createReCommentDTO:CreateReCommentDTO , writer:number)
+        --
+        +getReCommentById(comment_id : number, recomment_status : number[])
+        --
+        +deleteReCommentById(id : number)
+    }
+    class TagRepository{
+        +createTag(board_id : number, tag_name : string)
+        --
+        +deleteBoardById(id : number)
+    }
+}
+package entity{
+    class Board{
+        -id : number
+        --
+        -title : string
+        --
+        -description : string
+        --
+        -content : string
+        --
+        -thumbnail : string
+        --
+        -writer : number
+        --
+        -views : number
+        --
+        -date : Date
+        --
+        -board_status : number
+        --
+        -likes_count : number
+        --
+        -tags : Tag[]
+        --
+        -likes : Likes[]
+    }
+    class User {
+        -id: number
+        --
+        -userid: string
+        --
+        -username: string
+        --
+        -email: string
+        --
+        -password: string
+        --
+        -role: number
+        --
+        -description: string
+        --
+        -avatar_image: string
+        --
+        -currentRefreshToken: string
+        --
+        -boards : Board[]
+        --
+        -comments : Comment[]
+        --
+        -reComments : ReComment[]
+        --
+        -likes : Likes[]
+    }
+    class Comment{
+        -id : number
+        --
+        -writer : number
+        --
+        -content : string
+        --
+        -board_id : number
+        --
+        -date : Date
+        --
+        -comment_status : number
+        --
+        -reComments : ReComment[]
+    }
+    class ReComment{
+        -id : number
+        --
+        -writer :number
+        --
+        -content : string
+        --
+        -comment_id : number
+        --
+        -date : date
+        --
+        -recomment_status : number
+    }
+    class Tag{
+        -id : number
+        --
+        -tag_name : string
+        --
+        -board_id : number
+    }
+    class Like{
+        -id : number
+        --
+        -likes_status : number
+        --
+        -board_id : number
+        --
+        -user_id : number
+    }
+}
+
+
+
+BoardController -right..>  CreateBoardDTO : << parameter >>
+BoardController -right..> UpdateBoardDTO : << parameter >>
+BoardController -right..> CreateCommentDTO : << parameter >>
+BoardController -right..> CreateReCommentDTO : << parameter >>
+
+
+BoardController -down-->"1..*" BoardService : 　-Board
+BoardController -down-->"1..*" CommentService : 　-Comment
+BoardController -down-->"1..*" ReCommentService : 　-ReComment
+
+BoardService -down-->"1..*" BoardRepository : 　-Board
+BoardService -down-->"1..*" TagRepository : 　-Tag
+CommentService -down-->"1..*" CommentRepository : 　-Comment
+ReCommentService -down-->"1..*" ReCommnetRepository : 　-ReComment
+
+BoardRepository -down-->"1..*" Board
+BoardRepository -down..> User  
+TagRepository -down-->"1..*" Tag
+BoardRepository -down-->"1..*" Like
+
+CommentRepository -down-->"1..*" Comment
+ReCommnetRepository -down-->"1..*" ReComment
+
+
+Board -down..> User
+Comment -down..> User
+ReComment -down..> User
+Like -down..> User
+
+Board -right..> Like
+Board -left..> Tag
+Board -left..> Comment
+Board -left..> ReComment
+
+Comment -left..> ReComment
+
+@enduml

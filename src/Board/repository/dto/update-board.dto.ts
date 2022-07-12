@@ -6,14 +6,14 @@ import { CreateBoardDTO } from "./create-board.dto";
 export class UpdateBoardDTO extends PartialType(CreateBoardDTO) {
     @MaxLength(30,{message : "입력가능 글자 수를 초과하였습니다."})
     @IsString()
-    @Matches(/^[ㄱ-ㅎ|가-힣|a-z|A-Z|0-9|~!@#$%^&*()_+|<>?:{}|\s]+$/)
+    @Matches(/^[ㄱ-ㅎ|가-힣|a-z|A-Z|0-9|\s~|\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]+$/)
     title? : string;
 
     
     
     @MaxLength(200,{message : "입력가능 글자 수를 초과하였습니다."})
     @IsString()
-    @Matches(/^[ㄱ-ㅎ|가-힣|a-z|A-Z|0-9|~!@#$%^&*()_+|<>?:{}|\s]+$/)
+    @Matches(/^[ㄱ-ㅎ|가-힣|a-z|A-Z|0-9|\s~|\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]+$/)
     description? : string;
 
     

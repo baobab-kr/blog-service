@@ -14,7 +14,7 @@ export class Comment extends BaseEntity{
     //@Column()
     writer : number;
     
-    @Column()
+    @Column("varchar",{length:4000})
     content : string;
     @Column()
     board_id : number;

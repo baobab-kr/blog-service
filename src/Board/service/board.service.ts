@@ -95,6 +95,43 @@ export class BoardService {
         return board;
     }
     /**
+     * getBoardMainTag(메인페이지 태그검색 함수)
+     * @param id 
+     * @returns Board[]
+     */
+     async getBoardMainTag(page:number, tag : string[] , login_id? : number) : Promise<Board[]> { 
+        //status공개 
+        const status : number[]  = [0] ;
+
+        await this.CheckTag(tag[0]);
+        
+
+        //페이지네이션
+        const limit : number  = 15 ; 
+        const pageVale : number = typeof page == typeof {} ?Number(Object.values(page)[0]) : Number(page);
+        const skip : number  = pageVale * limit;
+        const take : number = skip + limit;
+
+        //페이지 호출
+        const board = await this.boardRepository.getBoardMainTag(skip,take,status,tag,login_id == undefined? -1 : login_id);
+        /*
+        const board = await this.boardRepository.find({
+        
+            select : ["id","title","description","content","writer","thumbnail","views","date","board_status","likes_count"],
+            where : {board_status : status},
+            relations : ["tags"],
+            skip : skip,
+            take : take
+
+        })
+        */
+        
+        
+
+        return board;
+    }
+
+    /**
      * getBoardPersonal(개인페이지 호출 함수)
      * @param page 
      * @param writer 
@@ -489,6 +526,12 @@ export class BoardService {
         return user;
 
     }
-    
+    async CheckTag(tag_name : string){
+        const tag = this.tagRepository.find({tag_name});
+        if(!tag){
+            throw new HttpException('해당 태그가 존재하지 않습니다.', HttpStatus.CONFLICT)
+        }
+        return tag;
+    }
     
 }
