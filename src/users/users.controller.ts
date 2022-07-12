@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Bind, Body, Controller, Get, Header, HttpCode, Post, Query, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { VerifyCodeReceiverDto } from './dto/verify-code-receiver.dto';
@@ -9,6 +9,7 @@ import { JwtRefreshTokenGuard } from 'src/auth/security/jwtRefreshToken.guard';
 import { AuthService } from 'src/auth/auth.service';
 import { SavedUserDto } from './dto/saved-user.dto';
 import { Payload } from 'src/auth/security/payload.interface';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('users')
 export class UsersController {
@@ -96,5 +97,19 @@ export class UsersController {
     await this.usersService.removeRefreshToken(id);
     res.cookie('AccessToken', '', accessOption);
     res.cookie('RefreshToken', '', refreshOption);
+  }
+
+  @Post('/upload-profile')
+  @UseInterceptors(FileInterceptor('profile'))
+  async uploadProfile(@UploadedFile() file, @Body() userid: string) {
+    file.originalname = userid['userid'];
+    await this.usersService.uploadProfile(file);
+  }
+
+  @Get('/read-profile')
+  @Header('Content-Type','image/webp')
+  async getProfile(@Res() res, @Query('userid') userid) {
+    const file = await this.usersService.getProfile(userid);
+    return file.pipe(res);
   }
 }

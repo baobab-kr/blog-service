@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthService } from 'src/auth/auth.service';
 import { Payload } from 'src/auth/security/payload.interface';
@@ -6,6 +6,7 @@ import { EmailService } from 'src/email/email.service';
 import { Repository, Connection } from 'typeorm';
 import { SavedUserDto } from './dto/saved-user.dto';
 import { Users } from './entity/user.entity';
+import { BlobServiceClient, BlockBlobClient } from "@azure/storage-blob";
 
 @Injectable()
 export class UsersService {
@@ -156,5 +157,23 @@ export class UsersService {
 
   async removeRefreshToken(id: number) {
     return this.usersRepository.update(id, {currentRefreshToken: null});
+  }
+
+  getBlobClient(imageName:string):BlockBlobClient{
+    const blobClientService = BlobServiceClient.fromConnectionString(process.env.AZURE_CONNECTIONS);
+    const containerClient = blobClientService.getContainerClient(process.env.AZURE_BLOB_CONTAINER_NAME);
+    const blobClient = containerClient.getBlockBlobClient(imageName);
+    return blobClient;
+  }
+ 
+  async uploadProfile(file){
+    const blobClient = this.getBlobClient(file.originalname);
+    await blobClient.uploadData(file.buffer);
+  }
+
+  async getProfile(fileName){
+    const blobClient = this.getBlobClient(fileName);
+    var blobDownloaded = await blobClient.download();
+    return blobDownloaded.readableStreamBody;
   }
 }
