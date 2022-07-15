@@ -34,7 +34,7 @@ export class BoardController {
      */
     @Post("/CreateBoard")
     @HttpCode(200)
-    @UseInterceptors(FileInterceptor("thumbnail",multerMemoryOptions))
+    @UseInterceptors(FileInterceptor('thumbnail'))
     @UseGuards(JwtAccessTokenGuard)
     async createBoard(
         @Req() req: Request,
@@ -44,7 +44,7 @@ export class BoardController {
     ) : Promise<void> {
         const user: any = req.user;
         const writer : number = user.id;
-
+        
         await this.boardService.createBoard(createBoardDTO,writer,file);
     }
     

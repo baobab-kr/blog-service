@@ -11,6 +11,8 @@ import { isEmpty, IsNotEmpty } from 'class-validator';
 import { Likes } from '../repository/entity/like.entity';
 import { Repository, Like, In } from 'typeorm';
 import { Users } from 'src/users/entity/user.entity';
+import { BlobServiceClient, BlockBlobClient } from '@azure/storage-blob';
+import * as dayjs from 'dayjs'
 
 @Injectable()
 export class BoardService {
@@ -33,16 +35,13 @@ export class BoardService {
      * @param file 
      * @returns void
      */
-    async createBoard(createBoardDTO : CreateBoardDTO,writer:number, file) : Promise <void>{
+    async createBoard(createBoardDTO : CreateBoardDTO, writer:number, file?) : Promise <void>{
         //file upload
-        let uploadPath = "";
-        if(!(file === undefined)){
-            const fileName = Date.now() + file.originalname;
-            uploadPath = `C:/File/baobabnamu/upload/${fileName}`;
-            fs.writeFileSync(uploadPath, file.buffer);
-        }        
+        const thumnailName = await this.uploadThumbnail(file);
+
+        
         //board 생성
-        const board = await this.boardRepository.createBoard(createBoardDTO,writer,uploadPath);
+        const board = await this.boardRepository.createBoard(createBoardDTO,writer,thumnailName);
         
         if(board === undefined){
             throw new HttpException('게시판 생성 실패', HttpStatus.CONFLICT)
@@ -54,10 +53,27 @@ export class BoardService {
             if(createBoardDTO.tag_name.length > 0){
                 await this.createTag(board.id, createBoardDTO.tag_name);
             }
-            
         }
         
 
+    }
+
+
+    getBlobClient(imageName:string):BlockBlobClient{
+        const blobClientService = BlobServiceClient.fromConnectionString(process.env.AZURE_CONNECTIONS);
+        const containerClient = blobClientService.getContainerClient(process.env.AZURE_BLOB_CONTAINER_NAME);
+        const blobClient = containerClient.getBlockBlobClient(imageName);
+        return blobClient;
+    }
+
+    async uploadThumbnail(file){
+        const fileName = file.originalname.trim().replace(/(.png|.jpg|.jpeg|.gif|\s)$/gi,'');
+        const fileuploadtime = dayjs().format("YYMMDDHHmmss");
+        const uploadFileName = "D" + fileuploadtime + fileName;
+        const blobClient = this.getBlobClient(uploadFileName);
+        await blobClient.uploadData(file.buffer);
+        
+        return uploadFileName;
     }
     
     /**
