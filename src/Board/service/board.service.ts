@@ -37,8 +37,7 @@ export class BoardService {
      */
     async createBoard(createBoardDTO : CreateBoardDTO, writer:number, file?) : Promise <void>{
         //file upload
-        const thumnailName = await this.uploadThumbnail(file);
-
+        const thumnailName = file == undefined? "" : await this.uploadThumbnail(file);    
         
         //board 생성
         const board = await this.boardRepository.createBoard(createBoardDTO,writer,thumnailName);
@@ -92,20 +91,11 @@ export class BoardService {
         const skip : number  = pageVale * limit;
         const take : number = skip + limit;
 
-        //페이지 호출
+       
         const board = await this.boardRepository.getBoardMain(skip,take,status,login_id == undefined? -1 : login_id);
-        /*
-        const board = await this.boardRepository.find({
         
-            select : ["id","title","description","content","writer","thumbnail","views","date","board_status","likes_count"],
-            where : {board_status : status},
-            relations : ["tags"],
-            skip : skip,
-            take : take
 
-        })
-        */
-        
+        //페이지 호출
         
 
         return board;

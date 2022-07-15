@@ -86,7 +86,7 @@ export class BoardController {
      async getBoardMainTag(
          @Req() req: Request,
          @Body("page") page: number,
-         @Body("tag") tag: string[]
+         @Body("tag_name") tag: string[]
      ) : Promise<Object>{
          
          let board ;
