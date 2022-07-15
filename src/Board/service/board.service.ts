@@ -65,6 +65,11 @@ export class BoardService {
         return blobClient;
     }
 
+    /**
+     * uploadThumbnail(썸네일 업로드)
+     * @param file 
+     * @returns 
+     */
     async uploadThumbnail(file){
         const fileName = file.originalname.trim().replace(/(.png|.jpg|.jpeg|.gif|\s)$/gi,'');
         const fileuploadtime = dayjs().format("YYMMDDHHmmss");
@@ -302,12 +307,12 @@ export class BoardService {
     }
     
     /**
-     * updateBoard(게시물 수정 함수)
+     * updateBoard(게시물 업데이트 함수)
      * @param id 
      * @param UpdateBoardDTO 
      * @returns void
      */
-    async updateBoard(UpdateBoardDTO:UpdateBoardDTO, id :number) : Promise<void>{
+    async updateBoard(UpdateBoardDTO:UpdateBoardDTO, id :number, file? : File) : Promise<void>{
         
         const idValue :number = typeof id == typeof {} ?Number(Object.values(id)[0]) : Number(id);
         
@@ -322,6 +327,10 @@ export class BoardService {
             board.content = UpdateBoardDTO.content;
         }if(UpdateBoardDTO.board_status != undefined){
             board.board_status = UpdateBoardDTO.board_status;
+        }if(file != undefined){
+            const thumnailName = file == undefined? "" : await this.uploadThumbnail(file);
+            board.thumbnail = thumnailName;
+
         }
 
         //태그 수정
@@ -491,15 +500,27 @@ export class BoardService {
         if(id == undefined){
             throw new HttpException('ID 입력을 잘못 하였습니다.', HttpStatus.CONFLICT)
         }
-
-
-
         const cehckedboard = await this.boardRepository.findOne(id);
         
         if(!cehckedboard){
             throw new HttpException('존재하지 않는 게시물 입니다.', HttpStatus.CONFLICT)
         }
     }
+    async getUserIdinBoard(id : number){
+        if(id == undefined){
+            throw new HttpException('ID 입력을 잘못 하였습니다.', HttpStatus.CONFLICT)
+        }
+        const cehckedboard = await this.boardRepository.findOne(id);
+        
+        if(!cehckedboard){
+            throw new HttpException('존재하지 않는 게시물 입니다.', HttpStatus.CONFLICT)
+        }
+        const user_id = await this.boardRepository.getUserIdInBoard(id);
+
+        
+        return Number(Object.values(user_id.writer));
+    }
+
     /**
      * userIdInCookie(쿠키 Access 토큰의 user_id 반환)
      * @param accessToken 
