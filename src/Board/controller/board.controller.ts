@@ -77,7 +77,7 @@ export class BoardController {
          return board;
      }
      /**
-     * getBoardMain(메인페이지 호출 API)
+     * getBoardMain(메인페이지 태그 검색 API)
      * @param id 
      * @returns Board[]
      */

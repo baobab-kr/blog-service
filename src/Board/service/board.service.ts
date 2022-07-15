@@ -260,7 +260,7 @@ export class BoardService {
         
         const status : number = 0;
 
-        const board = await this.boardRepository.getBoardView(id,login_id == undefined? -1 : login_id);
+        const board = await this.boardRepository.getBoardView(id);
         /*
         const board = await this.boardRepository.findOne(
             {
