@@ -1,12 +1,14 @@
 import { IsEmail, IsNumber, IsString, Matches, MaxLength, MinLength,  } from 'class-validator';
 import { Transform } from 'class-transformer';
-
+import { ApiPropertyOptional } from '@nestjs/swagger';
 export class VerifyCodeReceiverDto {
+  @ApiPropertyOptional({description:'유효성 입증 관련된 인증번호를 전송할 메일 주소를 입력합니다.'})
   @Transform(params => params.value.trim()) 
   @IsString()
   @IsEmail()
   readonly email: string;
 
+  @ApiPropertyOptional({description:'회원가입 시에 사용되고 있는 사용자의 이름을 입력합니다.'})
   @Transform(params => params.value.trim()) 
   @IsString()
   @MinLength(2)

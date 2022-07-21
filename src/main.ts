@@ -1,6 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { setupSwagger } from './config/setupSwagger';
 
 import * as dotenv from 'dotenv';
 import * as path from 'path';
@@ -21,10 +22,11 @@ async function bootstrap() {
   app.use(cookieParser());
   app.enableCors({
     exposedHeaders: ['ATExpires', 'RTExpires'],
-    origin: 'http://localhost:2999',
+    origin: ['http://localhost:2999', 'http://localhost:3000'],
     methods: 'GET,PUT,PATCH,POST,DELETE',
     credentials: true,
 });
+  setupSwagger(app);
   await app.listen(3000);
 }
 bootstrap();

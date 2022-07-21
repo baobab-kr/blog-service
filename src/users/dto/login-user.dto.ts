@@ -1,7 +1,9 @@
 import { IsString, Matches, MaxLength, MinLength,  } from 'class-validator';
 import { Transform } from 'class-transformer';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class LoginUserDto {
+  @ApiPropertyOptional({description:'로그인 할 사용자의 아이디를 의미합니다.'})
   @Transform(params => params.value.trim()) 
   @IsString()
   @MinLength(4)
@@ -14,6 +16,7 @@ export class LoginUserDto {
   )
   readonly userid: string;
 
+  @ApiPropertyOptional({description:'로그인 할 사용자의 비밀번호를 의미합니다.'})
   @IsString()
   @Matches(
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,15}$/,
