@@ -14,8 +14,10 @@ import { Request, Response } from 'express';
 import { ExtractJwt } from 'passport-jwt';
 import { options } from 'joi';
 import { JwtService } from '@nestjs/jwt';
+import { ApiBody, ApiCreatedResponse, ApiOperation, ApiParam, ApiProperty, ApiQuery, ApiTags } from '@nestjs/swagger';
 
 @Controller('board')
+@ApiTags("Baobab_Board")
 export class BoardController {
     constructor(
         private boardService : BoardService,
@@ -34,16 +36,19 @@ export class BoardController {
      */
     @Post("/CreateBoard")
     @HttpCode(200)
-    @UseInterceptors(FileInterceptor('thumbnail'))
+    @UseInterceptors(FileInterceptor("thumbnail",multerMemoryOptions))
+    @ApiOperation({summary : "게시물 생성 API", description : "게시물을 생성한다."})
+    @ApiCreatedResponse({description : "게시물을 생성한다.", type : "void"})
     @UseGuards(JwtAccessTokenGuard)
     async createBoard(
         @Req() req: Request,
         @Body(ValidationPipe) createBoardDTO : CreateBoardDTO,
         @UploadedFile() file,
+        
     ) : Promise<void> {
         const user: any = req.user;
         const writer : number = user.id;
-        
+
         await this.boardService.createBoard(createBoardDTO,writer,file);
     }
     
@@ -55,9 +60,14 @@ export class BoardController {
      */
      @Post("/BoardMain")
      @HttpCode(200)
+     @ApiOperation({summary : "메인페이지 호출 API", description : "게시물을 반환한다"})
+     @ApiCreatedResponse({description : "게시물을 반환한다", type : "Object"})
+     @ApiQuery({name : "page", type : "number", required : true, description : "불러올 페이지"})
+     @ApiBody({schema : {example : {page : "number"},}})
      async getBoardMain(
          @Req() req: Request,
-         @Body("page") page: number
+         @Body("page")
+         page: number
      ) : Promise<Object>{
          
          let board ;
@@ -76,7 +86,7 @@ export class BoardController {
          return board;
      }
      /**
-     * getBoardMain(메인페이지 태그 검색 API)
+     * getBoardMain(메인페이지 호출 API)
      * @param id 
      * @returns Board[]
      */
@@ -85,7 +95,7 @@ export class BoardController {
      async getBoardMainTag(
          @Req() req: Request,
          @Body("page") page: number,
-         @Body("tag_name") tag: string[]
+         @Body("tag") tag: string[]
      ) : Promise<Object>{
          
          let board ;
@@ -356,33 +366,21 @@ export class BoardController {
      * @param updateBoardDTO 
      * @returns void
      */
+
     @Patch("BoardUpdate")
     @HttpCode(200)
-    @UseInterceptors(FileInterceptor('thumbnail'))
     @UseGuards(JwtAccessTokenGuard)
     async updateBoard(
         @Req() req: Request,
         @Body("board_id") id : number,
-        @Body() UpdateBoardDTO : UpdateBoardDTO,
-        @UploadedFile() file?
-    ){
+        @Body() UpdateBoardDTO : UpdateBoardDTO
+    ) : Promise<void>{
         const user: any = req.user;
         const writer : number = user.id;
-        
-        
-        if(Object.keys(req.cookies).includes("AccessToken") ){
-            const user_id_inPayload : number = await this.boardService.userIdInCookie(req.cookies.AccessToken);
-            const user_id_inBoard : number = await this.boardService.getUserIdinBoard(id);
-            if(user_id_inPayload == user_id_inBoard){
-                await this.boardService.updateBoard(UpdateBoardDTO, id,file);
-            }else{
-                return {"message" : "권한이 없는 사용자입니다."};
-            }
-        }else{
-            return {"message" : "권한이 없는 사용자입니다."};
-        }
-        
 
+        await this.boardService.CheckBoardById(id);
+        
+        await this.boardService.updateBoard(UpdateBoardDTO, id);
     }
 
     /**
