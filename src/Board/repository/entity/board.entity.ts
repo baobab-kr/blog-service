@@ -15,7 +15,8 @@ export class Board extends BaseEntity{
     title : string;
     @Column()
     description : string;
-    @Column("varchar",{length:4000})
+    @Column({ nullable: true, type: 'longtext' })
+    //"varchar",{length:4000}
     content : string;
     @Column()
     thumbnail : string;

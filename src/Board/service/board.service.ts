@@ -11,6 +11,8 @@ import { isEmpty, IsNotEmpty } from 'class-validator';
 import { Likes } from '../repository/entity/like.entity';
 import { Repository, Like, In } from 'typeorm';
 import { Users } from 'src/users/entity/user.entity';
+import { BlobServiceClient, BlockBlobClient } from '@azure/storage-blob';
+import * as dayjs from 'dayjs'
 
 @Injectable()
 export class BoardService {
@@ -33,16 +35,12 @@ export class BoardService {
      * @param file 
      * @returns void
      */
-    async createBoard(createBoardDTO : CreateBoardDTO,writer:number, file) : Promise <void>{
+    async createBoard(createBoardDTO : CreateBoardDTO, writer:number, file?) : Promise <void>{
         //file upload
-        let uploadPath = "";
-        if(!(file === undefined)){
-            const fileName = Date.now() + file.originalname;
-            uploadPath = `C:/File/baobabnamu/upload/${fileName}`;
-            fs.writeFileSync(uploadPath, file.buffer);
-        }        
+        const thumnailName = file == undefined? "" : await this.uploadThumbnail(file);    
+        
         //board 생성
-        const board = await this.boardRepository.createBoard(createBoardDTO,writer,uploadPath);
+        const board = await this.boardRepository.createBoard(createBoardDTO,writer,thumnailName);
         
         if(board === undefined){
             throw new HttpException('게시판 생성 실패', HttpStatus.CONFLICT)
@@ -54,10 +52,32 @@ export class BoardService {
             if(createBoardDTO.tag_name.length > 0){
                 await this.createTag(board.id, createBoardDTO.tag_name);
             }
-            
         }
         
 
+    }
+
+
+    getBlobClient(imageName:string):BlockBlobClient{
+        const blobClientService = BlobServiceClient.fromConnectionString(process.env.AZURE_CONNECTIONS);
+        const containerClient = blobClientService.getContainerClient(process.env.AZURE_BLOB_CONTAINER_NAME);
+        const blobClient = containerClient.getBlockBlobClient(imageName);
+        return blobClient;
+    }
+
+    /**
+     * uploadThumbnail(썸네일 업로드)
+     * @param file 
+     * @returns 
+     */
+    async uploadThumbnail(file){
+        const fileName = file.originalname.trim().replace(/(.png|.jpg|.jpeg|.gif|\s)$/gi,'');
+        const fileuploadtime = dayjs().format("YYMMDDHHmmss");
+        const uploadFileName = "D" + fileuploadtime + fileName;
+        const blobClient = this.getBlobClient(uploadFileName);
+        await blobClient.uploadData(file.buffer);
+        
+        return uploadFileName;
     }
     
     /**
@@ -76,20 +96,11 @@ export class BoardService {
         const skip : number  = pageVale * limit;
         const take : number = skip + limit;
 
-        //페이지 호출
+       
         const board = await this.boardRepository.getBoardMain(skip,take,status,login_id == undefined? -1 : login_id);
-        /*
-        const board = await this.boardRepository.find({
         
-            select : ["id","title","description","content","writer","thumbnail","views","date","board_status","likes_count"],
-            where : {board_status : status},
-            relations : ["tags"],
-            skip : skip,
-            take : take
 
-        })
-        */
-        
+        //페이지 호출
         
 
         return board;
@@ -254,7 +265,7 @@ export class BoardService {
         
         const status : number = 0;
 
-        const board = await this.boardRepository.getBoardView(id,login_id == undefined? -1 : login_id);
+        const board = await this.boardRepository.getBoardView(id);
         /*
         const board = await this.boardRepository.findOne(
             {
@@ -296,12 +307,12 @@ export class BoardService {
     }
     
     /**
-     * updateBoard(게시물 수정 함수)
+     * updateBoard(게시물 업데이트 함수)
      * @param id 
      * @param UpdateBoardDTO 
      * @returns void
      */
-    async updateBoard(UpdateBoardDTO:UpdateBoardDTO, id :number) : Promise<void>{
+    async updateBoard(UpdateBoardDTO:UpdateBoardDTO, id :number, file? : File) : Promise<void>{
         
         const idValue :number = typeof id == typeof {} ?Number(Object.values(id)[0]) : Number(id);
         
@@ -316,6 +327,10 @@ export class BoardService {
             board.content = UpdateBoardDTO.content;
         }if(UpdateBoardDTO.board_status != undefined){
             board.board_status = UpdateBoardDTO.board_status;
+        }if(file != undefined){
+            const thumnailName = file == undefined? "" : await this.uploadThumbnail(file);
+            board.thumbnail = thumnailName;
+
         }
 
         //태그 수정
@@ -485,15 +500,27 @@ export class BoardService {
         if(id == undefined){
             throw new HttpException('ID 입력을 잘못 하였습니다.', HttpStatus.CONFLICT)
         }
-
-
-
         const cehckedboard = await this.boardRepository.findOne(id);
         
         if(!cehckedboard){
             throw new HttpException('존재하지 않는 게시물 입니다.', HttpStatus.CONFLICT)
         }
     }
+    async getUserIdinBoard(id : number){
+        if(id == undefined){
+            throw new HttpException('ID 입력을 잘못 하였습니다.', HttpStatus.CONFLICT)
+        }
+        const cehckedboard = await this.boardRepository.findOne(id);
+        
+        if(!cehckedboard){
+            throw new HttpException('존재하지 않는 게시물 입니다.', HttpStatus.CONFLICT)
+        }
+        const user_id = await this.boardRepository.getUserIdInBoard(id);
+
+        
+        return Number(Object.values(user_id.writer));
+    }
+
     /**
      * userIdInCookie(쿠키 Access 토큰의 user_id 반환)
      * @param accessToken 

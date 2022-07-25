@@ -105,12 +105,12 @@ export class BoardRepository extends Repository<Board> {
      * @param id 
      * @returns 
      */
-     async getBoardView(id : number,login_id : number){
+     async getBoardView(id : number){
         const board = await this.createQueryBuilder("board")
         
         .leftJoin("board.tags","tag")
         .leftJoin("board.writer","users")
-        .leftJoin("board.likes","likes",`likes.user_id =  ${login_id}`)
+        .leftJoin("board.likes","likes",`likes.user_id =  ${id}`)
         .select(["board.id","board.title","board.description","board.content","board.thumbnail","board.views","board.date","board.board_status","board.likes_count"])
         .addSelect(["tag"])
         .addSelect(["users.id","users.userid","users.username","users.email","users.role","users.avatar_image"])
@@ -282,7 +282,6 @@ export class BoardRepository extends Repository<Board> {
      */
     async getBoardGuestTag(skip : number , take: number, writer : number, tag_name : string[], board_status : number[], login_id : number){
         const board = await this.createQueryBuilder("board")
-        
         .leftJoin("board.tags","tag")
         //.leftJoin("board.writer","users")
         .leftJoin("board.likes","likes",`likes.user_id =  ${login_id}`)
@@ -299,5 +298,21 @@ export class BoardRepository extends Repository<Board> {
         
         return board ;
     }
+
+    /**
+     * 
+     * @param id 
+     */
+    async getUserIdInBoard(id : number ){
+        const userid = await this.createQueryBuilder("board")
+        .leftJoin("board.writer","users")
+        .select(["board.id"])
+        .addSelect(["users.id"])
+        .where(`board.id = ${id}`)
+        .getOne();
+
+        return userid;
+    }
+
 }//end of BoardRepository
 

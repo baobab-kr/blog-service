@@ -34,17 +34,16 @@ export class BoardController {
      */
     @Post("/CreateBoard")
     @HttpCode(200)
-    @UseInterceptors(FileInterceptor("thumbnail",multerMemoryOptions))
+    @UseInterceptors(FileInterceptor('thumbnail'))
     @UseGuards(JwtAccessTokenGuard)
     async createBoard(
         @Req() req: Request,
         @Body(ValidationPipe) createBoardDTO : CreateBoardDTO,
         @UploadedFile() file,
-        
     ) : Promise<void> {
         const user: any = req.user;
         const writer : number = user.id;
-
+        
         await this.boardService.createBoard(createBoardDTO,writer,file);
     }
     
@@ -77,7 +76,7 @@ export class BoardController {
          return board;
      }
      /**
-     * getBoardMain(메인페이지 호출 API)
+     * getBoardMain(메인페이지 태그 검색 API)
      * @param id 
      * @returns Board[]
      */
@@ -86,7 +85,7 @@ export class BoardController {
      async getBoardMainTag(
          @Req() req: Request,
          @Body("page") page: number,
-         @Body("tag") tag: string[]
+         @Body("tag_name") tag: string[]
      ) : Promise<Object>{
          
          let board ;
@@ -357,21 +356,33 @@ export class BoardController {
      * @param updateBoardDTO 
      * @returns void
      */
-
     @Patch("BoardUpdate")
     @HttpCode(200)
+    @UseInterceptors(FileInterceptor('thumbnail'))
     @UseGuards(JwtAccessTokenGuard)
     async updateBoard(
         @Req() req: Request,
         @Body("board_id") id : number,
-        @Body() UpdateBoardDTO : UpdateBoardDTO
-    ) : Promise<void>{
+        @Body() UpdateBoardDTO : UpdateBoardDTO,
+        @UploadedFile() file?
+    ){
         const user: any = req.user;
         const writer : number = user.id;
-
-        await this.boardService.CheckBoardById(id);
         
-        await this.boardService.updateBoard(UpdateBoardDTO, id);
+        
+        if(Object.keys(req.cookies).includes("AccessToken") ){
+            const user_id_inPayload : number = await this.boardService.userIdInCookie(req.cookies.AccessToken);
+            const user_id_inBoard : number = await this.boardService.getUserIdinBoard(id);
+            if(user_id_inPayload == user_id_inBoard){
+                await this.boardService.updateBoard(UpdateBoardDTO, id,file);
+            }else{
+                return {"message" : "권한이 없는 사용자입니다."};
+            }
+        }else{
+            return {"message" : "권한이 없는 사용자입니다."};
+        }
+        
+
     }
 
     /**
