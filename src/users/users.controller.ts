@@ -181,7 +181,7 @@ export class UsersController {
   @Post('/upload-profile')
   @UseInterceptors(FileInterceptor('profile'))
   async uploadProfile(@UploadedFile() file, @Body() userid: string) {
-    file.originalname = userid['userid'];
+    file.originalname = userid['userid'].replace(/\"/gi, "");
     await this.usersService.uploadProfile(file);
   }
 
@@ -195,6 +195,7 @@ export class UsersController {
   @Get('/read-profile')
   @Header('Content-Type','image/webp')
   async getProfile(@Res() res, @Query('userid') userid) {
+    userid = userid.replace(/\"/gi, "");
     const file = await this.usersService.getProfile(userid);
     return file.pipe(res);
   }
