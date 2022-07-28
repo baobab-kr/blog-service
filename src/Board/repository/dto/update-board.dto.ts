@@ -8,7 +8,7 @@ export class UpdateBoardDTO extends PartialType(CreateBoardDTO) {
     @MaxLength(30,{message : "입력가능 글자 수를 초과하였습니다."})
     @IsString()
     @Matches(/^[ㄱ-ㅎ|가-힣|a-z|A-Z|0-9|\s~|\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]+$/)
-    @ApiProperty()ApiProperty
+    @ApiProperty()
     title? : string;
 
     

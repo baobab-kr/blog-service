@@ -38,7 +38,8 @@ export class BoardController {
     @HttpCode(200)
     @UseInterceptors(FileInterceptor("thumbnail",multerMemoryOptions))
     @ApiOperation({summary : "게시물 생성 API", description : "게시물을 생성한다."})
-    @ApiCreatedResponse({description : "게시물을 생성한다.", type : "void"})
+    @ApiCreatedResponse({type : "void"})
+    @ApiBody({schema : {example : {"title": "string",  "description": "string",  "content": "string",  "board_status": 0,  "tag_name": [    "string"  ], file : "File"},}})
     @UseGuards(JwtAccessTokenGuard)
     async createBoard(
         @Req() req: Request,
@@ -61,9 +62,9 @@ export class BoardController {
      @Post("/BoardMain")
      @HttpCode(200)
      @ApiOperation({summary : "메인페이지 호출 API", description : "게시물을 반환한다"})
-     @ApiCreatedResponse({description : "게시물을 반환한다", type : "Object"})
-     @ApiQuery({name : "page", type : "number", required : true, description : "불러올 페이지"})
-     @ApiBody({schema : {example : {page : "number"},}})
+     @ApiCreatedResponse({description : "게시물 정보 반환", type : "Object"})
+     @ApiQuery({name : "page", required : true, description : "불러올 페이지"})
+     @ApiBody({schema : {example : {page : 0} }})
      async getBoardMain(
          @Req() req: Request,
          @Body("page")
@@ -92,10 +93,13 @@ export class BoardController {
      */
      @Post("/BoardMainTag")
      @HttpCode(200)
+     @ApiOperation({summary : "메인페이지 태그 검색 API", description : "tag_name이 있는 해당하는 게시물을 반환"})
+     @ApiCreatedResponse({description : "게시물 정보 반환", type : "Object"})
+     @ApiBody({schema : {example : {page : 0,   "tag_name": [    "string"  ]}}})
      async getBoardMainTag(
          @Req() req: Request,
          @Body("page") page: number,
-         @Body("tag") tag: string[]
+         @Body("tag_name") tag: string[]
      ) : Promise<Object>{
          
          let board ;
@@ -121,6 +125,9 @@ export class BoardController {
     @Post("/BoardPersonal")
     @HttpCode(200)
     //@UseGuards(JwtAccessTokenGuard)
+    @ApiOperation({summary : "개인페이지 호출 API", description : "개인페이지를 반환한다.\n 작성자가 아닌 다른사람의 개인페이지에 들어가면 공개 게시물만을 반환한다."})
+    @ApiCreatedResponse({description : "게시물 정보 반환", type : "Object"})
+    @ApiBody({schema : {example : {user_id : 0, page : 0}}})
     async getBoardPersonal(
         @Req() req: Request,
         @Body("user_id") user_id : number,
@@ -186,13 +193,16 @@ export class BoardController {
     }
 
     /**
-     * getTagCount(개인페이지 테그개수 반환)
+     * getTagCount(개인페이지 테그 개수 반환 API)
      * @param req 
      * @param user_id 
      * @returns 
      */
     @Post("/BoardPersonalTagCount")
     @HttpCode(200)
+    @ApiOperation({summary : "개인페이지 테그 개수 반환 API", description : "해당 개인페이지의 게시물이 갖은 태그들의 개수를 반환한다."})
+    @ApiCreatedResponse({description : "태그정보 반환", type : "Object"})
+    @ApiBody({schema : {example : {user_id : 0}}})
     async getTagCount(
         @Req() req : Request,
         @Body("user_id") user_id : number
@@ -231,13 +241,16 @@ export class BoardController {
 
     }
     /**
-     * getWriter(개인페이지의 작성자)
+     * getWriter(개인페이지의 작성자 확인 API)
      * @param req 
      * @param user_id 
      * @returns 
      */
     @Post("/BoardPersonalWriter")
     @HttpCode(200)
+    @ApiOperation({summary : "개인페이지의 작성자 확인 API", description : "해당 개인페이지의 작성자를 반환한다."})
+    @ApiCreatedResponse({description : "User정보 반환", type : "User"})
+    @ApiBody({schema : {example : {user_id : 0}}})
     async getWriter(
         @Req() req : Request,
         @Body("user_id") user_id : number
@@ -280,7 +293,7 @@ export class BoardController {
         return writer;
     }
     /**
-     * getBoardPersonalTag(개인페이지 태그 검색API)
+     * getBoardPersonalTag(개인페이지 태그 검색 API)
      * @param req 
      * @param page 
      * @param user_id 
@@ -289,6 +302,9 @@ export class BoardController {
      */
     @Post("/BoardPersonalTag")
     @HttpCode(200)
+    @ApiOperation({summary : "개인페이지 태그 검색 API", description : "tag_name이 포함된 개인페이지 정보를 반환한다."})
+    @ApiCreatedResponse({description : "게시물 반환", type : "Object"})
+    @ApiBody({schema : {example : { page : "string", user_id : 0, "tag_name" : [ "string" ]}}})
     async getBoardPersonalTag(
         @Req() req : Request,
         @Body("page") page : number,
@@ -337,8 +353,12 @@ export class BoardController {
      * @param id 
      * @returns Board
      */
+    
     @Post("/BoardView")
     @HttpCode(200)
+    @ApiOperation({summary : "상세 페이지 호출 API", description : "입력 board_id와 같은 게시물 정보 반환"})
+    @ApiCreatedResponse({description : "게시물 반환", type : "Board"})
+    @ApiBody({schema : {example : { board_id : 0}}})
     async getBoardById(
         @Req() req : Request,
         @Body("board_id") id : number
@@ -370,6 +390,9 @@ export class BoardController {
     @Patch("BoardUpdate")
     @HttpCode(200)
     @UseGuards(JwtAccessTokenGuard)
+    @ApiOperation({summary : "게시물 업데이트 API", description : "게시물을 수정, 삭제 할 수 있음"})
+    @ApiCreatedResponse({type : "void"})
+    @ApiBody({schema : {example : { board_id : 0, "title": "string",  "description": "string",  "content": "string",  "board_status": 0,  "tag_name": [    "string"  ]}}})
     async updateBoard(
         @Req() req: Request,
         @Body("board_id") id : number,
@@ -391,6 +414,9 @@ export class BoardController {
     @Patch("BoardDelete")
     @HttpCode(200)
     @UseGuards(JwtAccessTokenGuard)
+    @ApiOperation({summary : "게시물 삭제 API", description : "게시물을 삭제 할 수 있음"})
+    @ApiCreatedResponse({type : "void"})
+    @ApiBody({schema : {example : { board_id : 0}}})
     async deleteBoard(
         @Req() req: Request,
         @Body("board_id") id : number
@@ -415,6 +441,8 @@ export class BoardController {
     @Post("/CreateComment")
     @HttpCode(200)
     @UseGuards(JwtAccessTokenGuard)
+    @ApiOperation({summary : "댓글 생성 API", description : "댓글 생성 할 수 있음"})
+    @ApiCreatedResponse({type : "void"})
     async createComment(
         @Req() req: Request,
         @Body(ValidationPipe) createCommentDTO : CreateCommentDTO
@@ -434,6 +462,9 @@ export class BoardController {
      */
     @Post("Comment")
     @HttpCode(200)
+    @ApiOperation({summary : "댓글 호출 API", description : "해당 board_id의 댓글을 불러올 수 있다. page당 10개의 댓글을 불러올 수 있다."})
+    @ApiCreatedResponse({type : "Comment[]"})
+    @ApiBody({schema : {example : { board_id : 0, page : 0}}})
     async getCommentById(
         @Body("board_id") board_id : number,
         @Body("page") page : number
@@ -441,17 +472,20 @@ export class BoardController {
         return await this.commentService.getCommentByBoardId(board_id,page);
     }
     /**
-     * getCommentById(댓글 호출 API)
+     * getCommentById(댓글 페이지 개수 API)
      * @param board_id 
      * @returns Comment[]
      */
-     @Post("CommentPage")
-     @HttpCode(200)
-     async getCommentPage(
-         @Body("board_id") board_id : number
-     ){
-         return await this.commentService.getCommentCount(board_id);
-     }
+    @Post("CommentPage")
+    @HttpCode(200)
+    @ApiOperation({summary : "댓글 페이지 개수 API", description : "댓글 최대 페이지 반환"})
+    @ApiCreatedResponse({type : "Number"})
+    @ApiBody({schema : {example : { board_id : 0}}})
+    async getCommentPage(
+        @Body("board_id") board_id : number
+    ){
+        return await this.commentService.getCommentCount(board_id);
+    }
     
     /**
      * deleteCommentById(댓글 삭제 API)
@@ -461,6 +495,9 @@ export class BoardController {
     @Patch("DeleteComment")
     @HttpCode(200)
     @UseGuards(JwtAccessTokenGuard)
+    @ApiOperation({summary : "댓글 삭제 API", description : "댓글 삭제"})
+    @ApiCreatedResponse({type : "void"})
+    @ApiBody({schema : {example : { comment_id : 0}}})
     async deleteCommentById(
         @Req() req : Request,
         @Body("comment_id") comment_id : number
@@ -481,6 +518,8 @@ export class BoardController {
     @Post("/CreateReComment")
     @HttpCode(200)
     @UseGuards(JwtAccessTokenGuard)
+    @ApiOperation({summary : "답글 생성 API", description : "답글 생성"})
+    @ApiCreatedResponse({type : "void"})
     async createReComment(
         @Req() req :Request,
         @Body(ValidationPipe) createReCommentDTO : CreateReCommentDTO
@@ -500,14 +539,26 @@ export class BoardController {
      */
     @Post("ReComment")
     @HttpCode(200)
+    @ApiOperation({summary : "답글 호출 API", description : "답글을 호출할 수 있다. page당 10개의 댓글을 불러올 수 있다."})
+    @ApiCreatedResponse({type : "ReComment"})
+    @ApiBody({schema : {example : { comment_id : 0, page : 0}}})
     async getReCommentById(
         @Body("comment_id") comment_id : number,
         @Body("page") page : number
     ): Promise<ReComment[]>{
         return this.reCommentService.getReCommentByCommentId(comment_id, page);
     }
+
+    /**
+     * ReCommentPage(답글 페이지 개수 API)
+     * @param comment_id 
+     * @returns 
+     */
     @Post("ReCommentPage")
     @HttpCode(200)
+    @ApiOperation({summary : "답글 페이지 개수 API", description : "해당 답글 페이지 개수를 확인 할 수 있다."})
+    @ApiCreatedResponse({type : "Number"})
+    @ApiBody({schema : {example : { comment_id : 0}}})
     async getReCommentPage(
         @Body("comment_id") comment_id : number
     ){
@@ -523,6 +574,9 @@ export class BoardController {
     @Patch("DeleteReComment")
     @HttpCode(200)
     @UseGuards(JwtAccessTokenGuard)
+    @ApiOperation({summary : "답글 삭제 API", description : "해당 답글을 삭제할 수 있다."})
+    @ApiCreatedResponse({type : "void"})
+    @ApiBody({schema : {example : { reComment_id : 0}}})
     async deleteReCommentById(
         @Req() req : Request,
         @Body("reComment_id") reComment_id : number
@@ -543,6 +597,9 @@ export class BoardController {
     @Post("Like")
     @HttpCode(200)
     @UseGuards(JwtAccessTokenGuard)
+    @ApiOperation({summary : "답글 삭제 API", description : "해당 게시물의 좋아요 수를 증감할 수 있다. 한번 누르면 좋아요 증가, 두 번 누르면 좋아요 하락"})
+    @ApiCreatedResponse({type : "void"})
+    @ApiBody({schema : {example : { board_id : 0}}})
     async LikeBoard(
         @Req() req : Request,
         @Body("board_id") board_id : number
