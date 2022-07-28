@@ -43,15 +43,6 @@ export class ReCommentService {
         const reComment = await this.ReCommentRepository.getReCommentById(comment_id,status,skip,take);
 
 
-        /*
-        const reComment =  await this.ReCommentRepository.find({
-            select : ["id","writer","content","date"],
-            where : {
-                comment_id : commnet_id, 
-                recomment_status : status
-            }
-        });
-        */
         
         
         return reComment;

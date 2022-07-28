@@ -125,17 +125,7 @@ export class BoardService {
 
         //페이지 호출
         const board = await this.boardRepository.getBoardMainTag(skip,take,status,tag,login_id == undefined? -1 : login_id);
-        /*
-        const board = await this.boardRepository.find({
         
-            select : ["id","title","description","content","writer","thumbnail","views","date","board_status","likes_count"],
-            where : {board_status : status},
-            relations : ["tags"],
-            skip : skip,
-            take : take
-
-        })
-        */
         
         
 
@@ -163,19 +153,7 @@ export class BoardService {
 
 
         return board;
-        //this.getBoardById(id);
-        //const board = await this.boardRepository.getBoardMain(id);
-        /*
-        const board = await this.boardRepository.find({
-            
-            select : ["id","title","description","content","thumbnail","views","date","board_status","likes_count"],
-            where : {board_status : In(status), writer : writer},
-            relations : ["tags"],
-            skip : skip,
-            take : take
-
-        })
-        */
+        
         
         
     }
@@ -196,17 +174,7 @@ export class BoardService {
         const take : number = skip + limit;
         
         const board = await this.boardRepository.getBoardGuest(skip, take,writer, status,login_id == undefined? -1 : login_id)
-        /*
-        const board = await this.boardRepository.find({
         
-            select : ["id","title","description","content","thumbnail","views","date","board_status","likes_count"],
-            where : {board_status : status, writer : writer},
-            relations : ["tags"],
-            skip : skip,
-            take : take
-
-        })
-        */
         return board;
     }
 
@@ -266,41 +234,11 @@ export class BoardService {
         const status : number = 0;
 
         const board = await this.boardRepository.getBoardView(id);
-        /*
-        const board = await this.boardRepository.findOne(
-            {
-                select : ["id","title","description","content","thumbnail","views","date","board_status","likes_count"],
-                relations : ["tags"],
-                where : {board_status : status, id:`${idValue}`}
-                
-            }
-        );
-        */
+        
 
         if(board === undefined){
             throw new HttpException('게시물 호출 실패', HttpStatus.CONFLICT);
         }
-        /*
-            상세페이지 이전글 이후글
-            const beforeBoard = await this.boardRepository.findOne(id-1);
-            const afterBoard = await this.boardRepository.findOne(id+1);
-            
-            let board ;
-            if(isEmpty(beforeBoard)){
-                board = {"beforBoardTitle" : `definedBoard`}
-                Object.assign(found,board)
-            }else{
-                board = {"beforBoardTitle" : `${beforeBoard.title}`};
-                Object.assign(found,board)
-            }
-            if(isEmpty(afterBoard)){
-                board = {"afterBoardTitle" : `definedBoard`}
-                Object.assign(found,board)
-            }else{
-                board = {"afterBoardTitle" : `${afterBoard.title}`};
-                Object.assign(found,board)
-            }
-        */
         
 
         return board;
