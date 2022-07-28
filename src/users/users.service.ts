@@ -172,7 +172,11 @@ export class UsersService {
   }
 
   async getProfile(fileName){
-    const blobClient = this.getBlobClient(fileName);
+    var blobClient = this.getBlobClient(fileName);
+    const isExist:Boolean = await blobClient.exists();
+    if (!isExist) {
+      blobClient = this.getBlobClient('profile-default');
+    }
     var blobDownloaded = await blobClient.download();
     return blobDownloaded.readableStreamBody;
   }
