@@ -79,7 +79,21 @@ export class BoardService {
         
         return uploadFileName;
     }
-    
+    /**
+     * getThumbnail(썸네일 다운로드)
+     * @param fileName 
+     * @returns 
+     */
+    async getThumbnail(fileName){
+        var blobClient = this.getBlobClient(fileName);
+        const isExist:Boolean = await blobClient.exists();
+        if (!isExist) {
+          blobClient = this.getBlobClient('profile-default');
+        }
+        var blobDownloaded = await blobClient.download();
+        return blobDownloaded.readableStreamBody;
+      }
+
     /**
      * getBoardMain(메인페이지 호출 함수)
      * @param id 

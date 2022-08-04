@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, Body, Post, ValidationPipe, UseInterceptors, UploadedFile, Patch, UseGuards, Req, HttpException, HttpStatus, HttpCode } from '@nestjs/common';
+import { Controller, Get, Param, Query, Body, Post, ValidationPipe, UseInterceptors, UploadedFile, Patch, UseGuards, Req, HttpException, HttpStatus, HttpCode, Header, Res } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import {  multerMemoryOptions } from '../../configs/multer.option';
 import { BoardService } from '../service/board.service';
@@ -26,7 +26,9 @@ export class BoardController {
         //private jwtService : JwtService
         ){}
     
+    
 
+    
     /**
      * createBoard(게시물 생성 API)
      * @param req
@@ -610,7 +612,23 @@ export class BoardController {
         const likes = await this.boardService.LikeBoard(board_id,writer);
         return likes;
     }
-    
+
+    /**
+     * getThumpnail(썸네일 호출 API)
+     * @param res 
+     * @param filename 
+     * @returns 
+     */
+    @Post("/getThumpnail")
+    @HttpCode(200)
+    @Header('Content-Type','image/webp')
+    @ApiOperation({summary : "썸네일 호출 API", description : "board가 갖은 thumpnail속성의 string값을 filename에 입력하면 해당 board의 썸네일 이미지 반환"})
+    @ApiCreatedResponse({type : "image"})
+    @ApiBody({schema : {example : { filename : "string"}}})
+    async getThumpnail(@Res() res, @Body('filename') filename){
+        const file = await this.boardService.getThumbnail(filename);
+        return file.pipe(res);
+    }
     
     
 
