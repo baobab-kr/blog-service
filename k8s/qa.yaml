@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blog-service
+  namespace: qa
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: blog-service
+  template:
+    metadata:
+      labels:
+        app: blog-service
+    spec:
+      containers:
+        - name: blog-service
+          image: ghcr.io/baobab-kr/blog-service/blog-service:16993ce4e15358b1a250b4eca39b2ed58c37ae47
+          imagePullPolicy: "Always"
+          ports:
+            - containerPort: 3000
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 150
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+          resources:
+            requests:
+              cpu: 5m
+              memory: 100Mi
+            limits:
+              cpu: 100m
+              memory: 300Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: blog-service
+  namespace: qa
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3000
+  selector:
+    app: blog-service
