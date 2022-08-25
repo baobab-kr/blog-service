@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: blog-service
-          image: ghcr.io/baobab-kr/blog-service/blog-service:16993ce4e15358b1a250b4eca39b2ed58c37ae47
+          image: ghcr.io/baobab-kr/blog-service/blog-service:latest
           imagePullPolicy: "Always"
           ports:
             - containerPort: 3000
