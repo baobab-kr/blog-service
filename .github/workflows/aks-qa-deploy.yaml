@@ -27,3 +27,24 @@ jobs:
       run: |
         docker tag $IMAGE_NAME $IMAGE_HOST/$IMAGE_NAME:$IMAGE_TAG
         docker push $IMAGE_HOST/$IMAGE_NAME:$IMAGE_TAG
+
+    - name: aks login
+        uses: azure/aks-set-context@v1
+        with:
+          creds: "${{ secrets.AZURE_CREDENTIALS }}"
+          resource-group: "${{ secrets.AZURE_RESOURCE_GROUP }}"
+          cluster-name: "${{ secrets.AZURE_CLUSTER_NAME }}"
+        id: login
+
+      - name: create namespace
+        run: |
+          kubectl create namespace ${{ env.NAMESPACE }} --dry-run=client -o json | kubectl apply -f -
+
+      - name: aks apply object
+        uses: Azure/k8s-deploy@v1.4
+        with:
+          namespace: ${{ env.NAMESPACE }}
+          manifests: |
+            ./k8s/qa.yaml
+          images: |
+            ${{ env.IMAGE_HOST }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
