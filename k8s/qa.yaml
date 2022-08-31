@@ -15,26 +15,27 @@ spec:
     spec:
       containers:
         - name: blog-service
-          image: ghcr.io/baobab-kr/blog-service/blog-service:dfa4b9c3ab3e6f7a1517bf6cc0342e8f89be6c8d
-          imagePullPolicy: "Always"
+          image: ghcr.io/baobab-kr/blog-service/blog-service-qa:v0.1.0
+          imagePullPolicy: Never
           ports:
             - containerPort: 3000
           livenessProbe:
             httpGet:
               path: /hello
               port: 3000
-            initialDelaySeconds: 150
+            initialDelaySeconds: 360
           readinessProbe:
             httpGet:
               path: /hello
               port: 3000
+            initialDelaySeconds: 360
           resources:
             requests:
               cpu: 5m
-              memory: 100Mi
+              memory: 300Mi
             limits:
               cpu: 100m
-              memory: 300Mi
+              memory: 512Mi
           env:
             - name: EMAIL_HOST
               valueFrom:
@@ -66,6 +67,16 @@ spec:
                 configMapKeyRef:
                   name: baobab-qa
                   key: email_base_url
+            - name: DB_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: baobab-qa
+                  key: db_username
+            - name: DB_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: baobab-qa
+                  key: db_password
             - name: DB_HOST
               valueFrom:
                 configMapKeyRef:
