@@ -45,6 +45,6 @@ jobs:
       with:
         namespace: ${{ env.NAMESPACE }}
         manifests: |
-          ./k8s/blog-service-test.yaml
+          ./k8s/blog-service-qa.yaml
         images: |
           ${{ env.IMAGE_HOST }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
