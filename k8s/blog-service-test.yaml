@@ -4,7 +4,7 @@ metadata:
   name: blog-service
   namespace: test
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: blog-service
@@ -15,8 +15,8 @@ spec:
     spec:
       containers:
         - name: blog-service
-          image: blog-service-test:v0.0.1
-          imagePullPolicy: Never
+          image: ghcr.io/baobab-kr/blog-service/blog-service-qa:v0.1.0
+          imagePullPolicy: Always
           ports:
             - containerPort: 3000
           livenessProbe:
@@ -31,11 +31,11 @@ spec:
             initialDelaySeconds: 360
           resources:
             requests:
-              cpu: 5m
-              memory: 300Mi
+              cpu: 500m
+              memory: 1G
             limits:
-              cpu: 100m
-              memory: 512Mi
+              cpu: 500m
+              memory: 1G
           env:
             - name: EMAIL_HOST
               valueFrom:
