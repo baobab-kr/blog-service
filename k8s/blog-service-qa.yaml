@@ -87,6 +87,11 @@ spec:
                 configMapKeyRef:
                   name: baobab-qa
                   key: db_port
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: baobab-qa
+                  key: db_name
             - name: DB_SYNC
               valueFrom:
                 configMapKeyRef:
