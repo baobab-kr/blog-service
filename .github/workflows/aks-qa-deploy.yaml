@@ -5,7 +5,7 @@ on:
 
 env:
   IMAGE_HOST: ghcr.io/${{ github.repository }}
-  IMAGE_NAME: blog-service
+  IMAGE_NAME: blog-service-qa
   IMAGE_TAG: ${{ github.sha }}
   NAMESPACE: qa
 
