@@ -1,6 +1,5 @@
 import { Controller, Get, Param, Query, Body, Post, ValidationPipe, UseInterceptors, UploadedFile, Patch, UseGuards, Req, HttpException, HttpStatus, HttpCode, Header, Res } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import {  multerMemoryOptions } from '../../configs/multer.option';
 import { BoardService } from '../service/board.service';
 import { Board } from '../repository/entity/board.entity';
 import { Comment } from '../repository/entity/comment.entity';
@@ -11,10 +10,8 @@ import { CommentService } from '../service/commnet.service';
 import { ReCommentService } from '../service/recomment.service';
 import { JwtAccessTokenGuard } from 'src/auth/security/jwtAccessToken.guard';
 import { Request, Response } from 'express';
-import { ExtractJwt } from 'passport-jwt';
-import { options } from 'joi';
-import { JwtService } from '@nestjs/jwt';
 import { ApiBody, ApiCreatedResponse, ApiOperation, ApiParam, ApiProperty, ApiQuery, ApiTags } from '@nestjs/swagger';
+
 
 @Controller('board')
 @ApiTags("Baobab_Board")
@@ -38,7 +35,7 @@ export class BoardController {
      */
     @Post("/CreateBoard")
     @HttpCode(200)
-    @UseInterceptors(FileInterceptor("thumbnail",multerMemoryOptions))
+    @UseInterceptors(FileInterceptor("thumbnail"))
     @ApiOperation({summary : "게시물 생성 API", description : "게시물을 생성한다."})
     @ApiCreatedResponse({type : "void"})
     @ApiBody({schema : {example : {"title": "string",  "description": "string",  "content": "string",  "board_status": 0,  "tag_name": [    "string"  ], file : "File"},}})
@@ -119,6 +116,22 @@ export class BoardController {
          }
          return board;
      }
+    @Post("/BoardSearchOfTitle")
+    @HttpCode(200)
+    @ApiOperation({summary : "메인페이지 제목 검색 API", description : "title이 포함된 게시물을 반환"})
+    @ApiCreatedResponse({description : "게시물 정보 반환", type : "Object"})
+    @ApiBody({schema : {example : {page : 0,   "title":"string"}}})
+    async getBoardMainofTitle(
+    @Req() req: Request,
+    @Body("page") page: number,
+    @Body("title") title: string
+    ){
+        
+
+
+        return await this.boardService.getBoardMainofTitle(page,title);
+    }
+
     /**
      * getBoardPersonal(개인페이지 호출 API)
      * @param id 

@@ -7,6 +7,8 @@ import { validationSchema } from './config/validationSchema';
 import { UsersModule } from './users/users.module';
 import { DatabaseModule } from './config/database/database.module';
 import { BoardModule } from './Board/board.module';
+import { JobsModule } from './jobs/notice.module';
+import { ApplyJobModule } from './applyJob/applyJob.module';
 
 @Module({
   imports: [
@@ -18,7 +20,9 @@ import { BoardModule } from './Board/board.module';
     }),
     DatabaseModule,
     UsersModule,
-    BoardModule
+    BoardModule,
+    JobsModule,
+    ApplyJobModule
   ],
   controllers: [AppController],
   providers: [AppService],

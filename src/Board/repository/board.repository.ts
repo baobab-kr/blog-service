@@ -65,6 +65,31 @@ export class BoardRepository extends Repository<Board> {
         
         return board ;
     }
+    /**
+     * getBoardMainofTitle(게시물 제목 검색 기능)
+     * @param skip 
+     * @param take 
+     * @param board_status 
+     * @param title 
+     * @returns Board[]
+     */
+    async getBoardMainofTitle(skip : number , take: number, board_status : number[], title : string){
+        
+        let board = await this.createQueryBuilder("board")
+        .leftJoin("board.tags","tag")
+        .leftJoin("board.writer","users")
+        .leftJoin("board.likes","likes")
+        .select(["board.id","board.title","board.description","board.content","board.thumbnail","board.views","board.date","board.board_status","board.likes_count"])
+        .addSelect(["tag"])
+        .addSelect(["users.id","users.userid","users.username","users.email","users.role","users.avatar_image"])
+        .addSelect(["likes"])
+        .where("board.title LIKE :title",{title})
+        .andWhere(`board.board_status IN(:board_status)`,{board_status}) 
+        .getMany()
+
+        return board;
+    }
+
     async getBoardMainTag(skip : number , take: number, board_status : number[], tag_name : string[],login_id : number){
         let board_id = await this.getBoardMainTagid(skip,take,board_status,tag_name,login_id);
         let tag_id = board_id.map(row=>row.id);

@@ -145,7 +145,20 @@ export class BoardService {
 
         return board;
     }
+    async getBoardMainofTitle(page:number, title : string){
 
+        const status : number[]  = [0] ;
+
+        //페이지네이션
+        const limit : number  = 15 ; 
+        const pageVale : number = typeof page == typeof {} ?Number(Object.values(page)[0]) : Number(page);
+        const skip : number  = pageVale * limit;
+        const take : number = skip + limit;
+
+        const board = await this.boardRepository.getBoardMainofTitle(skip,take,status,title)
+
+        return board;
+    }
     /**
      * getBoardPersonal(개인페이지 호출 함수)
      * @param page 
