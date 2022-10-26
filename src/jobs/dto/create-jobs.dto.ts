@@ -3,72 +3,105 @@ import { IsNotEmpty, IsString } from "class-validator";
 
 export class CreateJobsDTO{
 
-
-    @IsNotEmpty({message : "값이 입력되지 않았습니다."})
-    @ApiProperty()
+    @IsNotEmpty({message : "user_id 값이 입력되지 않았습니다."})
+    @ApiProperty({
+        default: 1,
+    })
     user_id : Object 
 
-    @IsNotEmpty({message : "값이 입력되지 않았습니다."})
-    @ApiProperty()
+    @IsNotEmpty({message : "companyName 값이 입력되지 않았습니다."})
+    @ApiProperty({
+        default: "companyName",
+    })
     companyName : Object
 
-    @IsNotEmpty({message : "값이 입력되지 않았습니다."})
-    @ApiProperty()
+    @IsNotEmpty({message : "managerName 값이 입력되지 않았습니다."})
+    @ApiProperty({
+        default: "managerName",
+    })
     managerName:Object
 
-    @IsNotEmpty({message : "값이 입력되지 않았습니다."})
-    @ApiProperty()
+    @IsNotEmpty({message : "managerContact 값이 입력되지 않았습니다."})
+    @ApiProperty({
+        default: "managerContact",
+    })
     managerContact:Object
 
-    @IsNotEmpty({message : "값이 입력되지 않았습니다."})
-    @ApiProperty()
+    @IsNotEmpty({message : "license 값이 입력되지 않았습니다."})
+    @ApiProperty({
+        default: "license",
+    })
     license : Object
 
 
-    @IsNotEmpty({message : "값이 입력되지 않았습니다."})
-    @ApiProperty()
+    @IsNotEmpty({message : "field 값이 입력되지 않았습니다."})
+    @ApiProperty({
+        default: "field",
+    })
     field : Object
 
-    @IsNotEmpty({message : "값이 입력되지 않았습니다."})
-    @ApiProperty()
+    @IsNotEmpty({message : "title 값이 입력되지 않았습니다."})
+    @ApiProperty({
+        default: "title",
+    })
     title : Object
 
-    @IsNotEmpty({message : "값이 입력되지 않았습니다."})
-    @ApiProperty()
+    @IsNotEmpty({message : "logo 값이 입력되지 않았습니다."})
+    @ApiProperty({
+        default: "logo",
+    })
     logo : Object
 
-    @IsNotEmpty({message : "값이 입력되지 않았습니다."})
-    @ApiProperty()
+    @IsNotEmpty({message : "location 값이 입력되지 않았습니다."})
+    @ApiProperty({
+        default: "location",
+    })
     location : Object
 
-    @IsNotEmpty({message : "값이 입력되지 않았습니다."})
-    @ApiProperty()
+    @IsNotEmpty({message : "message 값이 입력되지 않았습니다."})
+    @ApiProperty({
+        default: "message",
+    })
     message : Object
 
-    @IsNotEmpty({message : "값이 입력되지 않았습니다."})
-    @ApiProperty()
+    @IsNotEmpty({message : "talent 값이 입력되지 않았습니다."})
+    @ApiProperty({
+        default: "talent",
+    })
     talent : Object
 
-    @IsNotEmpty({message : "값이 입력되지 않았습니다."})
-    @ApiProperty()
+    @IsNotEmpty({message : "careerType 값이 입력되지 않았습니다."})
+    @ApiProperty({
+        default: 0,
+    })
     careerType : Object
 
-    @IsNotEmpty({message : "값이 입력되지 않았습니다."})
-    @ApiProperty()
+    @IsNotEmpty({message : "url 값이 입력되지 않았습니다."})
+    @ApiProperty({
+        default: "url",
+    })
     url : Object
 
-    @IsNotEmpty({message : "값이 입력되지 않았습니다."})
-    @ApiProperty()
+    @IsNotEmpty({message : "salary 값이 입력되지 않았습니다."})
+    @ApiProperty({
+        default: "salary",
+    })
     salary : Object
 
-    @ApiProperty()
+    @ApiProperty({
+        default: "YYYYMMDD",
+    })
     startDate : Object
 
-    @ApiProperty()
+    @ApiProperty({
+        default: "YYYYMMDD",
+    })
     endDate : Object
 
-    @IsNotEmpty({message : "값이 입력되지 않았습니다."})
-    @ApiProperty()
+    @IsNotEmpty({message : "approvalStatus 값이 입력되지 않았습니다."})
+    @ApiProperty({
+        default: 0,
+    })
     approvalStatus : Object
 
 

@@ -5,25 +5,39 @@ import { PartialType } from '@nestjs/mapped-types';
 
 export class SelectJobsDTO {
 
-    @ApiProperty()
+    @ApiProperty({
+        default: "string",
+    })
     location?
     
-    @ApiProperty()
+    @ApiProperty({
+        default: "string",
+    })
     title?
 
-    @ApiProperty()
+    @ApiProperty({
+        default: "string",
+    })
     field?
 
-    @ApiProperty()
+    @ApiProperty({
+        default: 1,
+    })
     careerType?
     
-    @ApiProperty()
+    @ApiProperty({
+        default: "YYYYMMDD",
+    })
     startDate?
 
-    @ApiProperty()
+    @ApiProperty({
+        default: "YYYYMMDD",
+    })
     endDate?
 
-    @ApiProperty()
+    @ApiProperty({
+        default: "string",
+    })
     companyName?
 
     

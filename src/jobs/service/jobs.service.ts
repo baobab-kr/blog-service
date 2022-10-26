@@ -19,12 +19,6 @@ export class JobsService{
      * @param CreateJobsDTO 
      */
     async createNotice(CreateJobsDTO : CreateJobsDTO) : Promise<void>{
-
-        const Company_Logo = "";
-        const image = ""
-
-
-        
         
         await this.jobsRepository.createNotice(CreateJobsDTO);
 
@@ -110,7 +104,6 @@ export class JobsService{
 
         }
 
-        
         await this.jobsRepository.update(id,{companyName,
             managerName,
             managerContact,
@@ -175,7 +168,9 @@ export class JobsService{
         const blobClient = this.getBlobClient(uploadFileName);
         await blobClient.uploadData(file.buffer);
 
-        await this.jobsRepository.update({id:id},{logo : uploadFileName})
+        if(id){
+            await this.jobsRepository.update({id:id},{logo : uploadFileName})
+        }
         
         
         return uploadFileName;
@@ -192,8 +187,9 @@ export class JobsService{
         const blobClient = this.getBlobClient(uploadFileName);
         await blobClient.uploadData(file.buffer);
 
-        await this.jobsRepository.update({id:id},{license  : uploadFileName})
-        
+        if(id){
+            await this.jobsRepository.update({id:id},{license  : uploadFileName})
+        }
         return uploadFileName;
     }
 

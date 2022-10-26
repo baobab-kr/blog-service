@@ -21,21 +21,21 @@ export class Jobs extends BaseEntity{
     @Column({
         nullable:false,
         type:'varchar',
-        //length:30
+        length:30
     })
     companyName : string
 
     @Column({
         nullable:false,
         type:'varchar',
-        //length:20
+        length:20
     })
     managerName:string
 
     @Column({
         nullable:false,
         type:'varchar',
-        //length:50
+        length:50
     })
     managerContact:string
 
@@ -49,14 +49,14 @@ export class Jobs extends BaseEntity{
     @Column({
         nullable:false,
         type:'varchar',
-        //length:20
+        length:20
     })
     field : string
 
     @Column({
         nullable:false,
         type:'varchar',
-        //length:30
+        length:30
     })
     title : string
 
@@ -69,21 +69,21 @@ export class Jobs extends BaseEntity{
     @Column({
         nullable:false,
         type:'varchar',
-        //length:100
+        length:100
     })
     location : string
 
     @Column({
         nullable:false,
         type:'varchar',
-        //length:100
+        length:100
     })
     message : string
 
     @Column({
         nullable:false,
         type:'varchar',
-        //length:260
+        length:260
     })
     talent : string
 
@@ -103,14 +103,14 @@ export class Jobs extends BaseEntity{
     @Column({
         nullable:false,
         type:'varchar',
-        //length : 20
+        length : 20
     })
     salary : string
 
     @Column({
         nullable:true,
         type:'varchar',
-        //length : 8
+        length : 8
     })
     startDate : string
 
@@ -118,7 +118,7 @@ export class Jobs extends BaseEntity{
     @Column({
         nullable:true,
         type:'varchar',
-        //length : 8
+        length : 8
     })
     endDate : string
 

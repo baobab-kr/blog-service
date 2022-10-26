@@ -5,60 +5,96 @@ import { CreateJobsDTO } from './create-jobs.dto';
 
 export class UpdateJobsDTO  extends PartialType(CreateJobsDTO){
     
-    
+    @ApiProperty({
+        default: 1,
+    })
+    id? : Object
 
-    @ApiProperty()
+    @ApiProperty({
+        default: "string",
+    })
     companyName? : Object
 
-    @ApiProperty()
+    @ApiProperty({
+        default: "string",
+    })
     managerName?:Object
 
-    @ApiProperty()
+    @ApiProperty({
+        default: "string",
+    })
     managerContact?:Object
 
-    @ApiProperty()
+    @ApiProperty({
+        default: "string",
+    })
     license? : Object
 
 
-    @ApiProperty()
+    @ApiProperty({
+        default: "string",
+    })
     field? : Object
 
-    @ApiProperty()
+    @ApiProperty({
+        default: "string",
+    })
     title? : Object
 
-    @ApiProperty()
+    @ApiProperty({
+        default: "string",
+    })
     logo? : Object
 
-    @ApiProperty()
+    @ApiProperty({
+        default: "string",
+    })
     location? : Object
 
-    @ApiProperty()
+    @ApiProperty({
+        default: "string",
+    })
     message? : Object
 
-    @ApiProperty()
+    @ApiProperty({
+        default: "string",
+    })
     talent? : Object
 
-    @ApiProperty()
+    @ApiProperty({
+        default: "string",
+    })
     careerType? : Object
 
-    @IsNotEmpty({message : "값이 입력되지 않았습니다."})
-    @ApiProperty()
+    @ApiProperty({
+        default: "string",
+    })
     url? : Object
 
-    @ApiProperty()
+    @ApiProperty({
+        default: "string",
+    })
     salary? : Object
 
-    @ApiProperty()
+    @ApiProperty({
+        default: "YYYYMMDD",
+    })
     startDate? : Object
 
     
-    @ApiProperty()
+    @ApiProperty({
+        default: "YYYYMMDD",
+    })
     endDate? : Object
 
-    @ApiProperty()
+    @ApiProperty({
+        default: 1,
+    })
     approvalStatus? : Object
     
-    @ApiProperty()
+    @ApiProperty({
+        default: 1,
+    })
     jobStatus? : Object 
 
 

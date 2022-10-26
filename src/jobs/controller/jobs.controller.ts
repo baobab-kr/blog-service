@@ -23,7 +23,7 @@ export class JobsController{
     @HttpCode(200)
     @ApiOperation({
         summary:'공지사항 생성 API',
-        description:'공지사항을 생성합니다.',
+        description:'careerType\n- 경력무관 : 0\n- 인턴 : 1\n- 신입 : 2\n- 경력 : 3\n\napprovalStatus \n - 미승인 :  0 \n- 승인 : 1\n\njobStatus(default : 0)\n- 채용 마감 : 0\n- 채용 중 : 1        ',
     })
     async CreateJobs(
         @Body() createJobsDTO : CreateJobsDTO
@@ -40,7 +40,7 @@ export class JobsController{
     @HttpCode(200)
     @ApiOperation({
         summary:'공지사항 수정 API',
-        description:'공지사항을 수정.',
+        description:'approvalStatus이 1로 변경되면 jobStatus 이외의 컬럼은 수정이 불가능하다.',
     })
     async UpdateJobs(
     @Body("id") id :number,
@@ -59,7 +59,7 @@ export class JobsController{
      @HttpCode(200)
      @ApiOperation({
          summary:'공지사항 전체 조회 API',
-         description:'공지사항을 조회합니다.',
+         description:'approvalStatus이 1, jobStatus 1, 현재날짜 기준 startDate와 endDate가 포함된 게시물 반환',
      })
      async getJobsAll( 
         @Query() SelectJobsDTO : SelectJobsDTO
@@ -81,7 +81,7 @@ export class JobsController{
     @HttpCode(200)
     @ApiOperation({
         summary:'공지사항 상세 조회 API',
-        description:'공지사항을 조회합니다.',
+        description:'id 로 조회 가능, 모든 게시물 조회 가능',
     })
     async getNotice(
         @Query("id") id : number 
@@ -102,15 +102,15 @@ export class JobsController{
     @UseInterceptors(FileInterceptor("CompanyLogo"))
     @ApiOperation({
         summary:'회사로고 업로드',
-        description:'ID에 해당하는 공지사항의 회사로고를 변경',
+        description:'이미지 업로드 후 파일명 반환, ID와 함께 넣으면 해당하는 공지사항의 회사로고를 변경',
     })
+    @ApiBody({schema : {example : {id : 0, CompanyLogo : "File"}}})
     async uploadLogo(
         @Body("id") id : number,
         @UploadedFile() file
     ){
-        await this.jobsService.uploadLogo(id,file);
-
-        return file;
+        
+        return await this.jobsService.uploadLogo(id,file);
     }
 
     
@@ -128,16 +128,17 @@ export class JobsController{
      @HttpCode(200)
      @UseInterceptors(FileInterceptor("CompanyImage"))
      @ApiOperation({
-         summary:'채용공고 이미지 업로드',
-         description:'ID에 해당하는 공지사항의 이미지를 변경',
-     })
+        summary:'채용공고 이미지 업로드',
+        description:'이미지 업로드 후 파일명 반환, ID와 함께 넣으면 해당하는 공지사항의 회사로고를 변경',
+    })
+    @ApiBody({schema : {example : {id : 0, CompanyLogo : "File"}}})
      async uploadImage(
          @Body("id") id : number,
          @UploadedFile() file
      ){
-         await this.jobsService.uploadImage(id,file);
+  
  
-         return file;
+         return await this.jobsService.uploadImage(id,file);
      }
  
      @Post("/getImageFile")
@@ -146,6 +147,7 @@ export class JobsController{
          summary:'이미지 반환 API',
          description:'파일명을 입력하면 이미지를 반환',
      })
+     @ApiBody({schema : {example : {file_name : "string"}}})
      async getImageFile(
          @Res() res ,
          @Body("file_name") filename : string

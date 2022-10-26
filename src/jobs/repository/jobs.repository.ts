@@ -140,7 +140,9 @@ export class JobsRepository extends Repository<Jobs>{
 
     async getJobsAll(SelectJobsDTO : SelectJobsDTO){
         const dateNow = dayjs().format("YYYYMMDD");
-
+        let apStatus = 1;
+        let jpStatus = 1;
+        
 
         let companyName : string;
         let field : string;
@@ -163,7 +165,7 @@ export class JobsRepository extends Repository<Jobs>{
         
 
         let where = `jobs.startDate <= ${dateNow} AND jobs.endDate >= ${dateNow}`;
-
+        where += ` AND jobs.approvalStatus = ${apStatus} AND jobs.jobStatus = ${jpStatus}`
         if(location != undefined){
             where += ` AND jobs.location LIKE '%${location}%'`;
         }
