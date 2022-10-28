@@ -38,6 +38,12 @@ export class Users {
     @Column({nullable:true})
     currentRefreshToken: string
 
+    @Column({nullable:true})
+    techStack: string
+
+    @Column({nullable:true})
+    socialUrl: string
+
 
     @OneToMany(()=>Board, board=> board.writer , {nullable:true})
     boards : Board[]

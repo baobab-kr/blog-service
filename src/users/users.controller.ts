@@ -30,8 +30,8 @@ export class UsersController {
   })
   @Post('/register')
   async createUser(@Body() createUserDto: CreateUserDto): Promise<void> {
-    const { userid, email, username, password, inputVerifyCode } = createUserDto;
-    await this.usersService.createUser(userid, email, username, password, inputVerifyCode);
+    const { userid, email, username, password, inputVerifyCode, role } = createUserDto;
+    await this.usersService.createUser(userid, email, username, password, inputVerifyCode, role);
   }
   
   @ApiOperation({
