@@ -17,12 +17,12 @@ export class UsersService {
     private connection: Connection,
     ) {};
 
-  async createUser(userid: string, email: string, username: string, password: string, inputVerifyCode: number, role: number) {
+  async createUser(userid: string, email: string, username: string, password: string, inputVerifyCode: number, role: number, techStack: string) {
     await this.checkUserIdExists(userid);
     await this.checkUserNameExists(username);
     await this.checkEmailExists(email);
     await this.checkMemberJoinEmail(username, inputVerifyCode);
-    await this.saveUserUsingQueryRunnner(userid, email, username, password, role);
+    await this.saveUserUsingQueryRunnner(userid, email, username, password, role, techStack);
   }
 
   async login(userid: string, password: string)  {
@@ -80,7 +80,7 @@ export class UsersService {
     }
   }
   
-  private async saveUserUsingQueryRunnner(userid: string,  email: string, username: string, password: string, role: number) {
+  private async saveUserUsingQueryRunnner(userid: string,  email: string, username: string, password: string, role: number, techStack: string) {
     const queryRunner = this.connection.createQueryRunner();
     
     await queryRunner.connect();
@@ -92,6 +92,7 @@ export class UsersService {
       user.username = username
       user.password = await this.authService.encrpytionData(password)
       user.role = role
+      user.techStack = techStack
       await this.usersRepository.save(user)
       
       await queryRunner.commitTransaction();
