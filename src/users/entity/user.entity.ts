@@ -44,7 +44,6 @@ export class Users {
     @Column({nullable:true})
     socialUrl: string
 
-
     @OneToMany(()=>Board, board=> board.writer , {nullable:true})
     boards : Board[]
     @OneToMany(()=>Comment, comment=> comment.writer , {nullable:true})

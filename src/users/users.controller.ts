@@ -1,6 +1,7 @@
-import { Bind, Body, Controller, Get, Header, HttpCode, Post, Query, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Header, HttpCode, Post, Query, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import { SocialUrlDto } from './dto/social-url.dto';
 import { VerifyCodeReceiverDto } from './dto/verify-code-receiver.dto';
 import { UsersService } from './users.service';
 import { Request, Response } from 'express';
@@ -10,7 +11,7 @@ import { AuthService } from 'src/auth/auth.service';
 import { SavedUserDto } from './dto/saved-user.dto';
 import { Payload } from 'src/auth/security/payload.interface';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiConsumes, ApiPropertyOptional} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { FileUploadDto } from './dto/file-upload.dto';
 
 @Controller('users')
@@ -198,5 +199,18 @@ export class UsersController {
     userid = userid.replace(/\"/gi, "");
     const file = await this.usersService.getProfile(userid);
     return file.pipe(res);
+  }
+
+  @ApiOperation({
+    summary:'socialUrl 생성 API',
+    description:'유저 ID, socialUrl를 입력 받아 사용자의 socialUrl 정보를 생성하거나 업데이트한다.',
+  })
+  @ApiResponse({
+    description: '데이터베이스에 유저의 socialUrl 정보가 저장됩니다.'
+  })
+  @Post('/create-socialUrl')
+  async createSocialUrl(@Body() socialUrlDto: SocialUrlDto ): Promise<void> {
+    const { userid, socialUrl } = socialUrlDto;
+    await this.usersService.createSocialUrl(userid, socialUrl);
   }
 }
