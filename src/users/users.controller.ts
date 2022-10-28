@@ -23,7 +23,7 @@ export class UsersController {
 
   @ApiOperation({
     summary:'회원가입 API',
-    description:'유저 ID, 메일 주소, 닉네임, 비밀번호, 회원가입 인증코드를 입력 받아 사용자를 생성한다.',
+    description:'유저 ID, 메일 주소, 닉네임, 비밀번호, 회원가입 인증코드, 역할을 입력 받아 사용자를 생성한다.',
   })
   @ApiResponse({
     description: '데이터베이스에 유저 정보가 저장됩니다.'
