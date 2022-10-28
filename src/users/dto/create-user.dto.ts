@@ -48,4 +48,12 @@ export class CreateUserDto {
   @ApiPropertyOptional({description:'이메일 유효성 입증에 대한 인증 코드를 의미합니다.'})
   @IsNumber()
   readonly inputVerifyCode: number;
+
+  @ApiPropertyOptional({description:'해당 사용자 계정의 역할을 의미합니다. 0은 개발자를 뜻하며, 1은 헤드헌터를 뜻합니다.'})
+  @IsNumber()
+  readonly role: number;
+
+  @ApiPropertyOptional({description:'해당 사용자 계정의 직군, 기술 스택을 의미합니다.'})
+  @IsString()
+  readonly techStack: string;
 }
