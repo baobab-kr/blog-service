@@ -91,7 +91,7 @@ export class JobsRepository extends Repository<Jobs>{
             logo 
         })
 
-        this.save(Jobs);
+        await this.save(Jobs);
     }
 
     async getJobs(id : number){

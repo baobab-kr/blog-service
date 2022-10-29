@@ -15,25 +15,18 @@ export class ApplyJobService{
 
 
     async createApplyJob(createApplyJobDTO : CreateApplyJobDTO){
-        //Notice 지원자 수 증가
-        /*
-        const notice_id : number = Number(createRecruitDTO.notice_id)
-        
-        const notice = await this.jobsRepository.findOne({id:notice_id});
-
-        if(!notice){
-            throw new HttpException('해당 공지가 없습니다.', HttpStatus.CONFLICT)
-        }
-         
-        const notice_Volunteer = Number(notice.Volunteer) + 1;
-        
-        await this.noticeRepository.update({id:notice_id},{Volunteer:notice_Volunteer})
-
-        //지원 생성
-        await this.recruitRepository.createRecruit(createRecruitDTO);
-        */
+        await this.applyJobRepository.createApllyJobs(createApplyJobDTO);
     
     }
+    async getApplyJobsAll(jobs_id : number){
+        return await this.applyJobRepository.getApplyJobsAll(jobs_id)
+    } 
+    async getApplyJobs(id : number){
+        return await this.applyJobRepository.getApplyJobs(id);
+    } 
+    async getApplyJobsAll_inUser(user_id : number){
+        return await this.applyJobRepository.getApplyJobsAll_inUser(user_id);
+    } 
 
     async updateApplyJob(id : number, updateApplyJobDTO : UpdateApplyJobDTO){
         /*

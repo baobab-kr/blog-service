@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Patch, Post } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Patch, Post, Query } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { ApplyJobService } from '../service/applyJob.service';
 import { CreateApplyJobDTO } from '../dto/create-applyJob.dto';
@@ -13,17 +13,17 @@ export class ApplyJobController{
     ){}
 
     
-    @Post("/CreateRecruit")
+    @Post("/CreateApplyJob")
     @HttpCode(200)
-    async createRecruit(
+    async CreateApplyJob(
         @Body() createApplyJobDTO : CreateApplyJobDTO
     ){
         await this.applyJobService.createApplyJob(createApplyJobDTO);
     }
     
-    @Patch("/UpdateRecruit")
+    @Patch("/UpdateApplyJob")
     @HttpCode(200)
-    async updateRecruit(
+    async UpdateApplyJob(
         @Body("id") id : number,
         @Body() updateApplyJobDTO : UpdateApplyJobDTO
     ){
@@ -31,25 +31,34 @@ export class ApplyJobController{
     }
 
 
-    @Post("/GetRecruitAll")
+    @Get("/GetApplyJobAll")
     @HttpCode(200)
-    async getRecruitAll(
-        @Body("notice_id") id : number
+    async GetApplyJobAll(
+        @Query("jobs_id") jobs_id : number
     ){
-        return await this.applyJobService.getRecruitAll(id);
+        return await this.applyJobService.getApplyJobsAll(jobs_id);
     }
 
-    @Post("/GetRecruit")
+    @Get("/GetApplyJob")
     @HttpCode(200)
-    async getRecruit(
-        @Body("id") id : number
+    async GetApplyJob(
+        @Query("id") id : number
     ){
-        return await this.applyJobService.getRecruit(id);
+        console.log(await this.applyJobService.getApplyJobs(id))
+        return await this.applyJobService.getApplyJobs(id);
     }
 
-    @Patch("/DeleteRecruit")
+    @Get("/GetApplyJobsAll_inUser")
     @HttpCode(200)
-    async deleteRecruit(
+    async GetApplyJobsAll_inUser(
+        @Query("user_id") user_id : number
+    ){
+        return await this.applyJobService.getApplyJobsAll_inUser(user_id);
+    }
+
+    @Patch("/DeleteApplyJob")
+    @HttpCode(200)
+    async DeleteApplyJob(
         @Body("id") id : number
     ){
         await this.applyJobService.deleteRecruit(id)
