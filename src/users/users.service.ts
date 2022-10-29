@@ -17,12 +17,12 @@ export class UsersService {
     private connection: Connection,
     ) {};
 
-  async createUser(userid: string, email: string, username: string, password: string, inputVerifyCode: number) {
-    //await this.checkUserIdExists(userid);
-    //await this.checkUserNameExists(username);
-    //await this.checkEmailExists(email);
-    //await this.checkMemberJoinEmail(username, inputVerifyCode);
-    await this.saveUserUsingQueryRunnner(userid, email, username, password);
+  async createUser(userid: string, email: string, username: string, password: string, inputVerifyCode: number, role: number, techStack: string) {
+    await this.checkUserIdExists(userid);
+    await this.checkUserNameExists(username);
+    await this.checkEmailExists(email);
+    await this.checkMemberJoinEmail(username, inputVerifyCode);
+    await this.saveUserUsingQueryRunnner(userid, email, username, password, role, techStack);
   }
 
   async login(userid: string, password: string)  {
@@ -80,7 +80,7 @@ export class UsersService {
     }
   }
   
-  private async saveUserUsingQueryRunnner(userid: string,  email: string, username: string, password: string) {
+  private async saveUserUsingQueryRunnner(userid: string,  email: string, username: string, password: string, role: number, techStack: string) {
     const queryRunner = this.connection.createQueryRunner();
     
     await queryRunner.connect();
@@ -91,6 +91,28 @@ export class UsersService {
       user.email = email
       user.username = username
       user.password = await this.authService.encrpytionData(password)
+      user.role = role
+      user.techStack = techStack
+      await this.usersRepository.save(user)
+      
+      await queryRunner.commitTransaction();
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  private async saveSocialUrlUsingQueryRunnner(userid: string, socialUrl: string) {
+    const queryRunner = this.connection.createQueryRunner();
+    
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const userIdValue: string = typeof userid !== typeof "" ? Object.values(userid)[0] : userid
+      const user = await this.usersRepository.findOne({userid: userIdValue});
+      user.userid = userid
+      user.socialUrl = socialUrl
       await this.usersRepository.save(user)
       
       await queryRunner.commitTransaction();
@@ -179,5 +201,9 @@ export class UsersService {
     }
     var blobDownloaded = await blobClient.download();
     return blobDownloaded.readableStreamBody;
+  }
+
+  async createSocialUrl(userid: string, socialUrl: string) {
+    await this.saveSocialUrlUsingQueryRunnner(userid, socialUrl);
   }
 }

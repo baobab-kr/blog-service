@@ -1,0 +1,50 @@
+name: aks-qa-deploy
+on:
+  pull_request:
+    branches: [ develop ]
+
+env:
+  IMAGE_HOST: ghcr.io/${{ github.repository }}
+  IMAGE_NAME: blog-service-qa
+  IMAGE_TAG: ${{ github.sha }}
+  NAMESPACE: qa
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: repo checkout
+      uses: actions/checkout@v3
+
+    - name: build image
+      run: docker build . --file Dockerfile --tag $IMAGE_NAME
+
+    - name: log into registry
+      run: echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+    - name: push image
+      run: |
+        docker tag $IMAGE_NAME $IMAGE_HOST/$IMAGE_NAME:$IMAGE_TAG
+        docker push $IMAGE_HOST/$IMAGE_NAME:$IMAGE_TAG
+
+    - name: aks login
+      uses: azure/aks-set-context@v1
+      with:
+        creds: "${{ secrets.AZURE_CREDENTIALS }}"
+        resource-group: "${{ secrets.AZURE_RESOURCE_GROUP }}"
+        cluster-name: "${{ secrets.AZURE_CLUSTER_NAME }}"
+      id: login
+
+    - name: create namespace
+      run: |
+        kubectl create namespace ${{ env.NAMESPACE }} --dry-run=client -o json | kubectl apply -f -
+
+    - name: aks apply object
+      uses: Azure/k8s-deploy@v1.4
+      with:
+        namespace: ${{ env.NAMESPACE }}
+        manifests: |
+          ./k8s/blog-service-qa.yaml
+        images: |
+          ${{ env.IMAGE_HOST }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}

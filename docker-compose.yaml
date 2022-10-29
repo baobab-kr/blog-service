@@ -13,7 +13,7 @@ services:
       - ./mysql/sqls:/docker-entrypoint-initdb.d/
     environment:
         MYSQL_ROOT_PASSWORD: 1234
-        MYSQL_DATABASE: baobab
+        MYSQL_DATABASE: blog
 
   api:
     build:
