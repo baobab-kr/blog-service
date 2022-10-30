@@ -29,21 +29,8 @@ export class ApplyJobService{
     } 
 
     async updateApplyJob(id : number, updateApplyJobDTO : UpdateApplyJobDTO){
-        /*
-        const recruit = await this.recruitRepository.findOne(id);
 
-        if(!recruit){
-            throw new HttpException('해당 지원자가 없습니다.', HttpStatus.CONFLICT)
-        }
-
-        
-        const age = updateRecruitDTO.age != undefined ? updateRecruitDTO.age : recruit.age
-        const name = updateRecruitDTO.name != undefined ? updateRecruitDTO.name : recruit.name
-        const sex = updateRecruitDTO.sex != undefined ? updateRecruitDTO.sex : recruit.sex
-        const url = updateRecruitDTO.url != undefined ? updateRecruitDTO.url : recruit.url
-
-        await this.recruitRepository.update(id,{age,name,sex,url})
-        */
+        await this.applyJobRepository.updateApplyJobs(id,updateApplyJobDTO)
     }
 
     async deleteRecruit(id){

@@ -1,8 +1,9 @@
-import { EntityRepository, Repository } from "typeorm";
+import { EntityRepository, Repository, getConnection } from 'typeorm';
 import { ApplyJob } from '../entity/applyJob.entity';
 import { CreateJobsDTO } from '../../jobs/dto/create-jobs.dto';
 import { CreateApplyJobDTO } from '../dto/create-applyJob.dto';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { UpdateApplyJobDTO } from '../dto/update-applyJob.dto';
 
 @EntityRepository(ApplyJob)
 export class ApplyJobRepository extends Repository<ApplyJob>{
@@ -38,20 +39,6 @@ export class ApplyJobRepository extends Repository<ApplyJob>{
         }catch(e){
             throw new HttpException('변수 타입 초기화 실패', HttpStatus.CONFLICT)
         }
-        console.log(
-        jobs_Id,
-        user_id,
-        title,
-        name,
-        email,
-        techStack,
-        careerYear,
-        resumeUrl,
-        socialUrl,
-        profile,
-        education,
-        educationStatus
-        )
         const Jobs = await this.create({
             jobs_Id,
             user_id,
@@ -139,4 +126,69 @@ export class ApplyJobRepository extends Repository<ApplyJob>{
 
         return jobs;
     } 
+
+    async updateApplyJobs(id : number, updateApplyJobs : UpdateApplyJobDTO){
+
+        let applyJobs = await this.findOne(id);
+
+        
+
+        let jobs_Id : number ;
+        let user_id : number ;
+        let title : string ;
+        let name : string
+        let email : string
+        let techStack : string
+        let careerYear : number
+        let resumeUrl : string
+        let socialUrl : string
+        let profile : string
+        let education : number
+        let educationStatus : number
+        try{
+            jobs_Id = updateApplyJobs.jobs_Id != undefined ? Number(updateApplyJobs.jobs_Id) : applyJobs.jobs_Id;
+            user_id = updateApplyJobs.user_id != undefined ? Number(updateApplyJobs.user_id) : applyJobs.user_id;
+            title = updateApplyJobs.title != undefined ? String(updateApplyJobs.title) : applyJobs.title;
+            name = updateApplyJobs.name != undefined ? String(updateApplyJobs.name) : applyJobs.name;
+            email = updateApplyJobs.email != undefined ? String(updateApplyJobs.email) : applyJobs.email;
+            techStack = updateApplyJobs.techStack != undefined ? String(updateApplyJobs.techStack) : applyJobs.techStack;
+            careerYear = updateApplyJobs.careerYear != undefined ? Number(updateApplyJobs.careerYear) : applyJobs.careerYear;
+            resumeUrl = updateApplyJobs.resumeUrl != undefined ? String(updateApplyJobs.resumeUrl) : applyJobs.resumeUrl;
+            socialUrl = updateApplyJobs.socialUrl != undefined ? String(updateApplyJobs.socialUrl) : applyJobs.socialUrl;
+            profile = updateApplyJobs.profile != undefined ? String(updateApplyJobs.profile) : applyJobs.profile;
+            education = updateApplyJobs.education != undefined ? Number(updateApplyJobs.education) : applyJobs.education;
+            educationStatus = updateApplyJobs.educationStatus != undefined ? Number(updateApplyJobs.educationStatus) : applyJobs.educationStatus;
+
+        }catch(e){
+            throw new HttpException('변수 타입 초기화 실패', HttpStatus.CONFLICT)
+        }
+
+
+        let updateQuery = await getConnection()
+        .createQueryBuilder()
+        .update(ApplyJob)
+        .set({
+            jobs_Id,
+            user_id,
+            title,
+            name,
+            email,
+            techStack,
+            careerYear,
+            resumeUrl,
+            socialUrl,
+            profile,
+            education,
+            educationStatus
+        })
+        .where(`id = ${id}`)
+        .execute();
+
+
+
+        
+
+
+    }
+    
 }
