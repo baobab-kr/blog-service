@@ -220,7 +220,21 @@ export class JobsService{
         }
         return uploadFileName;
     }
+    /**
+     * uploadImage(이미지 업로드)
+     * @param file 
+     * @returns 
+     */
+    async uploadToastUiImage(file){
+        const fileName = file.originalname.trim().replace(/(.png|.jpg|.jpeg|.gif|\s)$/gi,'');
+        const fileuploadtime = dayjs().format("YYMMDDHHmmss");
+        const uploadFileName = "TO" + fileuploadtime + fileName;
+        const blobClient = this.getBlobClient(uploadFileName);
+        await blobClient.uploadData(file.buffer);
 
+
+        return uploadFileName;
+    }
     /**
      * getThumbnail(이미지 다운로드)
      * @param fileName 

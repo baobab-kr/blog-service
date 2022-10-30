@@ -287,6 +287,22 @@ export class JobsController{
  
          return await this.jobsService.uploadImage(id,file);
      }
+     @Post("/UploadToastUiImage")
+     @HttpCode(200)
+     @UseInterceptors(FileInterceptor("ToastImage"))
+     @ApiOperation({
+        summary:'토스트UI 이미지 업로드',
+        description:'이미지 업로드 후 파일명 반환',
+    })
+    @ApiBody({schema : {example : { ToastImage : "File"}}})
+     async uploadToastUiImage(
+         @UploadedFile() file
+     ){
+  
+ 
+         return await this.jobsService.uploadToastUiImage(file);
+     }
+     
  
      @Post("/getImageFile")
      @HttpCode(200)
