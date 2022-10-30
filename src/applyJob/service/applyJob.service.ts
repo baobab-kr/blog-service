@@ -53,6 +53,10 @@ export class ApplyJobService{
         return user_id_inPayload ;
     }
 
+    async AutoCompleteAPI(user_id : number){
+        return await this.usersRepository.findOne(user_id,{select : ["email","techStack","socialUrl"]});
+    }
+
     async deleteRecruit(id){
         /*
         const notice_id : number = Number(await (await this.recruitRepository.findOne(id)).notice_id);

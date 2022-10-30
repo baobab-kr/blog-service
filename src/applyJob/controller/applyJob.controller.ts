@@ -4,6 +4,7 @@ import { ApplyJobService } from '../service/applyJob.service';
 import { CreateApplyJobDTO } from '../dto/create-applyJob.dto';
 import { UpdateApplyJobDTO } from '../dto/update-applyJob.dto';
 import { Request } from "express";
+import { SelectJobsDTO } from 'src/jobs/dto/select-jobs.dto';
 
 
 @Controller("ApplyJob")
@@ -25,6 +26,22 @@ export class ApplyJobController{
         await this.applyJobService.createApplyJob(createApplyJobDTO);
         
     }
+
+
+    @Get("/AutoCompleteAPI")
+    @HttpCode(200)
+    async AutoCompleteAPI(
+        @Req() req: Request
+    ){
+        if(Object.keys(req.cookies).includes("AccessToken") ){
+            const user_id_inPayload : number = await this.applyJobService.userIdInCookie(req.cookies.AccessToken);
+            
+            return await this.applyJobService.AutoCompleteAPI(user_id_inPayload);
+        }else{
+            throw new HttpException('로그인을 해야 사용할 수 있는 기능입니다.', HttpStatus.CONFLICT)
+        }
+        
+    }
     
     @Patch("/UpdateApplyJob")
     @HttpCode(200)
@@ -33,6 +50,22 @@ export class ApplyJobController{
         @Body() updateApplyJobDTO : UpdateApplyJobDTO
     ){
         await this.applyJobService.updateApplyJob(id, updateApplyJobDTO)
+    }
+
+    @Get("/GetMyApplyJobs")
+    @HttpCode(200)
+    async GetMyApplyJobs(
+        @Req() req : Request
+    ){
+
+
+        if(Object.keys(req.cookies).includes("AccessToken") ){
+            const user_id_inPayload : number = await this.applyJobService.userIdInCookie(req.cookies.AccessToken);
+            
+            return await this.applyJobService.getApplyJobsAll_inUser(user_id_inPayload);
+        }else{
+            throw new HttpException('로그인을 해야 사용할 수 있는 기능입니다.', HttpStatus.CONFLICT)
+        }
     }
 
 
@@ -49,7 +82,6 @@ export class ApplyJobController{
     async GetApplyJob(
         @Query("id") id : number
     ){
-        console.log(await this.applyJobService.getApplyJobs(id))
         return await this.applyJobService.getApplyJobs(id);
     }
 
