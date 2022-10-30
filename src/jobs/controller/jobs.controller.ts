@@ -1,10 +1,12 @@
-import { Body, Controller, Get, HttpCode, Param, Patch, Post, Query, Req, Res, UploadedFile, UploadedFiles, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Param, Patch, Post, Query, Req, Res, UploadedFile, UploadedFiles, UseInterceptors, HttpException, HttpStatus, Delete } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { CreateJobsDTO } from "../dto/create-jobs.dto";
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateJobsDTO } from '../dto/update-jobs.dto';
 import { JobsService } from "../service/jobs.service";
 import { SelectJobsDTO } from '../dto/select-jobs.dto';
+import { Request } from 'express';
+import { SelectJobsHeadHuntDTO } from '../dto/select-jobs-headhunt.dto';
 
 
 @Controller("jobs")
@@ -26,10 +28,25 @@ export class JobsController{
         description:'careerType\n- 경력무관 : 0\n- 인턴 : 1\n- 신입 : 2\n- 경력 : 3\n\napprovalStatus \n - 미승인 :  0 \n- 승인 : 1\n\njobStatus(default : 0)\n- 채용 마감 : 0\n- 채용 중 : 1        ',
     })
     async CreateJobs(
+        @Req() req: Request,
         @Body() createJobsDTO : CreateJobsDTO
     ) : Promise<void>{
         
-        await this.jobsService.createNotice(createJobsDTO);
+        const headhunt_status = 2;
+
+        if(Object.keys(req.cookies).includes("AccessToken") ){
+            const user_id_inPayload : number = await this.jobsService.userIdInCookie(req.cookies.AccessToken);
+            let users = await this.jobsService.getUser(user_id_inPayload);
+
+            if(users.role == headhunt_status){
+                
+                await this.jobsService.createNotice(createJobsDTO);
+            }else{
+                throw new HttpException('해드헌트만 이용가능한 기능입니다.', HttpStatus.CONFLICT)
+            }
+        }else{
+            throw new HttpException('로그인을 해야 사용할 수 있는 기능입니다.', HttpStatus.CONFLICT)
+        }
     }
 
     /**
@@ -61,6 +78,14 @@ export class JobsController{
          summary:'공지사항 전체 조회 API',
          description:'approvalStatus이 1, jobStatus 1, 현재날짜 기준 startDate와 endDate가 포함된 게시물 반환',
      })
+     @ApiBody({schema : {example : {
+        location : "string",
+        title : "string",
+        field : "string",
+        careerType: 1,
+        startDate : "YYYYMMDD",
+        endDate : "YYYYMMDD",
+        companyName : "string"} }})
      async getJobsAll( 
         @Query() SelectJobsDTO : SelectJobsDTO
      ){
@@ -91,6 +116,128 @@ export class JobsController{
 
     }
 
+    /**
+         * getJobs_inUser_forHeadHunt(관리자의 공지사항 조회 API)
+         * @returns 
+         */
+     @Get("/getJobs_inUser_forHeadHunt")
+     @HttpCode(200)
+     @ApiOperation({
+         summary:'관리자의 공지사항 user_id 조회 API',
+         description:'user_id에 해당하는 모든 게시물 반환',
+     })
+     @ApiBody({schema : {example : {
+         user_id : 1,
+         location : "string",
+         title : "string",
+         field : "string",
+         careerType: 1,
+         startDate : "YYYYMMDD",
+         endDate : "YYYYMMDD",
+         companyName : "string"} }})
+     async getJobs_inUser_forHeadHunt( 
+         @Req() req: Request,
+         @Query() SelectJobsHeadHuntDTO : SelectJobsHeadHuntDTO
+     ){
+ 
+         const headhunt_status = 2;
+ 
+         if(Object.keys(req.cookies).includes("AccessToken") ){
+             const user_id_inPayload : number = await this.jobsService.userIdInCookie(req.cookies.AccessToken);
+             let users = await this.jobsService.getUser(user_id_inPayload);
+ 
+             if(users.role == headhunt_status){
+                 const jobs = await this.jobsService.getJobs_inUser_forHeadHunt(SelectJobsHeadHuntDTO);
+                 return jobs;
+             }else{
+                 throw new HttpException('해드헌트만 이용가능한 기능입니다.', HttpStatus.CONFLICT)
+             }
+         }else{
+             throw new HttpException('로그인을 해야 사용할 수 있는 기능입니다.', HttpStatus.CONFLICT)
+         }
+         
+ 
+     }
+    @Get("/getJobsAll_ForServiceAdmin")
+    @HttpCode(200)
+    @ApiOperation({
+        summary:'관리자의 공지사항 조회 API',
+        description:'모든 게시물 반환, 서비스 관리자계정으로 로그인해야 사용가능 role:3 ',
+    })
+    @ApiBody({schema : {example : {
+        location : "string",
+        title : "string",
+        field : "string",
+        careerType: 1,
+        startDate : "YYYYMMDD",
+        endDate : "YYYYMMDD",
+        companyName : "string"} }})
+    async getJobsAll_ForServiceAdmin( 
+        @Req() req: Request,
+        @Query() SelectJobsDTO : SelectJobsDTO
+    ){
+
+        const admin_status = 3;
+
+        if(Object.keys(req.cookies).includes("AccessToken") ){
+            const user_id_inPayload : number = await this.jobsService.userIdInCookie(req.cookies.AccessToken);
+            let users = await this.jobsService.getUser(user_id_inPayload);
+
+            if(users.role == admin_status){
+                const jobs = await this.jobsService.getJobsAll_ForServiceAdmin(SelectJobsDTO);
+                return jobs;
+            }else{
+                throw new HttpException('관리자만 이용가능한 기능입니다.', HttpStatus.CONFLICT)
+            }
+        }else{
+            throw new HttpException('로그인을 해야 사용할 수 있는 기능입니다.', HttpStatus.CONFLICT)
+        }
+        
+
+    }
+
+    @Patch("/Approval_Jobs_ForServiceAdmin")
+    @HttpCode(200)
+    @ApiOperation({
+        summary:'채용 공고를 승인하는 API',
+        description:'서비스 관리자계정으로 로그인해야 사용가능 role:3 ',
+    })
+    @ApiBody({schema : {example : {
+        id : 1
+    } }})
+    async Approval_Jobs_ForServiceAdmin( 
+        @Req() req: Request,
+        @Body("id") id : number
+    ){
+        await this.jobsService.Approval_Jobs_ForServiceAdmin(id);
+    }
+
+    @Delete("/Delete_Jobs_ForServiceAdmin")
+    @HttpCode(200)
+    @ApiOperation({
+        summary:'채용 공고를 삭제 API',
+        description:'서비스 관리자계정으로 로그인해야 사용가능 role:3 ',
+    })
+    async Delete_Jobs(
+        @Req() req: Request,
+        @Body("id") id : number
+    ){
+        const admin_status = 3;
+
+        if(Object.keys(req.cookies).includes("AccessToken") ){
+            const user_id_inPayload : number = await this.jobsService.userIdInCookie(req.cookies.AccessToken);
+            let users = await this.jobsService.getUser(user_id_inPayload);
+
+            if(users.role == admin_status){
+                const jobs = await this.jobsService.Delete_Jobs(id);
+                return jobs;
+            }else{
+                throw new HttpException('관리자만 이용가능한 기능입니다.', HttpStatus.CONFLICT)
+            }
+        }else{
+            throw new HttpException('로그인을 해야 사용할 수 있는 기능입니다.', HttpStatus.CONFLICT)
+        }
+    }
     /**
      * UploadOfCompanyLogo(회사 로고 업로드 API)
      * @param id 

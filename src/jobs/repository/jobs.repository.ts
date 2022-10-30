@@ -1,10 +1,12 @@
-import { EntityRepository, Repository } from 'typeorm';
+import { EntityRepository, Repository, getConnection } from 'typeorm';
 import { Jobs } from '../entity/jobs.entity';
 import { CreateJobsDTO } from "../dto/create-jobs.dto";
 import * as dayjs from 'dayjs';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { SelectJobsDTO } from '../dto/select-jobs.dto';
 import { Users } from '../../users/entity/user.entity';
+import { SelectJobsHeadHuntDTO } from '../dto/select-jobs-headhunt.dto';
+import { appendFile } from 'fs';
 
 @EntityRepository(Jobs)
 export class JobsRepository extends Repository<Jobs>{
@@ -208,5 +210,155 @@ export class JobsRepository extends Repository<Jobs>{
     }
 
 
+
+    async getJobs_inUser_forHeadHunt(SelectJobsHeadHuntDTO : SelectJobsHeadHuntDTO){
+        const dateNow = dayjs().format("YYYYMMDD");
+        let apStatus = 1;
+        let jpStatus = 1;
+        
+
+        let companyName : string;
+        let field : string;
+        let title : string;
+        let location : string;
+        let careerType : number;
+        let startDate : string;
+        let endDate : string;
+        try{
+            location = SelectJobsHeadHuntDTO.location 
+            title = SelectJobsHeadHuntDTO.title 
+            field = SelectJobsHeadHuntDTO.field 
+            careerType = SelectJobsHeadHuntDTO.careerType 
+            startDate = SelectJobsHeadHuntDTO.startDate 
+            endDate = SelectJobsHeadHuntDTO.endDate 
+            companyName  = SelectJobsHeadHuntDTO.companyName
+        }catch(e){
+            throw new HttpException('변수 타입 초기화 실패', HttpStatus.CONFLICT)
+        }
+        
+        console.log(Number(SelectJobsHeadHuntDTO.user_id))
+        let where = ` jobs.user_id =  ${Number(SelectJobsHeadHuntDTO.user_id)}`
+
+        if(location != undefined){
+            where += ` AND jobs.location LIKE '%${location}%'`;
+        }
+        if(title != undefined){
+            where += ` AND jobs.title LIKE '%${title}%'`;
+        }
+        if(field != undefined){
+            where += ` AND jobs.field LIKE '%${field}%'`;
+        }
+        if(careerType != undefined){
+            where += ` AND jobs.careerType in(${careerType})`;
+        }
+        if(companyName != undefined){
+            where += ` AND jobs.companyName LIKE '%${companyName}%'`;
+        }
+        if(startDate != undefined){
+            where += ` AND jobs.startDate >= ${startDate}`;
+        }
+        if(endDate != undefined ){
+            where += ` AND jobs.startDate <= ${endDate}`;
+        }
+
+        const jobs = await this.createQueryBuilder("jobs")
+        .select([
+            "jobs.id",
+            "jobs.companyName", 
+            "jobs.field", 
+            "jobs.title", 
+            "jobs.logo", 
+            "jobs.message", 
+            "jobs.careerType", 
+            "jobs.startDate", 
+            "jobs.endDate", 
+            "jobs.jobStatus"
+        ])
+        .where(where)
+        .getMany()
+
+        return jobs;  
+    }
+
+    async getJobsAll_ForServiceAdmin (SelectJobsDTO : SelectJobsDTO){
+        const dateNow = dayjs().format("YYYYMMDD");
+        let apStatus = 1;
+        let jpStatus = 1;
+        
+
+        let companyName : string;
+        let field : string;
+        let title : string;
+        let location : string;
+        let careerType : number;
+        let startDate : string;
+        let endDate : string;
+        try{
+            location = SelectJobsDTO.location 
+            title = SelectJobsDTO.title 
+            field = SelectJobsDTO.field 
+            careerType = SelectJobsDTO.careerType 
+            startDate = SelectJobsDTO.startDate 
+            endDate = SelectJobsDTO.endDate 
+            companyName  = SelectJobsDTO.companyName
+        }catch(e){
+            throw new HttpException('변수 타입 초기화 실패', HttpStatus.CONFLICT)
+        }
+
+        let where = ` `
+
+        if(location != undefined){
+            where += ` AND jobs.location LIKE '%${location}%'`;
+        }
+        if(title != undefined){
+            where += ` AND jobs.title LIKE '%${title}%'`;
+        }
+        if(field != undefined){
+            where += ` AND jobs.field LIKE '%${field}%'`;
+        }
+        if(careerType != undefined){
+            where += ` AND jobs.careerType in(${careerType})`;
+        }
+        if(companyName != undefined){
+            where += ` AND jobs.companyName LIKE '%${companyName}%'`;
+        }
+        if(startDate != undefined){
+            where += ` AND jobs.startDate >= ${startDate}`;
+        }
+        if(endDate != undefined ){
+            where += ` AND jobs.startDate <= ${endDate}`;
+        }
+
+        const jobs = await this.createQueryBuilder("jobs")
+        .select([
+            "jobs.id",
+            "jobs.companyName", 
+            "jobs.field", 
+            "jobs.title", 
+            "jobs.logo", 
+            "jobs.message", 
+            "jobs.careerType", 
+            "jobs.startDate", 
+            "jobs.endDate", 
+            "jobs.jobStatus"
+        ])
+        .where(where)
+        .getMany()
+
+        return jobs;  
+    }
+
+    async Approval_Jobs_ForServiceAdmin(id : number){
+        let approvalStatus = 1;
+
+        let updateQuery = await getConnection()
+        .createQueryBuilder()
+        .update(Jobs)
+        .set({
+            approvalStatus
+        })
+        .where(`id = ${id}`)
+        .execute();
+    }
 }
 

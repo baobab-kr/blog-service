@@ -5,12 +5,16 @@ import { CreateApplyJobDTO } from '../dto/create-applyJob.dto';
 import { UpdateApplyJobDTO } from '../dto/update-applyJob.dto';
 import { url } from 'inspector';
 import { Users } from '../../users/entity/user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class ApplyJobService{
     constructor(
         private applyJobRepository : ApplyJobRepository,
-        private jobsRepository : JobsRepository
+        private jobsRepository : JobsRepository,
+        @InjectRepository(Users)
+        private usersRepository : Repository<Users>
     ){}
 
 
@@ -31,6 +35,22 @@ export class ApplyJobService{
     async updateApplyJob(id : number, updateApplyJobDTO : UpdateApplyJobDTO){
 
         await this.applyJobRepository.updateApplyJobs(id,updateApplyJobDTO)
+    }
+    async getUser(id){
+        return await this.usersRepository.findOne(id);
+    }
+    /**
+     * userIdInCookie(쿠키 Access 토큰의 user_id 반환)
+     * @param accessToken 
+     * @returns 
+     */
+    async userIdInCookie(accessToken : string) : Promise<number>{
+        const accessTokken = accessToken;
+        const base64Payload = accessTokken.split('.')[1]; 
+        const payload = JSON.parse(Buffer.from(base64Payload, 'base64').toString());
+        const user_id_inPayload : number = payload.id;
+
+        return user_id_inPayload ;
     }
 
     async deleteRecruit(id){

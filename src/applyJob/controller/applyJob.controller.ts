@@ -1,8 +1,9 @@
-import { Body, Controller, Get, HttpCode, Patch, Post, Query } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Patch, Post, Query, Req, HttpException, HttpStatus } from '@nestjs/common';
 import { ApiTags } from "@nestjs/swagger";
 import { ApplyJobService } from '../service/applyJob.service';
 import { CreateApplyJobDTO } from '../dto/create-applyJob.dto';
 import { UpdateApplyJobDTO } from '../dto/update-applyJob.dto';
+import { Request } from "express";
 
 
 @Controller("ApplyJob")
@@ -16,9 +17,13 @@ export class ApplyJobController{
     @Post("/CreateApplyJob")
     @HttpCode(200)
     async CreateApplyJob(
+        @Req() req: Request,
         @Body() createApplyJobDTO : CreateApplyJobDTO
     ){
+
+        
         await this.applyJobService.createApplyJob(createApplyJobDTO);
+        
     }
     
     @Patch("/UpdateApplyJob")

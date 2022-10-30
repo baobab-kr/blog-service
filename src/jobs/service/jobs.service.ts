@@ -6,11 +6,17 @@ import { JobsRepository } from '../repository/jobs.repository';
 import { UpdateJobsDTO } from '../dto/update-jobs.dto';
 import { SelectJobsDTO } from "../dto/select-jobs.dto";
 import { isNumber, isString } from "class-validator";
+import { Users } from '../../users/entity/user.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from "@nestjs/typeorm";
+import { SelectJobsHeadHuntDTO } from '../dto/select-jobs-headhunt.dto';
 
 @Injectable()
 export class JobsService{
     constructor(
-        private jobsRepository : JobsRepository
+        private jobsRepository : JobsRepository,
+        @InjectRepository(Users)
+        private usersRepository : Repository<Users>
     ){}
     
     
@@ -144,6 +150,28 @@ export class JobsService{
 
         return jobs;
     }
+    async getJobs_inUser_forHeadHunt ( SelectJobsHeadHuntDTO : SelectJobsHeadHuntDTO){
+
+        return await this.jobsRepository.getJobs_inUser_forHeadHunt(SelectJobsHeadHuntDTO);
+
+    }
+
+    async getJobsAll_ForServiceAdmin(SelectJobsDTO : SelectJobsDTO){
+        let jobs = await this.jobsRepository.getJobsAll_ForServiceAdmin(SelectJobsDTO)
+
+        return jobs;
+    }
+
+
+    async Approval_Jobs_ForServiceAdmin(id : number){
+        await this.jobsRepository.Approval_Jobs_ForServiceAdmin(id);
+
+
+    }
+    async Delete_Jobs(id : number){
+        await this.jobsRepository.delete(id);
+    }
+
     /**
      * getBlobClient(BlobClient연결)
      * @param imageName 
@@ -207,5 +235,22 @@ export class JobsService{
         var blobDownloaded = await blobClient.download();
         return blobDownloaded.readableStreamBody;
       }
+
+      async getUser(id){
+        return await this.usersRepository.findOne(id);
+    }
+    /**
+     * userIdInCookie(쿠키 Access 토큰의 user_id 반환)
+     * @param accessToken 
+     * @returns 
+     */
+    async userIdInCookie(accessToken : string) : Promise<number>{
+        const accessTokken = accessToken;
+        const base64Payload = accessTokken.split('.')[1]; 
+        const payload = JSON.parse(Buffer.from(base64Payload, 'base64').toString());
+        const user_id_inPayload : number = payload.id;
+
+        return user_id_inPayload ;
+    }
 
 }
