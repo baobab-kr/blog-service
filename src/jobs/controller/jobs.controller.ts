@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpCode, Param, Patch, Post, Query, Req, Res, UploadedFile, UploadedFiles, UseInterceptors, HttpException, HttpStatus, Delete } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { CreateJobsDTO } from "../dto/create-jobs.dto";
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateJobsDTO } from '../dto/update-jobs.dto';
@@ -78,6 +78,7 @@ export class JobsController{
          summary:'공지사항 전체 조회 API',
          description:'approvalStatus이 1, jobStatus 1, 현재날짜 기준 startDate와 endDate가 포함된 게시물 반환',
      })
+     @ApiQuery({type : SelectJobsDTO})
      @ApiBody({schema : {example : {
         location : "string",
         title : "string",
@@ -123,9 +124,10 @@ export class JobsController{
      @Get("/getJobs_inUser_forHeadHunt")
      @HttpCode(200)
      @ApiOperation({
-         summary:'관리자의 공지사항 user_id 조회 API',
+         summary:'해드헌트의 공지사항 user_id 조회 API',
          description:'user_id에 해당하는 모든 게시물 반환',
      })
+     @ApiQuery({type : SelectJobsHeadHuntDTO})
      @ApiBody({schema : {example : {
          user_id : 1,
          location : "string",
@@ -164,6 +166,7 @@ export class JobsController{
         summary:'관리자의 공지사항 조회 API',
         description:'모든 게시물 반환, 서비스 관리자계정으로 로그인해야 사용가능 role:3 ',
     })
+    @ApiQuery({type : SelectJobsDTO})
     @ApiBody({schema : {example : {
         location : "string",
         title : "string",
@@ -218,6 +221,9 @@ export class JobsController{
         summary:'채용 공고를 삭제 API',
         description:'서비스 관리자계정으로 로그인해야 사용가능 role:3 ',
     })
+    @ApiBody({schema : {example : {
+        id : 1
+    } }})
     async Delete_Jobs(
         @Req() req: Request,
         @Body("id") id : number
