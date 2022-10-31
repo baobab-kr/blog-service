@@ -22,7 +22,7 @@ async function bootstrap() {
   app.use(cookieParser());
   app.enableCors({
     exposedHeaders: ['ATExpires', 'RTExpires'],
-    origin: ['http://localhost:2999', 'http://localhost:3000', 'https://*.baobab.blog', 'https://baobab.blog'],
+    origin: ['http://localhost:2999', 'http://localhost:3000', /baobab\.blog$/],
     methods: 'GET,PUT,PATCH,POST,DELETE',
     credentials: true,
 });
