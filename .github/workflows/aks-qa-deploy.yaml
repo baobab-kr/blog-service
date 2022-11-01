@@ -49,8 +49,8 @@ jobs:
         images: |
           ${{ env.IMAGE_HOST }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
           
-    - name: slack notify
-    - uses: 8398a7/action-slack@v3
+    - name: action-slack
+      uses: 8398a7/action-slack@v3.14.0
       with:
         status: ${{ job.status }}
         fields: repo,message,commit,author,action,eventName,ref,workflow,job,took,pullRequest # selectable (default: repo,message)
