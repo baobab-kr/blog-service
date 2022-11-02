@@ -504,7 +504,7 @@ export class BoardService {
         
 
         const user = await this.usersRepository.findOne({
-            select : ["id","userid","username","email","role","avatar_image","description"],
+            select : ["id","userid","username","email","role","avatar_image","description","techStack","socialUrl"],
             where : {
                 id : id
             }
