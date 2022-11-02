@@ -31,10 +31,10 @@ spec:
             initialDelaySeconds: 360
           resources:
             requests:
-              cpu: 500m
+              cpu: 200m
               memory: 1G
             limits:
-              cpu: 500m
+              cpu: 200m
               memory: 1G
           env:
             - name: EMAIL_HOST
