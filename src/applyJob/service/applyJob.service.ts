@@ -53,9 +53,18 @@ export class ApplyJobService{
         return user_id_inPayload ;
     }
 
+    async delete_all_apply_jobs_in_user(user_id : number){
+        await this.applyJobRepository.createQueryBuilder("apply_job")
+        .delete()
+        .where(`apply_job.user_id = ${user_id}`)
+        .execute();
+
+    }
+
     async AutoCompleteAPI(user_id : number){
         return await this.usersRepository.findOne(user_id,{select : ["email","techStack","socialUrl"]});
     }
+
 
     async deleteRecruit(id){
         /*

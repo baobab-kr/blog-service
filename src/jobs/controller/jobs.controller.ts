@@ -7,13 +7,15 @@ import { JobsService } from "../service/jobs.service";
 import { SelectJobsDTO } from '../dto/select-jobs.dto';
 import { Request } from 'express';
 import { SelectJobsHeadHuntDTO } from '../dto/select-jobs-headhunt.dto';
+import { ApplyJobService } from '../../applyJob/service/applyJob.service';
 
 
 @Controller("jobs")
 @ApiTags("Baobab_Jobs")
 export class JobsController{
     constructor(
-        private jobsService : JobsService
+        private jobsService : JobsService,
+        private applyJobService : ApplyJobService
     ){}
     
 
@@ -243,6 +245,24 @@ export class JobsController{
         }else{
             throw new HttpException('로그인을 해야 사용할 수 있는 기능입니다.', HttpStatus.CONFLICT)
         }
+    }
+
+    @Delete("/delete_all_posts_in_user")
+    @HttpCode(200)
+    @ApiOperation({
+        summary:'게시물 전체 삭제 api',
+        description:'',
+    })
+    async delete_all_posts_in_user( 
+        @Body("user_id") user_id : number
+    ){
+        const user = await this.jobsService.getUser(user_id);
+        if(!user){
+            throw new HttpException('해당유저가 없습니다.', HttpStatus.CONFLICT)
+        }
+        await this.applyJobService.delete_all_apply_jobs_in_user(user_id);
+        await this.jobsService.delete_all_jobs_in_user(user_id);
+        
     }
     /**
      * UploadOfCompanyLogo(회사 로고 업로드 API)

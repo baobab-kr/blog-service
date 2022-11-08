@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, Body, Post, ValidationPipe, UseInterceptors, UploadedFile, Patch, UseGuards, Req, HttpException, HttpStatus, HttpCode, Header, Res } from '@nestjs/common';
+import { Controller, Get, Param, Query, Body, Post, ValidationPipe, UseInterceptors, UploadedFile, Patch, UseGuards, Req, HttpException, HttpStatus, HttpCode, Header, Res, Delete } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { BoardService } from '../service/board.service';
 import { Board } from '../repository/entity/board.entity';
@@ -11,6 +11,7 @@ import { ReCommentService } from '../service/recomment.service';
 import { JwtAccessTokenGuard } from 'src/auth/security/jwtAccessToken.guard';
 import { Request, Response } from 'express';
 import { ApiBody, ApiCreatedResponse, ApiOperation, ApiParam, ApiProperty, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { JobsService } from '../../jobs/service/jobs.service';
 
 
 @Controller('board')
@@ -19,7 +20,7 @@ export class BoardController {
     constructor(
         private boardService : BoardService,
         private commentService : CommentService,
-        private reCommentService : ReCommentService,
+        private reCommentService : ReCommentService
         //private jwtService : JwtService
         ){}
     
@@ -447,6 +448,17 @@ export class BoardController {
         
     }
 
+    @Delete("DeleteAllPosts")
+    @HttpCode(200)
+    @ApiOperation({summary : "게시물 전체 삭제 API", description : "해당 사용자의 모든 게시물을 삭제한다."})
+    async deleteAllPosts(
+        @Body("user_id") user_id : number
+    ){
+
+        await this.boardService.getUserById(user_id);
+
+        await this.boardService.delete_all_board_in_user(user_id);   
+    }
 
     /**
      * createComment(댓글 생성 API)

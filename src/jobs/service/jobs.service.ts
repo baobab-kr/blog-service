@@ -171,6 +171,16 @@ export class JobsService{
     async Delete_Jobs(id : number){
         await this.jobsRepository.delete(id);
     }
+    async delete_all_jobs_in_user(user_id : number){
+        await this.jobsRepository.createQueryBuilder("jobs")
+        .delete()
+        .where(`jobs.user_id = ${user_id}`)
+        .execute();
+
+
+
+    }
+
 
     /**
      * getBlobClient(BlobClient연결)
