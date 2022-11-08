@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Header, HttpCode, Post, Query, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Header, HttpCode, Post, Query, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { SocialUrlDto } from './dto/social-url.dto';
@@ -257,5 +257,29 @@ export class UsersController {
   async updateTechStack(@Body() techStackDto: TechStackDto ): Promise<void> {
     const { userid, techStack } = techStackDto;
     await this.usersService.updateTechStack(userid, techStack);
+  }
+
+  
+  @ApiOperation({
+    summary : "사용자 삭제 API", 
+    description : "해당 사용자의 정보를 삭제합니다."
+  })
+  @ApiResponse({
+    description: '데이터베이스에 저장되어 있는 유저 정보가 삭제됩니다.'
+  })
+  @ApiBody({
+    type: string,
+    examples: {
+        1: {
+            summary: "사용자 삭제 API",
+            description: "사용자 정보를 삭제합니다.",
+            value: {userid: 'iwantbaobab1'}
+        }
+    }
+  })
+  @Delete("/delete-user")
+  @HttpCode(200)
+  async deleteUser(@Body() userid: string ): Promise<void> {
+    await this.usersService.deleteUser(userid);
   }
 }

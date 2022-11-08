@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { AuthService } from 'src/auth/auth.service';
 import { Payload } from 'src/auth/security/payload.interface';
 import { EmailService } from 'src/email/email.service';
-import { Repository, Connection } from 'typeorm';
+import { Repository, Connection, getConnection } from 'typeorm';
 import { SavedUserDto } from './dto/saved-user.dto';
 import { Users } from './entity/user.entity';
 import { BlobServiceClient, BlockBlobClient } from "@azure/storage-blob";
@@ -241,5 +241,16 @@ export class UsersService {
   async updateTechStack(userid: string, techStack: string) {
     await this.checkUserIdNotExists(userid);
     await this.saveTechStackUsingQueryRunnner(userid, techStack);
+  }
+
+  async deleteUser(userid: string) {
+    await this.checkUserIdNotExists(userid);
+    const userIdValue: string = typeof userid !== typeof "" ? Object.values(userid)[0] : userid
+    await getConnection()
+    .createQueryBuilder()
+    .delete()
+    .from(Users)
+    .where(`userid = "${userIdValue}"`)
+    .execute();
   }
 }
