@@ -55,7 +55,14 @@ export class ReCommentService {
 
         return Math.floor(reComment/limit);
     }
+    async getReCommentCount(comment_id : number){
+        const status : number[] = [0] ; // 활성화 상태
+        const limit = 10;
 
+        const reComment = await this.ReCommentRepository.getReCommentCount(comment_id ,status);
+
+        return reComment;
+    }
 
     async deleteReCommentById(id : number): Promise<void> {
         await this.ReCommentRepository.deleteReCommentById(id);

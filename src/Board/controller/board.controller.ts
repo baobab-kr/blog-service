@@ -499,9 +499,23 @@ export class BoardController {
     async getCommentPage(
         @Body("board_id") board_id : number
     ){
-        return await this.commentService.getCommentCount(board_id);
+        return await this.commentService.getCommentPageCount(board_id);
     }
-    
+    /**
+     * getCommentById(댓글 페이지 개수 API)
+     * @param board_id 
+     * @returns Comment[]
+     */
+     @Get("CommentCount")
+     @HttpCode(200)
+     @ApiOperation({summary : "댓글 개수 API", description : "댓글 개수 반환"})
+     @ApiCreatedResponse({type : "Number"})
+     @ApiBody({schema : {example : { board_id : 0}}})
+     async getCommentCount(
+         @Body("board_id") board_id : number
+     ){
+         return await this.commentService.getCommentCount(board_id);
+     }
     /**
      * deleteCommentById(댓글 삭제 API)
      * @param comment_id
@@ -580,7 +594,21 @@ export class BoardController {
         return await this.reCommentService.getReCommentPageLength(comment_id);
     }
     
-
+    /**
+         * ReCommentPage(답글 페이지 개수 API)
+         * @param comment_id 
+         * @returns 
+         */
+    @Get("ReCommentCount")
+    @HttpCode(200)
+    @ApiOperation({summary : "답글 개수 API", description : "해당 답글 개수를 확인 할 수 있다."})
+    @ApiCreatedResponse({type : "Number"})
+    @ApiBody({schema : {example : { comment_id : 0}}})
+    async getReCommentCount(
+        @Body("comment_id") comment_id : number
+    ){
+        return await this.reCommentService.getReCommentCount(comment_id);
+    }
     /**
      * deleteReCommentById(답글 삭제 API)
      * @param id 

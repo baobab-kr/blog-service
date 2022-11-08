@@ -50,7 +50,7 @@ export class CommentService {
         return comment;
     }
     
-    async getCommentCount(board_id : number) {
+    async getCommentPageCount(board_id : number) {
 
         const status : number[] = [0] ; // 활성화 상태
         const limit = 10;
@@ -62,7 +62,18 @@ export class CommentService {
         
         return Math.floor(comment/limit);
     }
+    async getCommentCount(board_id : number) {
 
+        const status : number[] = [0] ; // 활성화 상태
+        const limit = 10;
+        
+        const comment = await this.CommentRepository.getCommentCount(board_id,status);
+        
+
+        
+        
+        return comment;
+    }
 
 
 
