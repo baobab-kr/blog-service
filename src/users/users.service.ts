@@ -59,6 +59,16 @@ export class UsersService {
       return '사용 가능한 아이디 입니다.'
     }
   }
+
+  async checkUserIdNotExists(userid: string) {
+    const userIdValue: string = typeof userid !== typeof "" ? Object.values(userid)[0] : userid
+    const user = await this.usersRepository.findOne({userid: userIdValue});
+    if(user === undefined) {
+      throw new HttpException('Not Found UserID', HttpStatus.NOT_FOUND)
+    } else {
+      return '사용 가능한 아이디 입니다.'
+    }
+  }
   
   async checkEmailExists(email: string) {
     const emailValue: string = typeof email !== typeof "" ? Object.values(email)[0] : email
@@ -113,6 +123,26 @@ export class UsersService {
       const user = await this.usersRepository.findOne({userid: userIdValue});
       user.userid = userid
       user.socialUrl = socialUrl
+      await this.usersRepository.save(user)
+      
+      await queryRunner.commitTransaction();
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  private async saveTechStackUsingQueryRunnner(userid: string, techStack: string) {
+    const queryRunner = this.connection.createQueryRunner();
+    
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const userIdValue: string = typeof userid !== typeof "" ? Object.values(userid)[0] : userid
+      const user = await this.usersRepository.findOne({userid: userIdValue});
+      user.userid = userid
+      user.techStack = techStack
       await this.usersRepository.save(user)
       
       await queryRunner.commitTransaction();
@@ -204,6 +234,12 @@ export class UsersService {
   }
 
   async createSocialUrl(userid: string, socialUrl: string) {
+    await this.checkUserIdNotExists(userid);
     await this.saveSocialUrlUsingQueryRunnner(userid, socialUrl);
+  }
+
+  async updateTechStack(userid: string, techStack: string) {
+    await this.checkUserIdNotExists(userid);
+    await this.saveTechStackUsingQueryRunnner(userid, techStack);
   }
 }
