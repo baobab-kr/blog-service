@@ -13,6 +13,7 @@ import { Payload } from 'src/auth/security/payload.interface';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { FileUploadDto } from './dto/file-upload.dto';
+import { TechStackDto } from './dto/tech-Stack.dto';
 
 @Controller('users')
 @ApiTags('Users API')
@@ -212,5 +213,18 @@ export class UsersController {
   async createSocialUrl(@Body() socialUrlDto: SocialUrlDto ): Promise<void> {
     const { userid, socialUrl } = socialUrlDto;
     await this.usersService.createSocialUrl(userid, socialUrl);
+  }
+
+  @ApiOperation({
+    summary:'techStack 수정 API',
+    description:'유저 ID, techStack를 입력 받아 사용자의 techStack 정보를 업데이트한다.',
+  })
+  @ApiResponse({
+    description: '데이터베이스에 유저의 techStack를 정보가 저장(업데이트)됩니다.'
+  })
+  @Post('/update-techStack')
+  async updateTechStack(@Body() techStackDto: TechStackDto ): Promise<void> {
+    const { userid, techStack } = techStackDto;
+    await this.usersService.updateTechStack(userid, techStack);
   }
 }
