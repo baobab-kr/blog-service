@@ -253,6 +253,7 @@ export class JobsController{
         summary:'게시물 전체 삭제 api',
         description:'',
     })
+    @ApiBody({schema : {example : { user_id : 0}}})
     async delete_all_posts_in_user( 
         @Body("user_id") user_id : number
     ){

@@ -451,6 +451,7 @@ export class BoardController {
     @Delete("DeleteAllPosts")
     @HttpCode(200)
     @ApiOperation({summary : "게시물 전체 삭제 API", description : "해당 사용자의 모든 게시물을 삭제한다."})
+    @ApiBody({schema : {example : { user_id : 0}}})
     async deleteAllPosts(
         @Body("user_id") user_id : number
     ){
