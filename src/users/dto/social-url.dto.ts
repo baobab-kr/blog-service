@@ -16,5 +16,5 @@ export class SocialUrlDto {
   )
   readonly userid: string;
   @ApiProperty({ type:'string', description: '사용자의 socialUrl 정보를 의미합니다.' })
-  socialUrl: string;
+  readonly socialUrl: string;
 }

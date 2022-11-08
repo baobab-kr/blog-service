@@ -234,6 +234,7 @@ export class UsersService {
   }
 
   async createSocialUrl(userid: string, socialUrl: string) {
+    await this.checkUserIdNotExists(userid);
     await this.saveSocialUrlUsingQueryRunnner(userid, socialUrl);
   }
 
