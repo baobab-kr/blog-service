@@ -1,0 +1,131 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blog-service
+  namespace: test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: blog-service
+  template:
+    metadata:
+      labels:
+        app: blog-service
+    spec:
+      containers:
+        - name: blog-service
+          image: ghcr.io/baobab-kr/blog-service/blog-service-qa:v0.1.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          livenessProbe:
+            httpGet:
+              path: /hello
+              port: 3000
+            initialDelaySeconds: 360
+          readinessProbe:
+            httpGet:
+              path: /hello
+              port: 3000
+            initialDelaySeconds: 360
+          resources:
+            requests:
+              cpu: 200m
+              memory: 0.8G
+            limits:
+              cpu: 200m
+              memory: 0.8G
+          env:
+            - name: EMAIL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: baobab-test
+                  key: email_host
+            - name: EMAIL_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: baobab-test
+                  key: email_port
+            - name: EMAIL_AUTH_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: baobab-test
+                  key: email_auth_user
+            - name: EMAIL_AUTH_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: baobab-test
+                  key: email_auth_password
+            - name: EMAIL_TLS_CIPHERS
+              valueFrom:
+                configMapKeyRef:
+                  name: baobab-test
+                  key: email_tls_ciphers
+            - name: EMAIL_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: baobab-test
+                  key: email_base_url
+            - name: DB_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: baobab-test
+                  key: db_username
+            - name: DB_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: baobab-test
+                  key: db_password
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: baobab-test
+                  key: db_host
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: baobab-test
+                  key: db_port
+            - name: DB_SYNC
+              valueFrom:
+                configMapKeyRef:
+                  name: baobab-test
+                  key: db_sync
+            - name: JWT_SECRET
+              valueFrom:
+                configMapKeyRef:
+                  name: baobab-test
+                  key: jwt_secret
+            - name: JWT_ACCESS_EXPIRES
+              valueFrom:
+                configMapKeyRef:
+                  name: baobab-test
+                  key: jwt_access_expires
+            - name: JWT_REFRESH_EXPIRES
+              valueFrom:
+                configMapKeyRef:
+                  name: baobab-test
+                  key: jwt_refresh_expires
+            - name: AZURE_CONNECTIONS
+              valueFrom:
+                configMapKeyRef:
+                  name: baobab-test
+                  key: azure_connections
+            - name: AZURE_BLOB_CONTAINER_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: baobab-test
+                  key: azure_blob_container_name
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: blog-service
+  namespace: test
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3000
+  selector:
+    app: blog-service

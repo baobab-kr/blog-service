@@ -1,0 +1,165 @@
+@startuml
+
+
+title <b>Comment_ClassDiagram</b>
+
+package "Controller" #DDD{
+    class BoardController  {
+        +createComment(createCommentDTO : CreateCommentDTO)
+        --
+        +getCommentById(board_id : number)
+        --
+        +deleteCommentById(comment_id : number)
+    }
+}
+
+package "DTO"{
+    
+
+
+
+    class CreateCommentDTO{
+        -board_id : number
+        --
+        -content : string
+        --
+        -comment_status : number
+    }
+
+    
+}
+
+package "Service" #FFF{
+
+
+    
+    class CommentService {
+        +createComment(createCommentDTO: CreateCommentDTO, writer : number)
+        --
+        +getCommentByBoardId(board_id : number)
+        --
+        +deleteCommentById(id : number) 
+        --
+        +getCommentByUserId(id : number , writer : number)
+    }
+    
+}
+package BoardRepository{
+    
+    class CommentRepository{
+        -status : number
+        ==
+        +createComment(createCommentDTO:CreateCommentDTO, writer : number)
+        --
+        +getCommentById(board_id : number, comment_status : number[])
+        --
+        +deleteCommentById(id : number)
+    }
+    
+}
+package entity{
+    class Board{
+        -id : number
+        --
+        -title : string
+        --
+        -description : string
+        --
+        -content : string
+        --
+        -thumbnail : string
+        --
+        -writer : number
+        --
+        -views : number
+        --
+        -date : Date
+        --
+        -board_status : number
+        --
+        -likes_count : number
+        --
+        -tags : Tag[]
+        --
+        -likes : Likes[]
+    }
+    class User {
+        -id: number
+        --
+        -userid: string
+        --
+        -username: string
+        --
+        -email: string
+        --
+        -password: string
+        --
+        -role: number
+        --
+        -description: string
+        --
+        -avatar_image: string
+        --
+        -currentRefreshToken: string
+        --
+        -boards : Board[]
+        --
+        -comments : Comment[]
+        --
+        -reComments : ReComment[]
+        --
+        -likes : Likes[]
+    }
+    class Comment{
+        -id : number
+        --
+        -writer : number
+        --
+        -content : string
+        --
+        -board_id : number
+        --
+        -date : Date
+        --
+        -comment_status : number
+        --
+        -reComments : ReComment[]
+    }
+    class ReComment{
+        -id : number
+        --
+        -writer :number
+        --
+        -content : string
+        --
+        -comment_id : number
+        --
+        -date : date
+        --
+        -recomment_status : number
+    }
+    
+}
+
+
+
+BoardController -right..> CreateCommentDTO : << parameter >>
+
+BoardController -down-->"1..*" CommentService : 　-Comment
+
+CommentService -down-->"1..*" CommentRepository : 　-Comment
+
+
+
+CommentRepository -down-->"1..*" Comment
+
+
+Board -down..> User
+Comment -down..> User
+ReComment -down..> User
+
+Comment -left..> ReComment
+
+Board -left..> Comment
+
+@enduml

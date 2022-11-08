@@ -1,14 +1,30 @@
-version: '3'
+version: '3.8'
 services:
   mysql:
-    build: ./mysql
+    platform: linux/amd64
+    image: mysql:8.0.28
     restart: unless-stopped
-    container_name: mysql
+    container_name: baobab-mysql
     ports:
       - "3306:3306"
     volumes:
+      - ./mysql/my.cnf:/etc/mysql/conf.d/my.cnf
       - ./mysql/mysql_data:/var/lib/mysql
       - ./mysql/sqls:/docker-entrypoint-initdb.d/
     environment:
-        MYSQL_ROOT_PASSWORD: baobab
+        MYSQL_ROOT_PASSWORD: 1234
         MYSQL_DATABASE: blog
+
+  api:
+    build:
+        dockerfile: ./Dockerfile
+        context: .
+    container_name: baobab-api
+    depends_on: 
+        - mysql
+    ports:
+        - "3000:3000"
+    volumes:
+        - ./:/app/
+        - /app/node_modules
+    command: ["sh", "-c", "sleep 20 && npm run start:dev"]

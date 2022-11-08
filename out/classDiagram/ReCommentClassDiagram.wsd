@@ -1,0 +1,160 @@
+@startuml
+
+
+title <b>ReComment_ClassDiagram</b>
+
+package "Controller" #DDD{
+    class BoardController  {
+        +createReComment(createReCommentDTO : CreateReCommentDTO)
+        --
+        +getReCommentById(comment_id : number)
+        --
+        +deleteReCommentById(reComment_id : number)
+    }
+}
+
+package "DTO"{
+    
+
+    class CreateReCommentDTO{    
+        -comment_id : number
+        --
+        -content : string
+        --
+        -recomment_status : number
+    }
+}
+
+package "Service" #FFF{
+
+
+    
+    class ReCommentService {
+        +createComment(createCommentDTO: CreateCommentDTO, writer : number)
+        --
+        +getCommentByBoardId(board_id : number)
+        --
+        +deleteCommentById(id : number) 
+        --
+        +getCommentByUserId(id : number , writer : number)
+    }
+}
+package Repository{
+    
+    class ReCommentRepository{
+        -status : number
+        ==
+        +createReComment(createReCommentDTO:CreateReCommentDTO , writer:number)
+        --
+        +getReCommentById(comment_id : number, recomment_status : number[])
+        --
+        +deleteReCommentById(id : number)
+    }
+    
+}
+package entity{
+    class Board{
+        -id : number
+        --
+        -title : string
+        --
+        -description : string
+        --
+        -content : string
+        --
+        -thumbnail : string
+        --
+        -writer : number
+        --
+        -views : number
+        --
+        -date : Date
+        --
+        -board_status : number
+        --
+        -likes_count : number
+        --
+        -tags : Tag[]
+        --
+        -likes : Likes[]
+    }
+    class User {
+        -id: number
+        --
+        -userid: string
+        --
+        -username: string
+        --
+        -email: string
+        --
+        -password: string
+        --
+        -role: number
+        --
+        -description: string
+        --
+        -avatar_image: string
+        --
+        -currentRefreshToken: string
+        --
+        -boards : Board[]
+        --
+        -comments : Comment[]
+        --
+        -reComments : ReComment[]
+        --
+        -likes : Likes[]
+    }
+    class Comment{
+        -id : number
+        --
+        -writer : number
+        --
+        -content : string
+        --
+        -board_id : number
+        --
+        -date : Date
+        --
+        -comment_status : number
+        --
+        -reComments : ReComment[]
+    }
+    class ReComment{
+        -id : number
+        --
+        -writer :number
+        --
+        -content : string
+        --
+        -comment_id : number
+        --
+        -date : date
+        --
+        -recomment_status : number
+    }
+    
+}
+
+
+
+BoardController -right..> CreateReCommentDTO : << parameter >>
+
+BoardController -down-->"1..*" ReCommentService : 　-ReComment
+
+ReCommentService -down-->"1..*" ReCommentRepository : 　-ReComment
+
+
+
+ReCommentRepository -down-->"1..*" ReComment
+
+
+Board -down..> User
+Comment -down..> User
+ReComment -down..> User
+
+Comment -left..> ReComment
+
+Board -left..> Comment
+
+@enduml

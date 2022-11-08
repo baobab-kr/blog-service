@@ -1,9 +1,11 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { setupSwagger } from './config/setupSwagger';
 
 import * as dotenv from 'dotenv';
 import * as path from 'path';
+import * as cookieParser from 'cookie-parser';
 
 dotenv.config({
   path: path.resolve(
@@ -17,6 +19,14 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({
     transform: true,
   }));
+  app.use(cookieParser());
+  app.enableCors({
+    exposedHeaders: ['ATExpires', 'RTExpires'],
+    origin: ['http://localhost:2999', 'http://localhost:3000', /baobab\.blog$/],
+    methods: 'GET,PUT,PATCH,POST,DELETE',
+    credentials: true,
+});
+  setupSwagger(app);
   await app.listen(3000);
 }
 bootstrap();

@@ -4,10 +4,11 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import emailConfig from './config/emailConfig';
 import { validationSchema } from './config/validationSchema';
-import { EmailModule } from './email/email.module';
 import { UsersModule } from './users/users.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Users } from './users/entity/user.entity';
+import { DatabaseModule } from './config/database/database.module';
+import { BoardModule } from './Board/board.module';
+import { JobsModule } from './jobs/notice.module';
+import { ApplyJobModule } from './applyJob/applyJob.module';
 
 @Module({
   imports: [
@@ -17,20 +18,11 @@ import { Users } from './users/entity/user.entity';
       isGlobal: true,
       validationSchema,
     }),
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: process.env.DB_HOST,
-      port: +process.env.DB_PORT,
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-      entities: [
-        Users
-      ],
-      synchronize: Boolean(process.env.DB_SYNC),
-    }),
-    EmailModule,
+    DatabaseModule,
     UsersModule,
+    BoardModule,
+    JobsModule,
+    ApplyJobModule
   ],
   controllers: [AppController],
   providers: [AppService],

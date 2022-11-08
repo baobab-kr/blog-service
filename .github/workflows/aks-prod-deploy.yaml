@@ -29,6 +29,7 @@ jobs:
       run: |
         docker tag $IMAGE_NAME $IMAGE_HOST/$IMAGE_NAME:$IMAGE_TAG
         docker push $IMAGE_HOST/$IMAGE_NAME:$IMAGE_TAG
+
     - name: aks login
       uses: azure/aks-set-context@v1
       with:
@@ -40,6 +41,7 @@ jobs:
     - name: create namespace
       run: |
         kubectl create namespace ${{ env.NAMESPACE }} --dry-run=client -o json | kubectl apply -f -
+
     - name: aks apply object
       uses: Azure/k8s-deploy@v1.4
       with:
@@ -56,3 +58,4 @@ jobs:
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
       if: always() # Pick up event
+
