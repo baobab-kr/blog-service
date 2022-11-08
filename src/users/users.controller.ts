@@ -11,8 +11,10 @@ import { AuthService } from 'src/auth/auth.service';
 import { SavedUserDto } from './dto/saved-user.dto';
 import { Payload } from 'src/auth/security/payload.interface';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiConsumes, ApiProperty } from '@nestjs/swagger';
 import { FileUploadDto } from './dto/file-upload.dto';
+import { TechStackDto } from './dto/tech-Stack.dto';
+import { string } from 'joi';
 
 @Controller('users')
 @ApiTags('Users API')
@@ -42,6 +44,16 @@ export class UsersController {
   @ApiResponse({
     description: '사용 중인 값인지 아닌지 확인하여 결과를 반환합니다.'
   })
+  @ApiBody({
+    type: string,
+    examples: {
+        1: {
+            summary: "유저ID 체크",
+            description: "현재 사용 중인 유저 ID인지 중복성을 체크합니다.",
+            value: {userid: 'string'}
+        }
+    }
+  })
   @Post('/check-userid')
   @HttpCode(200)
   async checkUserid(@Body() userid: string): Promise<void> {
@@ -55,6 +67,16 @@ export class UsersController {
   @ApiResponse({
     description: '사용 중인 값인지 아닌지 확인하여 결과를 반환합니다.'
   })
+  @ApiBody({
+    type: string,
+    examples: {
+        1: {
+            summary: "이메일 중복 인증 API",
+            description: "사용 중인 값인지 아닌지 확인하여 결과를 반환합니다.",
+            value: {email: 'baobab@baobab.blog'}
+        }
+    }
+  })
   @Post('/check-email')
   @HttpCode(200)
   async checkEmail(@Body() email: string): Promise<void> {
@@ -67,6 +89,16 @@ export class UsersController {
   })
   @ApiResponse({
     description: '사용 중인 값인지 아닌지 확인하여 결과를 반환합니다.'
+  })
+  @ApiBody({
+    type: string,
+    examples: {
+        1: {
+            summary: "닉네임 중복 인증 API",
+            description: "사용 중인 값인지 아닌지 확인하여 결과를 반환합니다.",
+            value: {username: 'string'}
+        }
+    }
   })
   @Post('/check-username')
   @HttpCode(200)
@@ -212,5 +244,18 @@ export class UsersController {
   async createSocialUrl(@Body() socialUrlDto: SocialUrlDto ): Promise<void> {
     const { userid, socialUrl } = socialUrlDto;
     await this.usersService.createSocialUrl(userid, socialUrl);
+  }
+
+  @ApiOperation({
+    summary:'techStack 수정 API',
+    description:'유저 ID, techStack를 입력 받아 사용자의 techStack 정보를 업데이트한다.',
+  })
+  @ApiResponse({
+    description: '데이터베이스에 유저의 techStack를 정보가 저장(업데이트)됩니다.'
+  })
+  @Post('/update-techStack')
+  async updateTechStack(@Body() techStackDto: TechStackDto ): Promise<void> {
+    const { userid, techStack } = techStackDto;
+    await this.usersService.updateTechStack(userid, techStack);
   }
 }
