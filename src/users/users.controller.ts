@@ -15,6 +15,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiConsumes, ApiProperty }
 import { FileUploadDto } from './dto/file-upload.dto';
 import { TechStackDto } from './dto/tech-Stack.dto';
 import { string } from 'joi';
+import { DescriptionDto } from './dto/description-user.dto';
 
 @Controller('users')
 @ApiTags('Users API')
@@ -281,5 +282,18 @@ export class UsersController {
   @HttpCode(200)
   async deleteUser(@Body() userid: string ): Promise<void> {
     await this.usersService.deleteUser(userid);
+  }
+
+  @ApiOperation({
+    summary:'Description 생성 API',
+    description:'유저 ID, Description를 입력 받아 사용자의 Description를 생성하거나 업데이트한다.',
+  })
+  @ApiResponse({
+    description: '데이터베이스에 유저의 Description 정보가 저장됩니다.'
+  })
+  @Post('/create-description')
+  async createDescription(@Body() descriptionDto:DescriptionDto ): Promise<void> {
+    const { userid, description } = descriptionDto;
+    await this.usersService.createDescription(userid, description);
   }
 }
