@@ -1,0 +1,58 @@
+name: aks-prod-deploy
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+env:
+  IMAGE_HOST: ghcr.io/${{ github.repository }}
+  IMAGE_NAME: blog-service-prod
+  IMAGE_TAG: "null"
+  NAMESPACE: prod
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: repo checkout
+      uses: actions/checkout@v3
+
+    - name: build image
+      run: docker build . --file Dockerfile --tag $IMAGE_NAME
+
+    - name: log into registry
+      run: echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+    - name: push image
+      run: |
+        docker tag $IMAGE_NAME $IMAGE_HOST/$IMAGE_NAME:$IMAGE_TAG
+        docker push $IMAGE_HOST/$IMAGE_NAME:$IMAGE_TAG
+    - name: aks login
+      uses: azure/aks-set-context@v1
+      with:
+        creds: "${{ secrets.AZURE_CREDENTIALS_PROD }}"
+        resource-group: "${{ secrets.AZURE_RESOURCE_GROUP_PROD }}"
+        cluster-name: "${{ secrets.AZURE_CLUSTER_NAME_PROD }}"
+      id: login
+
+    - name: create namespace
+      run: |
+        kubectl create namespace ${{ env.NAMESPACE }} --dry-run=client -o json | kubectl apply -f -
+    - name: aks apply object
+      uses: Azure/k8s-deploy@v1.4
+      with:
+        namespace: ${{ env.NAMESPACE }}
+        manifests: |
+          ./k8s/blog-service-prod.yaml
+        images: |
+          ${{ env.IMAGE_HOST }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+    - name: action-slack
+      uses: 8398a7/action-slack@v3.14.0
+      with:
+        status: ${{ job.status }}
+        fields: repo,message,commit,author,action,eventName,ref,workflow,job,took,pullRequest # selectable (default: repo,message)
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
+      if: always() # Pick up event
