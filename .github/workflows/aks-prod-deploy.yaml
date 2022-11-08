@@ -50,7 +50,6 @@ jobs:
           ./k8s/blog-service-prod.yaml
         images: |
           ${{ env.IMAGE_HOST }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-
     - name: action-slack
       uses: 8398a7/action-slack@v3.14.0
       with:
@@ -59,3 +58,4 @@ jobs:
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} # required
       if: always() # Pick up event
+
