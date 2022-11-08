@@ -24,7 +24,7 @@ export class ReCommentRepository extends Repository<ReComment>{
         const comment = await this.createQueryBuilder("re_comment")
         .leftJoin("re_comment.writer","users")
         .select(["re_comment.id","re_comment.content","re_comment.date"])
-        .addSelect(["users.id","users.userid","users.username","users.email","users.role","users.avatar_image"])
+        .addSelect(["users.id","users.userid","users.username","users.email","users.role","users.avatar_image","users.techStack","users.socialUrl"])
         .where("re_comment.comment_id = :comment_id",{comment_id : comment_idValue})
         .andWhere(`re_comment.recomment_status IN(:recomment_status)`,{recomment_status})
         .skip(skip)

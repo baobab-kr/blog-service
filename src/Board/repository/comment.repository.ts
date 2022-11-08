@@ -28,7 +28,7 @@ export class CommentRepository extends Repository<Comment>{
         const comment = await this.createQueryBuilder("comment")
         .leftJoin("comment.writer","users")
         .select(["comment.id","comment.content","comment.date"])
-        .addSelect(["users.id","users.userid","users.username","users.email","users.role","users.avatar_image"])
+        .addSelect(["users.id","users.userid","users.username","users.email","users.role","users.avatar_image","users.techStack","users.socialUrl"])
         .where("comment.board_id = :board_id",{board_id : board_idValue})
         .andWhere(`comment.comment_status IN(:comment_status)`,{comment_status})
         .skip(skip)
