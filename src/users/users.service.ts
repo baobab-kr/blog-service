@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { AuthService } from 'src/auth/auth.service';
 import { Payload } from 'src/auth/security/payload.interface';
 import { EmailService } from 'src/email/email.service';
-import { Repository, Connection } from 'typeorm';
+import { Repository, Connection, getConnection } from 'typeorm';
 import { SavedUserDto } from './dto/saved-user.dto';
 import { Users } from './entity/user.entity';
 import { BlobServiceClient, BlockBlobClient } from "@azure/storage-blob";
@@ -133,6 +133,26 @@ export class UsersService {
     }
   }
 
+  private async saveDescriptionUsingQueryRunnner(userid: string, description: string) {
+    const queryRunner = this.connection.createQueryRunner();
+    
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const userIdValue: string = typeof userid !== typeof "" ? Object.values(userid)[0] : userid
+      const user = await this.usersRepository.findOne({userid: userIdValue});
+      user.userid = userid
+      user.description = description
+      await this.usersRepository.save(user)
+      
+      await queryRunner.commitTransaction();
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
   private async saveTechStackUsingQueryRunnner(userid: string, techStack: string) {
     const queryRunner = this.connection.createQueryRunner();
     
@@ -241,5 +261,21 @@ export class UsersService {
   async updateTechStack(userid: string, techStack: string) {
     await this.checkUserIdNotExists(userid);
     await this.saveTechStackUsingQueryRunnner(userid, techStack);
+  }
+
+  async deleteUser(userid: string) {
+    await this.checkUserIdNotExists(userid);
+    const userIdValue: string = typeof userid !== typeof "" ? Object.values(userid)[0] : userid
+    await getConnection()
+    .createQueryBuilder()
+    .delete()
+    .from(Users)
+    .where(`userid = "${userIdValue}"`)
+    .execute();
+  }
+
+  async createDescription(userid: string, description: string) {
+    await this.checkUserIdNotExists(userid);
+    await this.saveDescriptionUsingQueryRunnner(userid, description);
   }
 }
