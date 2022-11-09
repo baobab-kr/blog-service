@@ -6,43 +6,43 @@ import { PartialType } from '@nestjs/mapped-types';
 export class SelectJobsHeadHuntDTO {
 
     @ApiProperty({
-        default: 1,
+        type: "number",
     })
     @IsNotEmpty({message : "user_id 값이 입력되지 않았습니다."})
     user_id : number
 
     @ApiProperty({
-        default: "string",
+        type: "string",
     })
     location?
     
     @ApiProperty({
-        default: "string",
+        type: "string",
     })
     title?
 
     @ApiProperty({
-        default: "string",
+        type: "string",
     })
     field?
 
     @ApiProperty({
-        default: 1,
+        type: "number",
     })
     careerType?
     
     @ApiProperty({
-        default: "YYYYMMDD",
+        type: "YYYYMMDD",
     })
     startDate?
 
     @ApiProperty({
-        default: "YYYYMMDD",
+        type: "YYYYMMDD",
     })
     endDate?
 
     @ApiProperty({
-        default: "string",
+        type: "string",
     })
     companyName?
 

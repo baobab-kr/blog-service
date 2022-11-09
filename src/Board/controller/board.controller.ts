@@ -10,7 +10,7 @@ import { CommentService } from '../service/commnet.service';
 import { ReCommentService } from '../service/recomment.service';
 import { JwtAccessTokenGuard } from 'src/auth/security/jwtAccessToken.guard';
 import { Request, Response } from 'express';
-import { ApiBody, ApiCreatedResponse, ApiOperation, ApiParam, ApiProperty, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiCreatedResponse, ApiOperation, ApiParam, ApiProperty, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JobsService } from '../../jobs/service/jobs.service';
 
 
@@ -38,8 +38,11 @@ export class BoardController {
     @HttpCode(200)
     @UseInterceptors(FileInterceptor("thumbnail"))
     @ApiOperation({summary : "게시물 생성 API", description : "게시물을 생성한다."})
-    @ApiCreatedResponse({type : "void"})
-    @ApiBody({schema : {example : {"title": "string",  "description": "string",  "content": "string",  "board_status": 0,  "tag_name": [    "string"  ], file : "File"},}})
+    @ApiResponse({
+        description: '데이터베이스에 게시물 정보가 저장됩니다.'
+      })
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({description : "게시물 생성을 위한 정보를 입력합니다. " ,type:CreateBoardDTO})
     @UseGuards(JwtAccessTokenGuard)
     async createBoard(
         @Req() req: Request,
@@ -61,8 +64,8 @@ export class BoardController {
      */
      @Post("/BoardMain")
      @HttpCode(200)
-     @ApiOperation({summary : "메인페이지 호출 API", description : "게시물을 반환한다"})
-     @ApiCreatedResponse({description : "게시물 정보 반환", type : "Object"})
+     @ApiOperation({summary : "메인페이지 호출 API", description : "한 페이지당 15개의 개시물 반환"})
+     @ApiCreatedResponse({description : "게시물 반환"})
      @ApiQuery({name : "page", required : true, description : "불러올 페이지"})
      @ApiBody({schema : {example : {page : 0} }})
      async getBoardMain(
@@ -93,8 +96,8 @@ export class BoardController {
      */
      @Post("/BoardMainTag")
      @HttpCode(200)
-     @ApiOperation({summary : "메인페이지 태그 검색 API", description : "tag_name이 있는 해당하는 게시물을 반환"})
-     @ApiCreatedResponse({description : "게시물 정보 반환", type : "Object"})
+     @ApiOperation({summary : "메인페이지 태그 검색 API", description : "tag_name이 있는 해당하는 게시물을 반환, tag_name은 배열로 입력"})
+     @ApiCreatedResponse({description : "게시물 정보 반환"})
      @ApiBody({schema : {example : {page : 0,   "tag_name": [    "string"  ]}}})
      async getBoardMainTag(
          @Req() req: Request,
@@ -120,7 +123,7 @@ export class BoardController {
     @Post("/BoardSearchOfTitle")
     @HttpCode(200)
     @ApiOperation({summary : "메인페이지 제목 검색 API", description : "title이 포함된 게시물을 반환"})
-    @ApiCreatedResponse({description : "게시물 정보 반환", type : "Object"})
+    @ApiCreatedResponse({description : "게시물 정보 반환"})
     @ApiBody({schema : {example : {page : 0,   "title":"string"}}})
     async getBoardMainofTitle(
     @Req() req: Request,
@@ -141,8 +144,8 @@ export class BoardController {
     @Post("/BoardPersonal")
     @HttpCode(200)
     //@UseGuards(JwtAccessTokenGuard)
-    @ApiOperation({summary : "개인페이지 호출 API", description : "개인페이지를 반환한다.\n 작성자가 아닌 다른사람의 개인페이지에 들어가면 공개 게시물만을 반환한다."})
-    @ApiCreatedResponse({description : "게시물 정보 반환", type : "Object"})
+    @ApiOperation({summary : "개인페이지 호출 API", description : "개인페이지를 반환한다.<br> 작성자가 아닌 다른사람의 개인페이지에 들어가면 공개 게시물만을 반환한다.<br> user_id는 필수값 아님"})
+    @ApiCreatedResponse({description : "게시물 정보 반환"})
     @ApiBody({schema : {example : {user_id : 0, page : 0}}})
     async getBoardPersonal(
         @Req() req: Request,
@@ -216,8 +219,8 @@ export class BoardController {
      */
     @Post("/BoardPersonalTagCount")
     @HttpCode(200)
-    @ApiOperation({summary : "개인페이지 테그 개수 반환 API", description : "해당 개인페이지의 게시물이 갖은 태그들의 개수를 반환한다."})
-    @ApiCreatedResponse({description : "태그정보 반환", type : "Object"})
+    @ApiOperation({summary : "개인페이지 테그 개수 반환 API", description : "해당 개인페이지의 게시물이 갖은 태그들의 개수를 반환한다.<br> user_id는 필수값 아님"})
+    @ApiCreatedResponse({description : "태그개수 반환", type : "Object"})
     @ApiBody({schema : {example : {user_id : 0}}})
     async getTagCount(
         @Req() req : Request,
@@ -264,7 +267,7 @@ export class BoardController {
      */
     @Post("/BoardPersonalWriter")
     @HttpCode(200)
-    @ApiOperation({summary : "개인페이지의 작성자 확인 API", description : "해당 개인페이지의 작성자를 반환한다."})
+    @ApiOperation({summary : "개인페이지의 작성자 확인 API", description : "해당 개인페이지의 작성자를 반환한다. <br> user_id는 필수값 아님<br>로그인 시 로그인한 사용자의 정보가 반환"})
     @ApiCreatedResponse({description : "User정보 반환", type : "User"})
     @ApiBody({schema : {example : {user_id : 0}}})
     async getWriter(
@@ -318,9 +321,9 @@ export class BoardController {
      */
     @Post("/BoardPersonalTag")
     @HttpCode(200)
-    @ApiOperation({summary : "개인페이지 태그 검색 API", description : "tag_name이 포함된 개인페이지 정보를 반환한다."})
-    @ApiCreatedResponse({description : "게시물 반환", type : "Object"})
-    @ApiBody({schema : {example : { page : "string", user_id : 0, "tag_name" : [ "string" ]}}})
+    @ApiOperation({summary : "개인페이지 태그 검색 API", description : "tag_name이 포함된 개인페이지 정보를 반환한다.<br> user_id는 필수값 아님"})
+    @ApiCreatedResponse({description : "게시물 반환"})
+    @ApiBody({schema : {example : { page : 0, user_id : 0, "tag_name" : [ "string" ]}}})
     async getBoardPersonalTag(
         @Req() req : Request,
         @Body("page") page : number,
@@ -373,7 +376,7 @@ export class BoardController {
     @Post("/BoardView")
     @HttpCode(200)
     @ApiOperation({summary : "상세 페이지 호출 API", description : "입력 board_id와 같은 게시물 정보 반환"})
-    @ApiCreatedResponse({description : "게시물 반환", type : "Board"})
+    @ApiCreatedResponse({description : "게시물 반환"})
     @ApiBody({schema : {example : { board_id : 0}}})
     async getBoardById(
         @Req() req : Request,
@@ -406,9 +409,9 @@ export class BoardController {
     @Patch("BoardUpdate")
     @HttpCode(200)
     @UseGuards(JwtAccessTokenGuard)
-    @ApiOperation({summary : "게시물 업데이트 API", description : "게시물을 수정, 삭제 할 수 있음"})
+    @ApiOperation({summary : "게시물 업데이트 API", description : "게시물을 수정, 삭제 할 수 있음<br>title , description, content, board_status, tag_name 필수 입력값 아님"})
     @ApiCreatedResponse({type : "void"})
-    @ApiBody({schema : {example : { board_id : 0, "title": "string",  "description": "string",  "content": "string",  "board_status": 0,  "tag_name": [    "string"  ]}}})
+    @ApiBody({type:UpdateBoardDTO})
     async updateBoard(
         @Req() req: Request,
         @Body("board_id") id : number,
@@ -450,7 +453,10 @@ export class BoardController {
 
     @Delete("DeleteAllPosts")
     @HttpCode(200)
-    @ApiOperation({summary : "게시물 전체 삭제 API", description : "해당 사용자의 모든 게시물을 삭제한다."})
+    @ApiOperation({summary : "게시물 전체 삭제 API", description : "유저 정보에 해당하는 모든 게시물, 댓글, 대댓글, 태그정보, 좋아요 정보 삭제"})
+    @ApiResponse({
+        description: '게시물 삭제'
+      })
     @ApiBody({schema : {example : { user_id : 0}}})
     async deleteAllPosts(
         @Body("user_id") user_id : number
@@ -469,7 +475,7 @@ export class BoardController {
     @Post("/CreateComment")
     @HttpCode(200)
     @UseGuards(JwtAccessTokenGuard)
-    @ApiOperation({summary : "댓글 생성 API", description : "댓글 생성 할 수 있음"})
+    @ApiOperation({summary : "댓글 생성 API", description : "해당 게시물에 대한 댓글을 생성한다.<br> status<br>공개:0,삭제:1 "})
     @ApiCreatedResponse({type : "void"})
     async createComment(
         @Req() req: Request,
@@ -523,7 +529,7 @@ export class BoardController {
      @HttpCode(200)
      @ApiOperation({summary : "댓글 개수 API", description : "댓글 개수 반환"})
      @ApiCreatedResponse({type : "Number"})
-     @ApiBody({schema : {example : { board_id : 0}}})
+     @ApiQuery({name:"board_id",type : "number"})
      async getCommentCount(
          @Body("board_id") board_id : number
      ){
@@ -537,7 +543,7 @@ export class BoardController {
     @Patch("DeleteComment")
     @HttpCode(200)
     @UseGuards(JwtAccessTokenGuard)
-    @ApiOperation({summary : "댓글 삭제 API", description : "댓글 삭제"})
+    @ApiOperation({summary : "댓글 삭제 API", description : "comment_id 해당하는 댓글을 삭제하는 api<br>로그인 시 사용가능함<br>로그인한 사용자가 작성자일 때 삭제 가능"})
     @ApiCreatedResponse({type : "void"})
     @ApiBody({schema : {example : { comment_id : 0}}})
     async deleteCommentById(
@@ -560,7 +566,7 @@ export class BoardController {
     @Post("/CreateReComment")
     @HttpCode(200)
     @UseGuards(JwtAccessTokenGuard)
-    @ApiOperation({summary : "답글 생성 API", description : "답글 생성"})
+    @ApiOperation({summary : "답글 생성 API", description : "답글을 생성한다.<br>recomment_status<br>공개:0, 삭제:1"})
     @ApiCreatedResponse({type : "void"})
     async createReComment(
         @Req() req :Request,
@@ -581,7 +587,7 @@ export class BoardController {
      */
     @Post("ReComment")
     @HttpCode(200)
-    @ApiOperation({summary : "답글 호출 API", description : "답글을 호출할 수 있다. page당 10개의 댓글을 불러올 수 있다."})
+    @ApiOperation({summary : "답글 호출 API", description : "comment_id에 해당하는 댓글에 대한 답글을 호출할 수 있다. page당 10개의 댓글을 불러올 수 있다."})
     @ApiCreatedResponse({type : "ReComment"})
     @ApiBody({schema : {example : { comment_id : 0, page : 0}}})
     async getReCommentById(
@@ -598,7 +604,7 @@ export class BoardController {
      */
     @Post("ReCommentPage")
     @HttpCode(200)
-    @ApiOperation({summary : "답글 페이지 개수 API", description : "해당 답글 페이지 개수를 확인 할 수 있다."})
+    @ApiOperation({summary : "답글 페이지 개수 API", description : "comment_id에 해당하는 댓글이 갖고 있는 답글 페이지 개수를 확인 할 수 있다."})
     @ApiCreatedResponse({type : "Number"})
     @ApiBody({schema : {example : { comment_id : 0}}})
     async getReCommentPage(
@@ -614,9 +620,9 @@ export class BoardController {
          */
     @Get("ReCommentCount")
     @HttpCode(200)
-    @ApiOperation({summary : "답글 개수 API", description : "해당 답글 개수를 확인 할 수 있다."})
+    @ApiOperation({summary : "답글 개수 API", description : "comment_id에 해당하는 댓글이 갖고 있는 답글 개수를 확인 할 수 있다."})
     @ApiCreatedResponse({type : "Number"})
-    @ApiBody({schema : {example : { comment_id : 0}}})
+    @ApiQuery({name:"comment_id",type : "number"})
     async getReCommentCount(
         @Body("comment_id") comment_id : number
     ){
@@ -630,7 +636,7 @@ export class BoardController {
     @Patch("DeleteReComment")
     @HttpCode(200)
     @UseGuards(JwtAccessTokenGuard)
-    @ApiOperation({summary : "답글 삭제 API", description : "해당 답글을 삭제할 수 있다."})
+    @ApiOperation({summary : "답글 삭제 API", description : "reComment_id 해당하는 답글을 삭제할 수 있다.<br>로그인 시 사용가능함<br>로그인한 사용자가 작성자일 때 삭제 가능"})
     @ApiCreatedResponse({type : "void"})
     @ApiBody({schema : {example : { reComment_id : 0}}})
     async deleteReCommentById(

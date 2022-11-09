@@ -27,11 +27,14 @@ export class CreateBoardDTO{
 
     
     @IsNotEmpty({message : "값이 입력되지 않았습니다."})
-    @ApiProperty()
+    @ApiProperty({ type: 'number', description:'0:공개, 1:삭제, 2:비공개' })
     board_status : number; 
 
-    @ApiProperty()
+    @ApiProperty({ type: 'array', description:'tag_name을 배열의 형태로 넣습니다. 필수 입력 데이터가 아닙니다.' })
     tag_name? : string[];
+
+    @ApiProperty({ type: 'file', description:'업로드 할 프로필 이미지를 선택합니다. 필수 입력 데이터가 아닙니다.' })
+    file? : any;
     
 }
 

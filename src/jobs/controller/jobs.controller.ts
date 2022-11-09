@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpCode, Param, Patch, Post, Query, Req, Res, UploadedFile, UploadedFiles, UseInterceptors, HttpException, HttpStatus, Delete } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiTags } from "@nestjs/swagger";
+import { ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { CreateJobsDTO } from "../dto/create-jobs.dto";
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateJobsDTO } from '../dto/update-jobs.dto';
@@ -8,6 +8,9 @@ import { SelectJobsDTO } from '../dto/select-jobs.dto';
 import { Request } from 'express';
 import { SelectJobsHeadHuntDTO } from '../dto/select-jobs-headhunt.dto';
 import { ApplyJobService } from '../../applyJob/service/applyJob.service';
+import { ToastUiDTO } from '../dto/toast_ui_jobs.dto';
+import { CampanyImageDTO } from '../dto/image-jobs-dto';
+import { CampanyLogoDTO } from '../dto/Logo-jobs-dto';
 
 
 @Controller("jobs")
@@ -27,7 +30,7 @@ export class JobsController{
     @HttpCode(200)
     @ApiOperation({
         summary:'공지사항 생성 API',
-        description:'careerType\n- 경력무관 : 0\n- 인턴 : 1\n- 신입 : 2\n- 경력 : 3\n\napprovalStatus \n - 미승인 :  0 \n- 승인 : 1\n\njobStatus(default : 0)\n- 채용 마감 : 0\n- 채용 중 : 1        ',
+        description:'careerType\n- 경력무관 : 0\n- 인턴 : 1\n- 신입 : 2\n- 경력 : 3\n\napprovalStatus \n - 미승인 :  0 \n- 승인 : 1\n\njobStatus(default : 0)\n- 채용 마감 : 0\n- 채용 중 : 1<br> startDate,endDate<br>YYYYMMDD로 초기화한 string값을 입력<br><br>logo,license는 이미지 업로드 api에서 반환된 데이터를 입력',
     })
     async CreateJobs(
         @Req() req: Request,
@@ -127,7 +130,7 @@ export class JobsController{
      @HttpCode(200)
      @ApiOperation({
          summary:'해드헌트의 공지사항 user_id 조회 API',
-         description:'user_id에 해당하는 모든 게시물 반환',
+         description:'user_id에 해당하는 모든 게시물 반환, 해드헌트 계정만 사용 가능 role:2',
      })
      @ApiQuery({type : SelectJobsHeadHuntDTO})
      @ApiBody({schema : {example : {
@@ -205,7 +208,7 @@ export class JobsController{
     @HttpCode(200)
     @ApiOperation({
         summary:'채용 공고를 승인하는 API',
-        description:'서비스 관리자계정으로 로그인해야 사용가능 role:3 ',
+        description:'채용공고 status를 승인으로 수정한다. 서비스 관리자계정으로 로그인해야 사용가능 role:3 ',
     })
     @ApiBody({schema : {example : {
         id : 1
@@ -221,7 +224,7 @@ export class JobsController{
     @HttpCode(200)
     @ApiOperation({
         summary:'채용 공고를 삭제 API',
-        description:'서비스 관리자계정으로 로그인해야 사용가능 role:3 ',
+        description:'채용공고 status를 미승인으로 수정한다. 서비스 관리자계정으로 로그인해야 사용가능 role:3 ',
     })
     @ApiBody({schema : {example : {
         id : 1
@@ -251,7 +254,7 @@ export class JobsController{
     @HttpCode(200)
     @ApiOperation({
         summary:'게시물 전체 삭제 api',
-        description:'',
+        description:'해당 사용자가 작성한 채용공고 및 채용신청의 게시물을 전체 삭제한다.',
     })
     @ApiBody({schema : {example : { user_id : 0}}})
     async delete_all_posts_in_user( 
@@ -273,12 +276,13 @@ export class JobsController{
      */
     @Post("/UploadOfCompanyLogo")
     @HttpCode(200)
+    @ApiConsumes('multipart/form-data')
     @UseInterceptors(FileInterceptor("CompanyLogo"))
     @ApiOperation({
         summary:'회사로고 업로드',
-        description:'이미지 업로드 후 파일명 반환, ID와 함께 넣으면 해당하는 공지사항의 회사로고를 변경',
+        description:'이미지 업로드 후 파일명 반환, ID와 함께 넣으면 해당하는 공지사항의 회사로고를 변경, id는 필수값 아님',
     })
-    @ApiBody({schema : {example : {id : 0, CompanyLogo : "File"}}})
+    @ApiBody({description:"Jobs의 Logo 이미지 삽입",type:CampanyLogoDTO})
     async uploadLogo(
         @Body("id") id : number,
         @UploadedFile() file
@@ -301,11 +305,12 @@ export class JobsController{
      @Post("/UploadOfCompanyImage")
      @HttpCode(200)
      @UseInterceptors(FileInterceptor("CompanyImage"))
+     @ApiConsumes('multipart/form-data')
      @ApiOperation({
         summary:'채용공고 이미지 업로드',
-        description:'이미지 업로드 후 파일명 반환, ID와 함께 넣으면 해당하는 공지사항의 회사로고를 변경',
+        description:'이미지 업로드 후 파일명 반환, ID와 함께 넣으면 해당하는 공지사항의 회사로고를 변경, id는 필수값 아님',
     })
-    @ApiBody({schema : {example : {id : 0, CompanyLogo : "File"}}})
+    @ApiBody({description:"Jobs의 license 이미지 삽입",type:CampanyImageDTO})
      async uploadImage(
          @Body("id") id : number,
          @UploadedFile() file
@@ -317,11 +322,12 @@ export class JobsController{
      @Post("/UploadToastUiImage")
      @HttpCode(200)
      @UseInterceptors(FileInterceptor("ToastImage"))
+     @ApiConsumes('multipart/form-data')
      @ApiOperation({
         summary:'토스트UI 이미지 업로드',
         description:'이미지 업로드 후 파일명 반환',
     })
-    @ApiBody({schema : {example : { ToastImage : "File"}}})
+    @ApiBody({description:"ToastUi이미지 삽입",type:ToastUiDTO})
      async uploadToastUiImage(
          @UploadedFile() file
      ){
