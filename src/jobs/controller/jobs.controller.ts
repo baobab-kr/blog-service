@@ -12,7 +12,6 @@ import { ToastUiDTO } from '../dto/toast_ui_jobs.dto';
 import { CampanyImageDTO } from '../dto/image-jobs-dto';
 import { CampanyLogoDTO } from '../dto/Logo-jobs-dto';
 
-
 @Controller("jobs")
 @ApiTags("Baobab_Jobs")
 export class JobsController{
@@ -30,7 +29,7 @@ export class JobsController{
     @HttpCode(200)
     @ApiOperation({
         summary:'공지사항 생성 API',
-        description:'careerType\n- 경력무관 : 0\n- 인턴 : 1\n- 신입 : 2\n- 경력 : 3\n\napprovalStatus \n - 미승인 :  0 \n- 승인 : 1\n\njobStatus(default : 0)\n- 채용 마감 : 0\n- 채용 중 : 1<br> startDate,endDate<br>YYYYMMDD로 초기화한 string값을 입력<br><br>logo,license는 이미지 업로드 api에서 반환된 데이터를 입력',
+        description:'careerType\n- 경력무관 : 0\n- 인턴 : 1\n- 신입 : 2\n- 경력 : 3\n\napprovalStatus \n - 미승인 :  0 \n- 승인 : 1\n\njobStatus(default : 0)\n- 채용 마감 : 0\n- 채용 중 : 1<br> startDate,endDate<br>YYYYMMDD로 초기화한 string값을 입력<br><br>logo,license는 이미지 업로드 api에서 반환된 데이터를 입력<br><br>user_id 필수값 아님, 로그인 한 상태라면 로그인한 user_id로 생성됨, user_id 를 입력하면 해당 user_id 우선으로 공고가 생성됨',
     })
     async CreateJobs(
         @Req() req: Request,
@@ -39,12 +38,18 @@ export class JobsController{
         
         const headhunt_status = 2;
 
-        if(Object.keys(req.cookies).includes("AccessToken") ){
+        if(createJobsDTO.user_id != undefined){
+            if(await this.jobsService.check_headhunt_in_user_id(Number(createJobsDTO.user_id))){
+                await this.jobsService.createNotice(createJobsDTO);
+            }else{
+
+            }
+        }else if(Object.keys(req.cookies).includes("AccessToken") ){
             const user_id_inPayload : number = await this.jobsService.userIdInCookie(req.cookies.AccessToken);
             let users = await this.jobsService.getUser(user_id_inPayload);
-
+            createJobsDTO.user_id = user_id_inPayload;
+            
             if(users.role == headhunt_status){
-                
                 await this.jobsService.createNotice(createJobsDTO);
             }else{
                 throw new HttpException('해드헌트만 이용가능한 기능입니다.', HttpStatus.CONFLICT)
@@ -52,6 +57,8 @@ export class JobsController{
         }else{
             throw new HttpException('로그인을 해야 사용할 수 있는 기능입니다.', HttpStatus.CONFLICT)
         }
+
+        
     }
 
     /**
@@ -148,20 +155,27 @@ export class JobsController{
      ){
  
          const headhunt_status = 2;
- 
-         if(Object.keys(req.cookies).includes("AccessToken") ){
-             const user_id_inPayload : number = await this.jobsService.userIdInCookie(req.cookies.AccessToken);
-             let users = await this.jobsService.getUser(user_id_inPayload);
- 
-             if(users.role == headhunt_status){
-                 const jobs = await this.jobsService.getJobs_inUser_forHeadHunt(SelectJobsHeadHuntDTO);
-                 return jobs;
-             }else{
-                 throw new HttpException('해드헌트만 이용가능한 기능입니다.', HttpStatus.CONFLICT)
-             }
-         }else{
-             throw new HttpException('로그인을 해야 사용할 수 있는 기능입니다.', HttpStatus.CONFLICT)
-         }
+        
+
+        if(SelectJobsHeadHuntDTO.user_id != undefined){
+            const jobs = await this.jobsService.getJobs_inUser_forHeadHunt(SelectJobsHeadHuntDTO);
+            return jobs;
+        } else{
+            if(Object.keys(req.cookies).includes("AccessToken") ){
+                const user_id_inPayload : number = await this.jobsService.userIdInCookie(req.cookies.AccessToken);
+                let users = await this.jobsService.getUser(user_id_inPayload);
+                SelectJobsHeadHuntDTO.user_id = user_id_inPayload;
+                if(users.role == headhunt_status){
+                    const jobs = await this.jobsService.getJobs_inUser_forHeadHunt(SelectJobsHeadHuntDTO);
+                    return jobs;
+                }else{
+                    throw new HttpException('해드헌트만 이용가능한 기능입니다.', HttpStatus.CONFLICT)
+                }
+            }else{
+                throw new HttpException('로그인을 해야 사용할 수 있는 기능입니다.', HttpStatus.CONFLICT)
+            }
+        }
+         
          
  
      }
@@ -337,20 +351,71 @@ export class JobsController{
      }
      
  
-     @Post("/getImageFile")
-     @HttpCode(200)
-     @ApiOperation({
-         summary:'이미지 반환 API',
-         description:'파일명을 입력하면 이미지를 반환',
-     })
-     @ApiBody({schema : {example : {file_name : "string"}}})
-     async getImageFile(
-         @Res() res ,
-         @Body("file_name") filename : string
-     ){
-         const file = await this.jobsService.getImage(filename);
-         return file.pipe(res);
- 
-     }
+    @Post("/getImageFile")
+    @HttpCode(200)
+    @ApiOperation({
+        summary:'이미지 반환 API',
+        description:'파일명을 입력하면 이미지를 반환',
+    })
+    @ApiBody({schema : {example : {file_name : "string"}}})
+    async getImageFile(
+        @Res() res ,
+        @Body("file_name") filename : string
+    ){
+        const file = await this.jobsService.getImage(filename);
+        return file.pipe(res);
+
+    }
+
+    @Post("/getToastImage")
+    @HttpCode(200)
+    @ApiOperation({
+        summary:'ToastUi이미지 반환 API',
+        description:'파일명을 입력하면 이미지를 반환',
+    })
+    @ApiBody({schema : {example : {file_name : "string"}}})
+    async getToastImage(
+        @Res() res ,
+        @Body("file_name") filename : string
+    ){
+        const file = await this.jobsService.getImage(filename);
+        return file.pipe(res);
+
+    }
+
+
+
+    @Post("/nts_businessman")
+    @HttpCode(200)
+    async nts_businessman(
+        @Res() res ,
+        @Req() req,
+        @Body("business_number") b_no : string
+    ){
+        const serviceKey = "I5OxGPqEJSf88oOEtR9HcQIWGmvCgPbiVP9RlqeUFd2Hqd1SsilZLjti5vqPpwl8kD%2BjystU%2BgJDzDyNb3mJfA%3D%3D"
+        const axios = require("axios");
+
+        axios({
+            method : "post",
+            url : `https://api.odcloud.kr/api/nts-businessman/v1/status?serviceKey=${serviceKey}`,
+            data : {
+                b_no : [
+                    b_no
+                ]
+            }
+            
+            //responseType : "stream"
+        }).then((response) => {
+            
+            console.log(response)
+
+            console.log(response.data)
+        })
+
+
+    }
+
+
+
 
 }

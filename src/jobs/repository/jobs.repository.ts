@@ -236,7 +236,7 @@ export class JobsRepository extends Repository<Jobs>{
             throw new HttpException('변수 타입 초기화 실패', HttpStatus.CONFLICT)
         }
         
-        console.log(Number(SelectJobsHeadHuntDTO.user_id))
+
         let where = ` jobs.user_id =  ${Number(SelectJobsHeadHuntDTO.user_id)}`
 
         if(location != undefined){

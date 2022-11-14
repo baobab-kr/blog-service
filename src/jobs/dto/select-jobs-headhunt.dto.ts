@@ -8,8 +8,7 @@ export class SelectJobsHeadHuntDTO {
     @ApiProperty({
         type: "number",
     })
-    @IsNotEmpty({message : "user_id 값이 입력되지 않았습니다."})
-    user_id : number
+    user_id? : number
 
     @ApiProperty({
         type: "string",

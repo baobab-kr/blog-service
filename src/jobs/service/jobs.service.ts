@@ -30,6 +30,20 @@ export class JobsService{
 
     }
 
+    async check_headhunt_in_user_id(id : number){
+        const user = await this.usersRepository.findOne(id);
+
+        if(user){
+            if (Number(user.role) == 2){
+                return true;
+            }else{
+                throw new HttpException('해드헌트만 이용가능한 기능입니다.', HttpStatus.CONFLICT)
+            }
+        }else{
+            throw new HttpException('없는 사용자입니다.', HttpStatus.CONFLICT)
+        }
+    }
+
     /**
      * updateNotice(수정)
      * @param id 
