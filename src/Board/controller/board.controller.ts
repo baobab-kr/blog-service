@@ -531,9 +531,16 @@ export class BoardController {
      @ApiCreatedResponse({type : "Number"})
      @ApiQuery({name:"board_id",type : "number"})
      async getCommentCount(
-         @Body("board_id") board_id : number
+         @Query("board_id") board_id : number
      ){
-         return await this.commentService.getCommentCount(board_id);
+
+        if(board_id != undefined){
+            if(isNaN(board_id)){
+                
+                throw new HttpException('board_id가 없습니다.', HttpStatus.CONFLICT)
+            }
+        }
+        return await this.commentService.getCommentCount(board_id);
      }
     /**
      * deleteCommentById(댓글 삭제 API)
@@ -624,8 +631,16 @@ export class BoardController {
     @ApiCreatedResponse({type : "Number"})
     @ApiQuery({name:"comment_id",type : "number"})
     async getReCommentCount(
-        @Body("comment_id") comment_id : number
+        @Query("comment_id") comment_id : number
     ){
+
+        if(comment_id != undefined){
+            if(isNaN(comment_id)){
+                
+                throw new HttpException('comment_id가 없습니다.', HttpStatus.CONFLICT)
+            }
+        }
+        
         return await this.reCommentService.getReCommentCount(comment_id);
     }
     /**
