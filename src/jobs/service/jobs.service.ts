@@ -34,7 +34,7 @@ export class JobsService{
         const user = await this.usersRepository.findOne(id);
 
         if(user){
-            if (Number(user.role) == 2){
+            if (Number(user.role) == 1){
                 return true;
             }else{
                 throw new HttpException('해드헌트만 이용가능한 기능입니다.', HttpStatus.CONFLICT)

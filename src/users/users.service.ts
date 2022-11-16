@@ -18,10 +18,10 @@ export class UsersService {
     ) {};
 
   async createUser(userid: string, email: string, username: string, password: string, inputVerifyCode: number, role: number, techStack: string) {
-    await this.checkUserIdExists(userid);
-    await this.checkUserNameExists(username);
-    await this.checkEmailExists(email);
-    await this.checkMemberJoinEmail(username, inputVerifyCode);
+    //await this.checkUserIdExists(userid);
+    //await this.checkUserNameExists(username);
+    //await this.checkEmailExists(email);
+    //await this.checkMemberJoinEmail(username, inputVerifyCode);
     await this.saveUserUsingQueryRunnner(userid, email, username, password, role, techStack);
   }
 
