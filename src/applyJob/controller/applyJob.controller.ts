@@ -23,7 +23,7 @@ export class ApplyJobController{
     @HttpCode(200)
     @ApiOperation({
         summary:'채용공고 신청 API',
-        description:'채용공고를 신청하는 API',
+        description:'채용공고를 신청하는 API, user_id 필수값 아님',
     })
     async CreateApplyJob(
         @Req() req: Request,
