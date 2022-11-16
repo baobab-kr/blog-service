@@ -7,6 +7,7 @@ import { SelectJobsDTO } from '../dto/select-jobs.dto';
 import { Users } from '../../users/entity/user.entity';
 import { SelectJobsHeadHuntDTO } from '../dto/select-jobs-headhunt.dto';
 import { appendFile } from 'fs';
+import { SelectJobsForServiceAdminDTO } from '../dto/select-jobs-service-admin.dto';
 
 @EntityRepository(Jobs)
 export class JobsRepository extends Repository<Jobs>{
@@ -32,7 +33,7 @@ export class JobsRepository extends Repository<Jobs>{
         let startDate : string;
         let endDate : string;
         let approvalStatus : number;
-        let jobStatus : number = 0 ;
+        let jobStatus : number = 1 ;
         let license : string = ""
         let logo : string = ""
         try {
@@ -63,12 +64,12 @@ export class JobsRepository extends Repository<Jobs>{
                 startDate = "00000000";
                 endDate = "99999999";
             }else{
-                throw new HttpException('it`s no fucking date', HttpStatus.CONFLICT)
+                throw new HttpException('it`s no  date', HttpStatus.CONFLICT)
             }
             
         }
         if(isNaN(careerType)||isNaN(approvalStatus)||isNaN(user_id)){
-            throw new HttpException('it`s no fucking Number', HttpStatus.CONFLICT)
+            throw new HttpException('it`s no  Number', HttpStatus.CONFLICT)
         }
         
         const Jobs = this.create({
@@ -144,6 +145,14 @@ export class JobsRepository extends Repository<Jobs>{
         const dateNow = dayjs().format("YYYYMMDD");
         let apStatus = 1;
         let jpStatus = 1;
+
+
+        let page = SelectJobsDTO.page
+        let limit = 10;
+        let skip = page * limit;
+        let take = skip + limit;
+
+
         
 
         let companyName : string;
@@ -204,6 +213,8 @@ export class JobsRepository extends Repository<Jobs>{
             "jobs.jobStatus"
         ])
         .where(where)
+        .skip(skip)
+        .take(take)
         .getMany()
 
         return jobs;  
@@ -280,7 +291,7 @@ export class JobsRepository extends Repository<Jobs>{
         return jobs;  
     }
 
-    async getJobsAll_ForServiceAdmin (SelectJobsDTO : SelectJobsDTO){
+    async getJobsAll_ForServiceAdmin (SelectJobsDTO : SelectJobsForServiceAdminDTO){
         const dateNow = dayjs().format("YYYYMMDD");
         let apStatus = 1;
         let jpStatus = 1;

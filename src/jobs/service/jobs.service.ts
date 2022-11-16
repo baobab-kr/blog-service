@@ -10,6 +10,7 @@ import { Users } from '../../users/entity/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from "@nestjs/typeorm";
 import { SelectJobsHeadHuntDTO } from '../dto/select-jobs-headhunt.dto';
+import { SelectJobsForServiceAdminDTO } from "../dto/select-jobs-service-admin.dto";
 
 @Injectable()
 export class JobsService{
@@ -170,8 +171,8 @@ export class JobsService{
 
     }
 
-    async getJobsAll_ForServiceAdmin(SelectJobsDTO : SelectJobsDTO){
-        let jobs = await this.jobsRepository.getJobsAll_ForServiceAdmin(SelectJobsDTO)
+    async getJobsAll_ForServiceAdmin(SelectJobsForServiceAdminDTO : SelectJobsForServiceAdminDTO){
+        let jobs = await this.jobsRepository.getJobsAll_ForServiceAdmin(SelectJobsForServiceAdminDTO)
 
         return jobs;
     }

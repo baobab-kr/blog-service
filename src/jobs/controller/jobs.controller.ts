@@ -9,8 +9,9 @@ import { Request } from 'express';
 import { SelectJobsHeadHuntDTO } from '../dto/select-jobs-headhunt.dto';
 import { ApplyJobService } from '../../applyJob/service/applyJob.service';
 import { ToastUiDTO } from '../dto/toast_ui_jobs.dto';
-import { CampanyImageDTO } from '../dto/image-jobs-dto';
+import { CompanyLicenseDTO } from '../dto/image-jobs-dto';
 import { CampanyLogoDTO } from '../dto/Logo-jobs-dto';
+import { SelectJobsForServiceAdminDTO } from '../dto/select-jobs-service-admin.dto';
 
 @Controller("jobs")
 @ApiTags("Baobab_Jobs")
@@ -29,7 +30,7 @@ export class JobsController{
     @HttpCode(200)
     @ApiOperation({
         summary:'공지사항 생성 API',
-        description:'careerType\n- 경력무관 : 0\n- 인턴 : 1\n- 신입 : 2\n- 경력 : 3\n\napprovalStatus \n - 미승인 :  0 \n- 승인 : 1\n\njobStatus(default : 0)\n- 채용 마감 : 0\n- 채용 중 : 1<br> startDate,endDate<br>YYYYMMDD로 초기화한 string값을 입력<br><br>logo,license는 이미지 업로드 api에서 반환된 데이터를 입력<br><br>user_id 필수값 아님, 로그인 한 상태라면 로그인한 user_id로 생성됨, user_id 를 입력하면 해당 user_id 우선으로 공고가 생성됨',
+        description:'careerType\n- 경력무관 : 0\n- 인턴 : 1\n- 신입 : 2\n- 경력 : 3\n\napprovalStatus \n - 미승인 :  0 \n- 승인 : 1\n\njobStatus(default : 1)\n- 채용 마감 : 0\n- 채용 중 : 1<br> startDate,endDate<br>YYYYMMDD로 초기화한 string값을 입력<br><br>logo,license는 이미지 업로드 api에서 반환된 데이터를 입력<br><br>user_id 필수값 아님, 로그인 한 상태라면 로그인한 user_id로 생성됨, user_id 를 입력하면 해당 user_id 우선으로 공고가 생성됨',
     })
     async CreateJobs(
         @Req() req: Request,
@@ -88,7 +89,7 @@ export class JobsController{
      @HttpCode(200)
      @ApiOperation({
          summary:'공지사항 전체 조회 API',
-         description:'approvalStatus이 1, jobStatus 1, 현재날짜 기준 startDate와 endDate가 포함된 게시물 반환',
+         description:'page 0부터 시작 페이지 당 10개의 공고 반환<br>approvalStatus이 1, jobStatus 1, 현재날짜 기준 startDate와 endDate가 포함된 게시물 반환',
      })
      async getJobsAll( 
         @Query() SelectJobsDTO : SelectJobsDTO
@@ -165,7 +166,7 @@ export class JobsController{
     })
     async getJobsAll_ForServiceAdmin( 
         @Req() req: Request,
-        @Query() SelectJobsDTO : SelectJobsDTO
+        @Query() SelectJobsForServiceAdminDTO : SelectJobsForServiceAdminDTO
     ){
 
         const admin_status = 2;
@@ -175,7 +176,7 @@ export class JobsController{
             let users = await this.jobsService.getUser(user_id_inPayload);
 
             if(users.role == admin_status){
-                const jobs = await this.jobsService.getJobsAll_ForServiceAdmin(SelectJobsDTO);
+                const jobs = await this.jobsService.getJobsAll_ForServiceAdmin(SelectJobsForServiceAdminDTO);
                 return jobs;
             }else{
                 throw new HttpException('관리자만 이용가능한 기능입니다.', HttpStatus.CONFLICT)
@@ -301,15 +302,15 @@ export class JobsController{
      * @param file 
      * @returns 
      */
-     @Post("/UploadOfCompanyImage")
+     @Post("/UploadOfCompanyLicense")
      @HttpCode(200)
-     @UseInterceptors(FileInterceptor("CompanyImage"))
+     @UseInterceptors(FileInterceptor("CompanyLicense"))
      @ApiConsumes('multipart/form-data')
      @ApiOperation({
-        summary:'채용공고 이미지 업로드',
-        description:'이미지 업로드 후 파일명 반환, ID와 함께 넣으면 해당하는 공지사항의 회사로고를 변경, id는 필수값 아님',
+        summary:'채용공고 라이선스 업로드',
+        description:'라이선스 업로드 후 파일명 반환, ID와 함께 넣으면 해당하는 공지사항의 라이선스 변경, id는 필수값 아님',
     })
-    @ApiBody({description:"Jobs의 license 이미지 삽입",type:CampanyImageDTO})
+    @ApiBody({description:"Jobs의 license 이미지 삽입",type:CompanyLicenseDTO})
      async uploadImage(
          @Body("id") id : number,
          @UploadedFile() file

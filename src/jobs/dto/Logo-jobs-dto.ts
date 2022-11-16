@@ -6,7 +6,8 @@ export class CampanyLogoDTO{
 
     
     @ApiProperty({
-        type:"number"
+        type:"number",
+        required :false
     })
     id : number 
     
