@@ -201,17 +201,24 @@ export class JobsRepository extends Repository<Jobs>{
 
         const jobs = await this.createQueryBuilder("jobs")
         .select([
-            "jobs.id",
-            "jobs.companyName", 
-            "jobs.field", 
-            "jobs.title", 
-            "jobs.logo", 
-            "jobs.message", 
-            "jobs.careerType", 
-            "jobs.startDate", 
-            "jobs.endDate", 
-            "jobs.jobStatus"
-        ])
+            "jobs.id" ,
+            "jobs.companyName" ,
+            "jobs.managerName" ,
+            "jobs.managerContact" ,
+            "jobs.field" ,
+            "jobs.title" ,
+            "jobs.location" ,
+            "jobs.message" ,
+            "jobs.talent" ,
+            "jobs.careerType" ,
+            "jobs.url" ,
+            "jobs.salary" ,
+            "jobs.startDate" ,
+            "jobs.endDate" ,
+            "jobs.approvalStatus",
+            "jobs.jobStatus",
+            "jobs.license" ,
+            "jobs.logo"])
         .where(where)
         .skip(skip)
         .take(take)
@@ -274,17 +281,24 @@ export class JobsRepository extends Repository<Jobs>{
 
         const jobs = await this.createQueryBuilder("jobs")
         .select([
-            "jobs.id",
-            "jobs.companyName", 
-            "jobs.field", 
-            "jobs.title", 
-            "jobs.logo", 
-            "jobs.message", 
-            "jobs.careerType", 
-            "jobs.startDate", 
-            "jobs.endDate", 
-            "jobs.jobStatus"
-        ])
+            "jobs.id" ,
+            "jobs.companyName" ,
+            "jobs.managerName" ,
+            "jobs.managerContact" ,
+            "jobs.field" ,
+            "jobs.title" ,
+            "jobs.location" ,
+            "jobs.message" ,
+            "jobs.talent" ,
+            "jobs.careerType" ,
+            "jobs.url" ,
+            "jobs.salary" ,
+            "jobs.startDate" ,
+            "jobs.endDate" ,
+            "jobs.approvalStatus",
+            "jobs.jobStatus",
+            "jobs.license" ,
+            "jobs.logo"])
         .where(where)
         .getMany()
 
@@ -342,17 +356,24 @@ export class JobsRepository extends Repository<Jobs>{
 
         const jobs = await this.createQueryBuilder("jobs")
         .select([
-            "jobs.id",
-            "jobs.companyName", 
-            "jobs.field", 
-            "jobs.title", 
-            "jobs.logo", 
-            "jobs.message", 
-            "jobs.careerType", 
-            "jobs.startDate", 
-            "jobs.endDate", 
-            "jobs.jobStatus"
-        ])
+            "jobs.id" ,
+            "jobs.companyName" ,
+            "jobs.managerName" ,
+            "jobs.managerContact" ,
+            "jobs.field" ,
+            "jobs.title" ,
+            "jobs.location" ,
+            "jobs.message" ,
+            "jobs.talent" ,
+            "jobs.careerType" ,
+            "jobs.url" ,
+            "jobs.salary" ,
+            "jobs.startDate" ,
+            "jobs.endDate" ,
+            "jobs.approvalStatus",
+            "jobs.jobStatus",
+            "jobs.license" ,
+            "jobs.logo"])
         .where(where)
         .getMany()
 
