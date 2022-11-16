@@ -7,36 +7,43 @@ export class SelectJobsDTO {
 
     @ApiProperty({
         type: "string",
+        required : false
     })
     location?
     
     @ApiProperty({
         type: "string",
+        required : false
     })
     title?
 
     @ApiProperty({
         type: "string",
+        required : false
     })
     field?
 
     @ApiProperty({
         type: "number",
+        required : false
     })
     careerType?
     
     @ApiProperty({
         type: "string",
+        required : false
     })
     startDate?
 
     @ApiProperty({
         type: "string",
+        required : false
     })
     endDate?
 
     @ApiProperty({
         type: "string",
+        required : false
     })
     companyName?
 

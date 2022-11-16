@@ -90,15 +90,6 @@ export class JobsController{
          summary:'공지사항 전체 조회 API',
          description:'approvalStatus이 1, jobStatus 1, 현재날짜 기준 startDate와 endDate가 포함된 게시물 반환',
      })
-     @ApiQuery({type : SelectJobsDTO})
-     @ApiBody({schema : {example : {
-        location : "string",
-        title : "string",
-        field : "string",
-        careerType: 1,
-        startDate : "YYYYMMDD",
-        endDate : "YYYYMMDD",
-        companyName : "string"} }})
      async getJobsAll( 
         @Query() SelectJobsDTO : SelectJobsDTO
      ){
@@ -139,16 +130,6 @@ export class JobsController{
          summary:'해드헌트의 공지사항 user_id 조회 API',
          description:'user_id에 해당하는 모든 게시물 반환, 해드헌트 계정만 사용 가능 role:1',
      })
-     @ApiQuery({type : SelectJobsHeadHuntDTO})
-     @ApiBody({schema : {example : {
-         user_id : 1,
-         location : "string",
-         title : "string",
-         field : "string",
-         careerType: 1,
-         startDate : "YYYYMMDD",
-         endDate : "YYYYMMDD",
-         companyName : "string"} }})
      async getJobs_inUser_forHeadHunt( 
          @Req() req: Request,
          @Query() SelectJobsHeadHuntDTO : SelectJobsHeadHuntDTO
@@ -182,15 +163,6 @@ export class JobsController{
         summary:'관리자의 공지사항 조회 API',
         description:'모든 게시물 반환, 서비스 관리자계정으로 로그인해야 사용가능 role:2 ',
     })
-    @ApiQuery({type : SelectJobsDTO})
-    @ApiBody({schema : {example : {
-        location : "string",
-        title : "string",
-        field : "string",
-        careerType: 1,
-        startDate : "YYYYMMDD",
-        endDate : "YYYYMMDD",
-        companyName : "string"} }})
     async getJobsAll_ForServiceAdmin( 
         @Req() req: Request,
         @Query() SelectJobsDTO : SelectJobsDTO
