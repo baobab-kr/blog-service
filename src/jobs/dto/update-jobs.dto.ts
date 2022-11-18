@@ -133,4 +133,6 @@ export class UpdateJobsDTO  extends PartialType(CreateJobsDTO){
         required : false
     })
     jobStatus? : Object 
+
+
 }
