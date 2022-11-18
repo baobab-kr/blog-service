@@ -55,7 +55,8 @@ export class AuthService {
     return {
       accessToken: token,
       accessOption: {
-        domain: 'localhost',
+        // domain: 'localhost',
+        domain: process.env.COOKIE_DOMAIN,
         path: '/',
         httpOnly: true,
         maxAge: Number(process.env.JWT_ACCESS_EXPIRES)*1000
@@ -85,7 +86,7 @@ export class AuthService {
     return {
       refreshToken: token,
       refreshOption: {
-        domain: 'localhost',
+        domain: process.env.COOKIE_DOMAIN,
         path: '/',
         httpOnly: true,
         maxAge: Number(process.env.JWT_REFRESH_EXPIRES)*1000,
@@ -101,13 +102,13 @@ export class AuthService {
   getCookiesForLogOut() {
     return {
       accessOption: {
-        domain: 'localhost',
+        domain: process.env.COOKIE_DOMAIN,
         path: '/',
         httpOnly: true,
         maxAge: 0,
       },
       refreshOption: {
-        domain: 'localhost',
+        domain: process.env.COOKIE_DOMAIN,
         path: '/',
         httpOnly: true,
         maxAge: 0,

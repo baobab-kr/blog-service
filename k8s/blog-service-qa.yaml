@@ -122,6 +122,11 @@ spec:
                 configMapKeyRef:
                   name: baobab-qa
                   key: azure_blob_container_name
+            - name: COOKIE_DOMAIN
+              valueFrom:
+                configMapKeyRef:
+                  name: baobab-qa
+                  key: cookie_domain
 ---
 apiVersion: v1
 kind: Service
