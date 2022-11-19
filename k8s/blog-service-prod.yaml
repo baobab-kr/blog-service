@@ -125,7 +125,7 @@ spec:
             - name: COOKIE_DOMAIN
               valueFrom:
                 configMapKeyRef:
-                  name: baobab-qa
+                  name: baobab-prod-cm
                   key: cookie_domain
 ---
 apiVersion: v1
