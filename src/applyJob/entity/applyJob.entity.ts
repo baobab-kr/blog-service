@@ -1,7 +1,7 @@
 import { ApiQuery } from '@nestjs/swagger';
 import { IsNumber } from 'class-validator';
 import { string } from 'joi';
-import { BaseEntity, Column, Entity, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
 import { Jobs } from '../../jobs/entity/jobs.entity';
 import { Users } from '../../users/entity/user.entity';
 
@@ -15,11 +15,13 @@ export class ApplyJob extends BaseEntity{
     //공지 id
     @Column({nullable : false})
     @ManyToOne(type => Jobs, jobs => jobs.applyJobs, {eager : false})
+    @JoinColumn([{name : "jobs_Id" , referencedColumnName : "id"}])
     jobs_Id : number
 
     //User id
     @Column({nullable : false})
     @ManyToOne(type => Users, user => user.applyJobs, {eager : false})
+    @JoinColumn([{name : "user_id" , referencedColumnName : "id"}])
     user_id : number
  
 

@@ -13,6 +13,8 @@ import { Repository, Like, In } from 'typeorm';
 import { Users } from 'src/users/entity/user.entity';
 import { BlobServiceClient, BlockBlobClient } from '@azure/storage-blob';
 import * as dayjs from 'dayjs'
+import { CommentRepository } from '../repository/comment.repository';
+import { ReCommentRepository } from '../repository/recomment.repository';
 
 @Injectable()
 export class BoardService {
@@ -24,8 +26,10 @@ export class BoardService {
         @InjectRepository(Likes) 
         private likesRepository : Repository<Likes>,
         @InjectRepository(Users)
-        private usersRepository : Repository<Users>
-
+        private usersRepository : Repository<Users>,
+        private commentRepository : CommentRepository,
+        private reCommentRepository : ReCommentRepository,
+        
     ){}
     
     
@@ -328,6 +332,93 @@ export class BoardService {
         const board = await this.boardRepository.deleteBoardById(id);
 
     }
+
+    /**
+     * delete_all_board_in_user(게시물 전체삭제 API)
+     * 
+     * @param user_id 
+     */
+    async delete_all_board_in_user(user_id : number){
+        const board  = await this.boardRepository.createQueryBuilder("board")
+        .select(["board.id"])
+        .where(`board.writer = ${user_id}`)
+        .getMany();
+
+        let board_id = [];
+        let cnt = 0 ;
+        if(board){
+            board.map((e=>{
+                board_id.push(e.id)
+            }))
+        }
+        
+        if(board_id.length > 0){
+            await this.deleteLikes(board_id);
+
+            await this.delteTag(board_id);
+    
+            const comment = await this.get_comment_in_board_id(board_id);
+    
+    
+            let comment_id = [];
+            cnt = 0 ;
+            
+            if(comment){
+                comment.map((e)=>{
+                    comment_id.push(e.id);
+                })
+            }
+            if(comment_id.length > 0 ){
+                await this.delete_re_comment(comment_id);
+            }
+    
+            await this.delete_comment(board_id);
+    
+            await this.delete_board(board_id);
+        }
+        
+        
+
+    }
+    async deleteLikes(board_id : number[]){
+        await this.likesRepository.createQueryBuilder("likes")
+        .delete()
+        .where(`likes.board_id in(${board_id})`)
+        .execute();
+    }
+    async delteTag(board_id : number[]){
+        await this.tagRepository.createQueryBuilder("tag")
+        .delete()
+        .where(`tag.board_id in(${board_id})`)
+        .execute();
+    }
+    async get_comment_in_board_id(board_id : number[] ){
+        const comment = await this.commentRepository.createQueryBuilder("comment")
+        .select(["comment.id"])
+        .where(`comment.board_id in(${board_id})`)
+        .getMany();
+
+        return comment;
+    }
+    async delete_re_comment(comment_id:number[]){
+        await this.reCommentRepository.createQueryBuilder("re_comment")
+            .delete()
+            .where(`re_comment.comment_id in(${comment_id})`)
+            .execute();
+    }
+    async delete_comment(board_id : number[]){
+        await this.commentRepository.createQueryBuilder("comment")
+        .delete()
+        .where(`comment.board_id in(${board_id})`)
+        .execute();
+    }
+    async delete_board(board_id : number[]){
+        await this.boardRepository.createQueryBuilder("board")
+        .delete()
+        .where(`board.id in(${board_id})`)
+        .execute();
+    }
+
 
     //내부 사용 함수
 

@@ -1,6 +1,6 @@
 import { type } from 'os';
 import { ApplyJob } from 'src/applyJob/entity/applyJob.entity';
-import { BaseEntity, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Users } from '../../users/entity/user.entity';
 
 
@@ -12,10 +12,12 @@ export class Jobs extends BaseEntity{
     @PrimaryGeneratedColumn()
     id : number;
 
-    
+
     @ManyToOne(type=>Users, users=> users.jobs, {
+        eager : true,
         nullable : false
     })
+    @JoinColumn([{name : "user_id" , referencedColumnName : "id"}])
     user_id : number 
 
     @Column({

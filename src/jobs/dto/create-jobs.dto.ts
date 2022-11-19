@@ -3,11 +3,10 @@ import { IsNotEmpty, IsString } from "class-validator";
 
 export class CreateJobsDTO{
 
-    @IsNotEmpty({message : "user_id 값이 입력되지 않았습니다."})
     @ApiProperty({
         default: 1,
     })
-    user_id : Object 
+    user_id? : Object 
 
     @IsNotEmpty({message : "companyName 값이 입력되지 않았습니다."})
     @ApiProperty({

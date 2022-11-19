@@ -105,6 +105,7 @@ export class ApplyJobRepository extends Repository<ApplyJob>{
     } 
     async getApplyJobsAll_inUser(user_id : number){
         let jobs = await this.createQueryBuilder("apply_jobs")
+        .leftJoin("apply_jobs.jobs_Id","jobs")
         .select([
             "apply_jobs.id",
             "apply_jobs.jobs_Id",
@@ -120,6 +121,26 @@ export class ApplyJobRepository extends Repository<ApplyJob>{
             "apply_jobs.education",
             "apply_jobs.educationStatus"
             ])
+            .addSelect([
+                "jobs.id" ,
+                "jobs.companyName" ,
+                "jobs.managerName" ,
+                "jobs.managerContact" ,
+                "jobs.field" ,
+                "jobs.title" ,
+                "jobs.location" ,
+                "jobs.message" ,
+                "jobs.talent" ,
+                "jobs.careerType" ,
+                "jobs.url" ,
+                "jobs.salary" ,
+                "jobs.startDate" ,
+                "jobs.endDate" ,
+                "jobs.approvalStatus",
+                "jobs.jobStatus",
+                "jobs.license" ,
+                "jobs.logo"])
+
         .where(`apply_jobs.user_id = ${user_id}`)
         .getMany();
         

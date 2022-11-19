@@ -10,6 +10,7 @@ import { Users } from '../../users/entity/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from "@nestjs/typeorm";
 import { SelectJobsHeadHuntDTO } from '../dto/select-jobs-headhunt.dto';
+import { SelectJobsForServiceAdminDTO } from "../dto/select-jobs-service-admin.dto";
 
 @Injectable()
 export class JobsService{
@@ -28,6 +29,20 @@ export class JobsService{
         
         await this.jobsRepository.createNotice(CreateJobsDTO);
 
+    }
+
+    async check_headhunt_in_user_id(id : number){
+        const user = await this.usersRepository.findOne(id);
+
+        if(user){
+            if (Number(user.role) == 1){
+                return true;
+            }else{
+                throw new HttpException('해드헌트만 이용가능한 기능입니다.', HttpStatus.CONFLICT)
+            }
+        }else{
+            throw new HttpException('없는 사용자입니다.', HttpStatus.CONFLICT)
+        }
     }
 
     /**
@@ -156,8 +171,8 @@ export class JobsService{
 
     }
 
-    async getJobsAll_ForServiceAdmin(SelectJobsDTO : SelectJobsDTO){
-        let jobs = await this.jobsRepository.getJobsAll_ForServiceAdmin(SelectJobsDTO)
+    async getJobsAll_ForServiceAdmin(SelectJobsForServiceAdminDTO : SelectJobsForServiceAdminDTO){
+        let jobs = await this.jobsRepository.getJobsAll_ForServiceAdmin(SelectJobsForServiceAdminDTO)
 
         return jobs;
     }
@@ -171,6 +186,16 @@ export class JobsService{
     async Delete_Jobs(id : number){
         await this.jobsRepository.delete(id);
     }
+    async delete_all_jobs_in_user(user_id : number){
+        await this.jobsRepository.createQueryBuilder("jobs")
+        .delete()
+        .where(`jobs.user_id = ${user_id}`)
+        .execute();
+
+
+
+    }
+
 
     /**
      * getBlobClient(BlobClient연결)

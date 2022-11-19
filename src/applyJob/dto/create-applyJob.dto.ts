@@ -10,11 +10,11 @@ export class CreateApplyJobDTO{
     })
     jobs_Id : Object
 
-    @IsNotEmpty({message : "user_id 값이 입력되지 않았습니다."})
     @ApiProperty({
-        default : 1
+        default : 1,
+        required : false
     })
-    user_id : Object
+    user_id? : Object
 
 
     @IsNotEmpty({message : "title 값이 입력되지 않았습니다."})

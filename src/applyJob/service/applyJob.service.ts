@@ -7,6 +7,7 @@ import { url } from 'inspector';
 import { Users } from '../../users/entity/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { IsNotEmpty, isEmpty } from 'class-validator';
 
 @Injectable()
 export class ApplyJobService{
@@ -19,6 +20,11 @@ export class ApplyJobService{
 
 
     async createApplyJob(createApplyJobDTO : CreateApplyJobDTO){
+        if(createApplyJobDTO.jobs_Id != undefined ){
+
+            await this.getJobsId(Number(createApplyJobDTO.jobs_Id));
+        }
+        
         await this.applyJobRepository.createApllyJobs(createApplyJobDTO);
     
     }
@@ -53,8 +59,33 @@ export class ApplyJobService{
         return user_id_inPayload ;
     }
 
+    async delete_all_apply_jobs_in_user(user_id : number){
+        await this.applyJobRepository.createQueryBuilder("apply_job")
+        .delete()
+        .where(`apply_job.user_id = ${user_id}`)
+        .execute();
+
+    }
+
     async AutoCompleteAPI(user_id : number){
         return await this.usersRepository.findOne(user_id,{select : ["email","techStack","socialUrl"]});
+    }
+
+
+    async getJobsId(id : number){
+        const jobs = await this.jobsRepository.findOne(id);
+
+        if(!jobs){
+            throw new HttpException('해당 공고가 없습니다.', HttpStatus.CONFLICT)
+        }
+    }
+
+    async getUserId(id : number){
+        const user = await this.usersRepository.findOne(id);
+        
+        if(!user){
+            throw new HttpException('해당 유저가 없습니다.', HttpStatus.CONFLICT)
+        }
     }
 
     async deleteRecruit(id){

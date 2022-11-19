@@ -23,15 +23,25 @@ export class ApplyJobController{
     @HttpCode(200)
     @ApiOperation({
         summary:'채용공고 신청 API',
-        description:'채용공고를 신청하는 API',
+        description:'채용공고를 신청하는 API, user_id 필수값 아님',
     })
     async CreateApplyJob(
         @Req() req: Request,
         @Body() createApplyJobDTO : CreateApplyJobDTO
     ){
 
-        
-        await this.applyJobService.createApplyJob(createApplyJobDTO);
+        if(Object.keys(req.cookies).includes("AccessToken") ){
+            const user_id_inPayload : number = await this.applyJobService.userIdInCookie(req.cookies.AccessToken);
+
+            if(createApplyJobDTO.user_id == undefined){
+                
+                createApplyJobDTO.user_id = user_id_inPayload;
+            }
+                    
+            return await this.applyJobService.createApplyJob(createApplyJobDTO);
+        }else{
+            throw new HttpException('로그인을 해야 사용할 수 있는 기능입니다.', HttpStatus.CONFLICT)
+        }
         
     }
 

@@ -25,7 +25,8 @@ async function bootstrap() {
     origin: ['http://localhost:2999', 'http://localhost:3000', /baobab\.blog$/],
     methods: 'GET,PUT,PATCH,POST,DELETE',
     credentials: true,
-});
+  });
+
   setupSwagger(app);
   await app.listen(3000);
 }

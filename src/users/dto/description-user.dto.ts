@@ -2,8 +2,8 @@ import { IsString, Matches, MaxLength, MinLength,  } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ApiProperty,ApiPropertyOptional } from '@nestjs/swagger';
 
-export class SocialUrlDto {
-  @ApiPropertyOptional({description:'로그인할 때 입력하는 아이디를 의미합니다.'})
+export class DescriptionDto {
+  @ApiPropertyOptional({description:'사용자의 Description을 추가합니다.'})
   @Transform(params => params.value.trim()) 
   @IsString()
   @MinLength(4)
@@ -16,5 +16,5 @@ export class SocialUrlDto {
   )
   readonly userid: string;
   @ApiProperty({ type:'string', description: '사용자의 socialUrl 정보를 의미합니다.' })
-  readonly socialUrl: string;
+  readonly description: string;
 }

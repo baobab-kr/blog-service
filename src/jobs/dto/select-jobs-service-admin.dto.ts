@@ -3,12 +3,7 @@ import { IsNotEmpty, IsString } from "class-validator";
 import { CreateJobsDTO } from "./create-jobs.dto";
 import { PartialType } from '@nestjs/mapped-types';
 
-export class SelectJobsDTO {
-
-    @ApiProperty({
-        type: "number"
-    })
-    page : number;
+export class SelectJobsForServiceAdminDTO {
 
     @ApiProperty({
         type: "string",
