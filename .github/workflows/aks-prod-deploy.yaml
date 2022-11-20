@@ -33,8 +33,8 @@ jobs:
     - name: aks login
       uses: azure/aks-set-context@v1
       with:
-        creds: "${{ secrets.AZURE_CREDENTIALS_PROD }}"
-        resource-group: "${{ secrets.AZURE_RESOURCE_GROUP_PROD }}"
+        creds: "${{ secrets.AZURE_CREDENTIALS }}"
+        resource-group: "${{ secrets.AZURE_RESOURCE_GROUP }}"
         cluster-name: "${{ secrets.AZURE_CLUSTER_NAME_PROD }}"
       id: login
 
