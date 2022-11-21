@@ -14,13 +14,21 @@ export class Users {
     @Column({length:15})
     userid: string
 
-    @Column({length:9})
+    // Github 서비스와 동일하게 최대 255글자로 변경하였음.
+    @Column({length:255})
     username: string
 
-    @Column()
+    // Github 사용자들의 경우, PRIVATE 정책으로 사용했을 때 Null 값이 저장될 수 있음.
+    // 때문에, Github OAuth 설정 추가하면서 Nullable 설정도 활성화하였음.
+    @Column({nullable:true})
     email: string
-
-    @Column({length:100})
+    
+    // Github 사용자들의 경우, PRIVATE 정책으로 사용했을 때 Null 값이 저장될 수 있음.
+    // 때문에, Github OAuth 설정 추가하면서 Nullable 설정도 활성화하였음.
+    @Column({
+        length:100, 
+        nullable: true
+    })
     password: string
 
     @Column({nullable:true})
