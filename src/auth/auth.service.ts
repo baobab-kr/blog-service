@@ -1,9 +1,10 @@
-import { BadRequestException, CacheInterceptor, CACHE_MANAGER, Inject, Injectable, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, CacheInterceptor, CACHE_MANAGER, ConsoleLogger, HttpException, HttpStatus, Inject, Injectable, UseInterceptors } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import * as bcrypt from 'bcryptjs';
 import { Payload } from './security/payload.interface';
 import { SavedUserDto } from 'src/users/dto/saved-user.dto';
 import { JwtService } from '@nestjs/jwt';
+import axios, { AxiosResponse } from 'axios';
 
 @Injectable()
 @UseInterceptors(CacheInterceptor)
@@ -55,7 +56,6 @@ export class AuthService {
     return {
       accessToken: token,
       accessOption: {
-        // domain: 'localhost',
         domain: process.env.COOKIE_DOMAIN,
         path: '/',
         httpOnly: true,
@@ -114,5 +114,43 @@ export class AuthService {
         maxAge: 0,
       },
     };
+  }
+
+  async getGithubAccessToken(code: string) {
+    const getTokenUrl: string = 'https://github.com/login/oauth/access_token';
+    const request = {
+      client_id: process.env.CLIENT_ID,
+      client_secret: process.env.CLIENT_SECRET,
+      code,
+    };
+  
+    const response: AxiosResponse = await axios.post(getTokenUrl, request, {
+      headers: {
+        accept: 'application/json', // json으로 반환을 요청합니다.
+      },
+    });
+
+    if (response.data.error) throw new HttpException('깃허브 인증을 실패했습니다.', HttpStatus.UNAUTHORIZED);
+    return response.data;
+  }
+
+  async getGithubUserInfo(githubAccessToken: string) {
+    const getUserUrl: string = 'https://api.github.com/user';
+    const { data } = await axios.get(getUserUrl, {
+      headers: {
+        Authorization: `token ${ githubAccessToken }`,
+      },
+    });
+    const { login, avatar_url, name, email, html_url } = data;
+
+    const githubUserInfo = {
+      "userid": login,
+      "username": name,
+      "email": email,
+      "avatar_image": avatar_url,
+      "socialUrl": html_url
+    };
+
+    return githubUserInfo;
   }
 }
