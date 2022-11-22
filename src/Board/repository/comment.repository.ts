@@ -11,13 +11,15 @@ export class CommentRepository extends Repository<Comment>{
      * @param createCommentDTO 
      * @returns 
      */
-    async createComment(createCommentDTO:CreateCommentDTO, writer : number){
+    async createComment(createCommentDTO:CreateCommentDTO, writer : number, filteringContent: string){
         
-        const {board_id, content, comment_status} = createCommentDTO;
+        const {board_id, comment_status} = createCommentDTO;
+        const content:string = filteringContent;
         const date : Date = new Date();
         const comment = await this.create({
-             content, board_id, date,comment_status,writer
+             content, board_id, date, comment_status, writer
         });
+        console.log(comment);
         await this.save(comment);
     }//end of createCommnet
     

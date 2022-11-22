@@ -5,6 +5,7 @@ import { CreateCommentDTO } from '../repository/dto/create-board.dto';
 import { CommentRepository } from '../repository/comment.repository';
 import { ReCommentRepository } from '../repository/recomment.repository';
 import { Comment } from '../repository/entity/comment.entity';
+import axios, { AxiosResponse } from 'axios';
 
 
 @Injectable()
@@ -24,7 +25,12 @@ export class CommentService {
      * @returns CommentData
      */
     async createComment(createCommentDTO: CreateCommentDTO, writer : number){
-        await this.CommentRepository.createComment(createCommentDTO,writer);
+        // 필터링 댓글 적용
+        // 1. 필터링 API 호출하여 필터링된 댓글 값 반환
+        const filteringContent = await this.filteringContent(createCommentDTO.content);
+
+        // 2. 반환된 값으로 댓글 생성
+        await this.CommentRepository.createComment(createCommentDTO, writer, filteringContent);
     }
 
     /**
@@ -95,6 +101,23 @@ export class CommentService {
         }
     }
 
-
+    async filteringContent(content: string){
+        // 1. API 호출 및 반환 값 저장
+        const url: string = process.env.FILTERING_BASE_URL;
+        const request = {
+            comment: content
+        }
+        try {
+            const response: AxiosResponse = await axios.post(url, request, {
+                headers: {
+                  accept: 'application/json',
+                },
+              });
+            content = response.data;
+            return content;
+        } catch (e) {
+            console.log(e);
+        }
+    }
 
 }
