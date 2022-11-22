@@ -32,10 +32,10 @@ spec:
           resources:
             requests:
               cpu: 200m
-              memory: 1.3G
+              memory: 1G
             limits:
               cpu: 200m
-              memory: 1.3G
+              memory: 1G
           env:
             - name: EMAIL_HOST
               valueFrom:
