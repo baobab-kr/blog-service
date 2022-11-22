@@ -4,7 +4,7 @@ metadata:
   name: blog-service
   namespace: qa
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: blog-service
@@ -32,10 +32,10 @@ spec:
           resources:
             requests:
               cpu: 200m
-              memory: 1G
+              memory: 1.3G
             limits:
               cpu: 200m
-              memory: 1G
+              memory: 1.3G
           env:
             - name: EMAIL_HOST
               valueFrom:
