@@ -309,6 +309,12 @@ export class JobsRepository extends Repository<Jobs>{
         const dateNow = dayjs().format("YYYYMMDD");
         let apStatus = 1;
         let jpStatus = 1;
+
+
+        let page = SelectJobsDTO.page
+        let limit = 10;
+        let skip = page * limit;
+        let take = skip + limit;
         
 
         let companyName : string;
@@ -375,6 +381,9 @@ export class JobsRepository extends Repository<Jobs>{
             "jobs.license" ,
             "jobs.logo"])
         .where(where)
+        .orderBy("jobs.id","ASC")
+        .skip(skip)
+        .take(take)
         .getMany()
 
         return jobs;  
