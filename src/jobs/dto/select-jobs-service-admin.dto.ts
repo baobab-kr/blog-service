@@ -5,6 +5,13 @@ import { PartialType } from '@nestjs/mapped-types';
 
 export class SelectJobsForServiceAdminDTO {
 
+
+    @ApiProperty({
+        type: "number",
+        required : true
+    })
+    page
+
     @ApiProperty({
         type: "string",
         required : false

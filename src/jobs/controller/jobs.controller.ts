@@ -95,8 +95,13 @@ export class JobsController{
         @Query() SelectJobsDTO : SelectJobsDTO
      ){
 
-         const jobs = await this.jobsService.getJobsAll(SelectJobsDTO);
-         return jobs;
+        const jobs = await this.jobsService.getJobsAll(SelectJobsDTO);
+
+        if(jobs.length <= 0){
+        return { "message" : "값이 없습니다." }
+        }
+
+        return jobs;
  
      }
     
@@ -146,6 +151,11 @@ export class JobsController{
             SelectJobsHeadHuntDTO.user_id = user_id_inPayload;
             if(users.role == headhunt_status){
                 const jobs = await this.jobsService.getJobs_inUser_forHeadHunt(SelectJobsHeadHuntDTO);
+
+                if(jobs.length <= 0){
+                    return { "message" : "값이 없습니다." }
+                }
+
                 return jobs;
             }else{
                 throw new HttpException('해드헌트만 이용가능한 기능입니다.', HttpStatus.CONFLICT)
@@ -177,6 +187,11 @@ export class JobsController{
 
             if(users.role == admin_status){
                 const jobs = await this.jobsService.getJobsAll_ForServiceAdmin(SelectJobsForServiceAdminDTO);
+                
+                if(jobs.length <= 0){
+                    return { "message" : "값이 없습니다." }
+                }
+                
                 return jobs;
             }else{
                 throw new HttpException('관리자만 이용가능한 기능입니다.', HttpStatus.CONFLICT)
