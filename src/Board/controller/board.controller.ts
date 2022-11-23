@@ -480,13 +480,14 @@ export class BoardController {
     async createComment(
         @Req() req: Request,
         @Body(ValidationPipe) createCommentDTO : CreateCommentDTO
-    ) : Promise<void> {
+    )  {
         const user: any = req.user;
         const writer : number = user.id;
         user.password = undefined
         user.currentRefreshToken = undefined
 
-        await this.commentService.createComment(createCommentDTO,writer);
+        const res = await this.commentService.createComment(createCommentDTO, writer);
+        return res;
     }
     
     /**

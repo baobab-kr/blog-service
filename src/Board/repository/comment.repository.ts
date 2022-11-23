@@ -19,15 +19,19 @@ export class CommentRepository extends Repository<Comment>{
              content, board_id, date, comment_status, writer
         });
         const savedComment = await this.save(comment);
-        return savedComment.id
+        const res = {
+            commentId: savedComment.id,
+            content: savedComment.content
+        }
+        return res
     }//end of createCommnet
 
     
-    async createFilteringComment(id: number, filteringContent: string){
-        const savedComment = await this.findOne({id: id});
-        savedComment.content = filteringContent
-        await this.save(savedComment)
-    }//end of createCommnet
+    // async createFilteringComment(id: number, filteringContent: string){
+    //     const savedComment = await this.findOne({id: id});
+    //     savedComment.content = filteringContent
+    //     await this.save(user)
+    // }//end of createCommnet
     
     async getCommentById(board_id : number,comment_status : number[], skip :number, take :number) : Promise<Comment[]>{
         const board_idValue :number = typeof board_id == typeof {} ?Number(Object.values(board_id)[0]) : Number(board_id);

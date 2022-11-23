@@ -27,11 +27,13 @@ export class CommentService {
     async createComment(createCommentDTO: CreateCommentDTO, writer : number){
         // 필터링 댓글 
         // 1. 서비스에서 리포지토리 클래스 내에 함수를 통해 댓글을 DB에 저장
-        const savedCommentId = await this.CommentRepository.createComment(createCommentDTO,writer);
+        const res = await this.CommentRepository.createComment(createCommentDTO, writer);
+        return res;
         
+
         // 2. 저장된 댓글을 Filtering API를 호출해 변환 후 DB에 수정
-        const filteringContent = await this.filteringContent(createCommentDTO.content);
-        await this.CommentRepository.createFilteringComment(savedCommentId, filteringContent);
+        // const filteringContent = await this.filteringContent(createCommentDTO.content);
+        // await this.CommentRepository.createFilteringComment(savedCommentId, filteringContent);
     }
 
     /**
@@ -49,11 +51,6 @@ export class CommentService {
         const take : number = skip + limit;
 
         const comment = await this.CommentRepository.getCommentById(board_id,status,skip,take);
-        
-        
-
-        
-        
         return comment;
     }
     
