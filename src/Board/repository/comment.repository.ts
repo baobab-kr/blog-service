@@ -1,6 +1,6 @@
 import { EntityRepository, Repository, getConnection } from 'typeorm';
 import { Comment } from './entity/comment.entity';
-import { CreateCommentDTO } from './dto/create-board.dto';
+import { CreateCommentDTO, CreateFilteringCommentDTO } from './dto/create-board.dto';
 import { Users } from 'src/users/entity/user.entity';
 
 
@@ -25,6 +25,17 @@ export class CommentRepository extends Repository<Comment>{
         }
         return res
     }//end of createCommnet
+
+        /**
+     * createComment(필터링댓글내용생성)
+     * @param createFilteringCommentDTO 
+     * @returns 
+     */
+         async createFilteringComment(comment_id:number, filteringContent: string){
+            const savedComment = await this.findOne({id: comment_id});
+            savedComment.content = filteringContent
+            await this.save(savedComment)
+        }//end of createCommnet
 
     
     // async createFilteringComment(id: number, filteringContent: string){

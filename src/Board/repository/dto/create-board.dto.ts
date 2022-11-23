@@ -92,3 +92,15 @@ export class CreateLikesDTO{
     @ApiProperty()
     likes_status : number;
 }
+
+export class CreateFilteringCommentDTO{
+    @IsNotEmpty({message : "값이 입력되지 않았습니다."})
+    @ApiProperty()
+    comment_id : number;
+
+    
+    @IsNotEmpty({message : "값이 입력되지 않았습니다."})
+    @IsString()
+    @ApiProperty()
+    content : string;
+}

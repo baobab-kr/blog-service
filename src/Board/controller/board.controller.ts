@@ -4,7 +4,7 @@ import { BoardService } from '../service/board.service';
 import { Board } from '../repository/entity/board.entity';
 import { Comment } from '../repository/entity/comment.entity';
 import { ReComment } from '../repository/entity/recomment.entity';
-import { CreateBoardDTO, CreateCommentDTO, CreateReCommentDTO } from '../repository/dto/create-board.dto';
+import { CreateBoardDTO, CreateCommentDTO, CreateReCommentDTO, CreateFilteringCommentDTO } from '../repository/dto/create-board.dto';
 import { UpdateBoardDTO } from '../repository/dto/update-board.dto';
 import { CommentService } from '../service/commnet.service';
 import { ReCommentService } from '../service/recomment.service';
@@ -470,7 +470,7 @@ export class BoardController {
     /**
      * createComment(댓글 생성 API)
      * @param createCommentDTO 
-     * @returns void
+     * @returns comment_id, content
      */
     @Post("/CreateComment")
     @HttpCode(200)
@@ -489,6 +489,23 @@ export class BoardController {
         const res = await this.commentService.createComment(createCommentDTO, writer);
         return res;
     }
+
+    /**
+     * createComment(댓글 생성 필터링 API)
+     * @param createFilteringCommentDTO
+     * @returns void
+     */
+     @Post("/CreateFilteringComment")
+     @HttpCode(200)
+     @UseGuards(JwtAccessTokenGuard)
+     @ApiOperation({summary : "댓글 필터링 수정 API", description : "생성된 댓글을 필터링하여 재저장한다."})
+     @ApiCreatedResponse({type : "void"})
+     async createFilteringComment(
+         @Req() req: Request,
+         @Body(ValidationPipe) createFilteringCommentDTO : CreateFilteringCommentDTO
+     )  {
+         await this.commentService.createFilteringComment(createFilteringCommentDTO);
+     }
     
     /**
      * getCommentById(댓글 호출 API)

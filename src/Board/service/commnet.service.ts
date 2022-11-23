@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BoardRepository } from '../repository/board.repository';
-import { CreateCommentDTO } from '../repository/dto/create-board.dto';
+import { CreateCommentDTO, CreateFilteringCommentDTO } from '../repository/dto/create-board.dto';
 import { CommentRepository } from '../repository/comment.repository';
 import { ReCommentRepository } from '../repository/recomment.repository';
 import { Comment } from '../repository/entity/comment.entity';
@@ -25,17 +25,21 @@ export class CommentService {
      * @returns CommentData
      */
     async createComment(createCommentDTO: CreateCommentDTO, writer : number){
-        // 필터링 댓글 
-        // 1. 서비스에서 리포지토리 클래스 내에 함수를 통해 댓글을 DB에 저장
         const res = await this.CommentRepository.createComment(createCommentDTO, writer);
         return res;
-        
-
-        // 2. 저장된 댓글을 Filtering API를 호출해 변환 후 DB에 수정
-        // const filteringContent = await this.filteringContent(createCommentDTO.content);
-        // await this.CommentRepository.createFilteringComment(savedCommentId, filteringContent);
     }
 
+        /**
+     * CreateCommnet(댓글 필터링 함수)
+     * @param createFilteringCommentDTO 
+     * @returns CommentData
+     */
+         async createFilteringComment(createFilteringCommentDTO: CreateFilteringCommentDTO){
+            const filteringContent = await this.filteringContent(createFilteringCommentDTO.content);
+            await this.CommentRepository.createFilteringComment(createFilteringCommentDTO.comment_id, filteringContent);
+        }
+
+    
     /**
      * getCommentByBoardId(댓글 확인 함수)
      * @param id 
