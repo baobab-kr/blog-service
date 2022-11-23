@@ -59,6 +59,7 @@ export class BoardRepository extends Repository<Board> {
         .addSelect(["users.id","users.userid","users.username","users.email","users.role","users.avatar_image","users.techStack","users.socialUrl"])
         .addSelect(["likes"])
         .andWhere(`board.board_status IN(:board_status)`,{board_status}) 
+        //.orderBy("board.id","ASC")
         .skip(skip)
         .take(take)
         .getMany()

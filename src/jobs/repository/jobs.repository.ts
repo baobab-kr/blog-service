@@ -330,7 +330,7 @@ export class JobsRepository extends Repository<Jobs>{
             throw new HttpException('변수 타입 초기화 실패', HttpStatus.CONFLICT)
         }
 
-        let where = ` `
+        let where = ` jobs.approvalStatus = 0`
 
         if(location != undefined){
             where += ` AND jobs.location LIKE '%${location}%'`;
