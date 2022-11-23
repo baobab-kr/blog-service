@@ -142,10 +142,10 @@ export class AuthService {
       },
     });
     const { login, avatar_url, name, email, html_url } = data;
-
+    
     const githubUserInfo = {
       "userid": login,
-      "username": name,
+      "username": name === null ? login : name, 
       "email": email,
       "avatar_image": avatar_url,
       "socialUrl": html_url

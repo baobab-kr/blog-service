@@ -1,10 +1,11 @@
 import { Injectable, NotFoundException, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BoardRepository } from '../repository/board.repository';
-import { CreateCommentDTO } from '../repository/dto/create-board.dto';
+import { CreateCommentDTO, CreateFilteringCommentDTO, CreateFilteringReCommentDTO } from '../repository/dto/create-board.dto';
 import { CommentRepository } from '../repository/comment.repository';
 import { ReCommentRepository } from '../repository/recomment.repository';
 import { Comment } from '../repository/entity/comment.entity';
+import axios, { AxiosResponse } from 'axios';
 
 
 @Injectable()
@@ -24,9 +25,20 @@ export class CommentService {
      * @returns CommentData
      */
     async createComment(createCommentDTO: CreateCommentDTO, writer : number){
-        await this.CommentRepository.createComment(createCommentDTO,writer);
+        const res = await this.CommentRepository.createComment(createCommentDTO, writer);
+        return res;
     }
 
+    /**
+     * CreateFilteringCommnet(댓글 필터링 함수)
+     * @param createFilteringCommentDTO 
+     * @returns CommentData
+     */
+         async createFilteringComment(createFilteringCommentDTO: CreateFilteringCommentDTO){
+            const filteringContent = await this.filteringContent(createFilteringCommentDTO.content);
+            await this.CommentRepository.createFilteringComment(createFilteringCommentDTO.comment_id, filteringContent);
+        }
+    
     /**
      * getCommentByBoardId(댓글 확인 함수)
      * @param id 
@@ -42,11 +54,6 @@ export class CommentService {
         const take : number = skip + limit;
 
         const comment = await this.CommentRepository.getCommentById(board_id,status,skip,take);
-        
-        
-
-        
-        
         return comment;
     }
     
@@ -95,6 +102,23 @@ export class CommentService {
         }
     }
 
-
+    async filteringContent(content: string){
+        // 1. API 호출 및 반환 값 저장
+        const url: string = process.env.FILTERING_BASE_URL;
+        const request = {
+            comment: content
+        }
+        try {
+            const response: AxiosResponse = await axios.post(url, request, {
+                headers: {
+                  accept: 'application/json',
+                },
+              });
+            content = response.data;
+            return content;
+        } catch (e) {
+            console.log(e);
+        }
+    }
 
 }

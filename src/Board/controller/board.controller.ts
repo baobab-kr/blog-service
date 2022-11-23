@@ -4,7 +4,7 @@ import { BoardService } from '../service/board.service';
 import { Board } from '../repository/entity/board.entity';
 import { Comment } from '../repository/entity/comment.entity';
 import { ReComment } from '../repository/entity/recomment.entity';
-import { CreateBoardDTO, CreateCommentDTO, CreateReCommentDTO } from '../repository/dto/create-board.dto';
+import { CreateBoardDTO, CreateCommentDTO, CreateReCommentDTO, CreateFilteringCommentDTO, CreateFilteringReCommentDTO } from '../repository/dto/create-board.dto';
 import { UpdateBoardDTO } from '../repository/dto/update-board.dto';
 import { CommentService } from '../service/commnet.service';
 import { ReCommentService } from '../service/recomment.service';
@@ -461,16 +461,14 @@ export class BoardController {
     async deleteAllPosts(
         @Body("user_id") user_id : number
     ){
-
         await this.boardService.getUserById(user_id);
-
         await this.boardService.delete_all_board_in_user(user_id);   
     }
 
     /**
      * createComment(댓글 생성 API)
      * @param createCommentDTO 
-     * @returns void
+     * @returns comment_id, content
      */
     @Post("/CreateComment")
     @HttpCode(200)
@@ -480,14 +478,31 @@ export class BoardController {
     async createComment(
         @Req() req: Request,
         @Body(ValidationPipe) createCommentDTO : CreateCommentDTO
-    ) : Promise<void> {
+    )  {
         const user: any = req.user;
         const writer : number = user.id;
         user.password = undefined
         user.currentRefreshToken = undefined
 
-        await this.commentService.createComment(createCommentDTO,writer);
+        const res = await this.commentService.createComment(createCommentDTO, writer);
+        return res;
     }
+
+    /**
+     * createComment(댓글 생성 필터링 API)
+     * @param createFilteringCommentDTO
+     * @returns void
+     */
+     @Post("/CreateFilteringComment")
+     @HttpCode(200)
+     @UseGuards(JwtAccessTokenGuard)
+     @ApiOperation({summary : "댓글 필터링 수정 API", description : "생성된 댓글을 필터링하여 재저장한다."})
+     @ApiCreatedResponse({type : "void"})
+     async createFilteringComment(
+         @Body(ValidationPipe) createFilteringCommentDTO : CreateFilteringCommentDTO
+     )  {
+         await this.commentService.createFilteringComment(createFilteringCommentDTO);
+     }
     
     /**
      * getCommentById(댓글 호출 API)
@@ -503,7 +518,7 @@ export class BoardController {
         @Body("board_id") board_id : number,
         @Body("page") page : number
     ): Promise<Comment[]>{
-        return await this.commentService.getCommentByBoardId(board_id,page);
+        return await this.commentService.getCommentByBoardId(board_id, page);
     }
     /**
      * getCommentById(댓글 페이지 개수 API)
@@ -520,6 +535,7 @@ export class BoardController {
     ){
         return await this.commentService.getCommentPageCount(board_id);
     }
+
     /**
      * getCommentById(댓글 페이지 개수 API)
      * @param board_id 
@@ -533,10 +549,8 @@ export class BoardController {
      async getCommentCount(
          @Query("board_id") board_id : number
      ){
-
         if(board_id != undefined){
             if(isNaN(board_id)){
-                
                 throw new HttpException('board_id가 없습니다.', HttpStatus.CONFLICT)
             }
         }
@@ -560,7 +574,6 @@ export class BoardController {
         const user: any = req.user;
         const writer : number = user.id;
 
-
         await this.commentService.getCommentByUserId(comment_id, writer);
         await this.commentService.deleteCommentById(comment_id);
     }
@@ -578,15 +591,29 @@ export class BoardController {
     async createReComment(
         @Req() req :Request,
         @Body(ValidationPipe) createReCommentDTO : CreateReCommentDTO
-    ) : Promise<void> {
+    ) {
         const user: any = req.user;
         const writer : number = user.id;
-
-
-
-        await this.reCommentService.createReComment(createReCommentDTO,writer);
-        
+        const res = await this.reCommentService.createReComment(createReCommentDTO,writer);
+        return res;
     }
+
+    /**
+     * createComment(답글 생성 필터링 API)
+     * @param createFilteringReCommentDTO
+     * @returns void
+     */
+     @Post("/CreateFilteringReComment")
+     @HttpCode(200)
+     @UseGuards(JwtAccessTokenGuard)
+     @ApiOperation({summary : "답글 필터링 수정 API", description : "생성된 답글을 필터링하여 재저장한다."})
+     @ApiCreatedResponse({type : "void"})
+     async createFilteringReComment(
+         @Body(ValidationPipe) createFilteringReCommentDTO : CreateFilteringReCommentDTO
+     )  {
+         await this.reCommentService.createFilteringReComment(createFilteringReCommentDTO);
+     }
+
     /**
      * getReCommentById(답글 호출 API)
      * @param id 
