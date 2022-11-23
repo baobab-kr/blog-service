@@ -25,12 +25,13 @@ export class CommentService {
      * @returns CommentData
      */
     async createComment(createCommentDTO: CreateCommentDTO, writer : number){
-        // 필터링 댓글 적용
-        // 1. 필터링 API 호출하여 필터링된 댓글 값 반환
+        // 필터링 댓글 
+        // 1. 서비스에서 리포지토리 클래스 내에 함수를 통해 댓글을 DB에 저장
+        const savedCommentId = await this.CommentRepository.createComment(createCommentDTO,writer);
+        
+        // 2. 저장된 댓글을 Filtering API를 호출해 변환 후 DB에 수정
         const filteringContent = await this.filteringContent(createCommentDTO.content);
-
-        // 2. 반환된 값으로 댓글 생성
-        await this.CommentRepository.createComment(createCommentDTO, writer, filteringContent);
+        await this.CommentRepository.createFilteringComment(savedCommentId, filteringContent);
     }
 
     /**

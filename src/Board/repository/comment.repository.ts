@@ -11,16 +11,22 @@ export class CommentRepository extends Repository<Comment>{
      * @param createCommentDTO 
      * @returns 
      */
-    async createComment(createCommentDTO:CreateCommentDTO, writer : number, filteringContent: string){
+    async createComment(createCommentDTO:CreateCommentDTO, writer : number){
         
-        const {board_id, comment_status} = createCommentDTO;
-        const content:string = filteringContent;
+        const {board_id, content, comment_status} = createCommentDTO;
         const date : Date = new Date();
         const comment = await this.create({
              content, board_id, date, comment_status, writer
         });
-        console.log(comment);
-        await this.save(comment);
+        const savedComment = await this.save(comment);
+        return savedComment.id
+    }//end of createCommnet
+
+    
+    async createFilteringComment(id: number, filteringContent: string){
+        const savedComment = await this.findOne({id: id});
+        savedComment.content = filteringContent
+        await this.save(savedComment)
     }//end of createCommnet
     
     async getCommentById(board_id : number,comment_status : number[], skip :number, take :number) : Promise<Comment[]>{
