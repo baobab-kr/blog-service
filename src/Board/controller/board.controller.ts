@@ -461,9 +461,7 @@ export class BoardController {
     async deleteAllPosts(
         @Body("user_id") user_id : number
     ){
-
         await this.boardService.getUserById(user_id);
-
         await this.boardService.delete_all_board_in_user(user_id);   
     }
 
@@ -520,7 +518,7 @@ export class BoardController {
         @Body("board_id") board_id : number,
         @Body("page") page : number
     ): Promise<Comment[]>{
-        return await this.commentService.getCommentByBoardId(board_id,page);
+        return await this.commentService.getCommentByBoardId(board_id, page);
     }
     /**
      * getCommentById(댓글 페이지 개수 API)
@@ -537,6 +535,7 @@ export class BoardController {
     ){
         return await this.commentService.getCommentPageCount(board_id);
     }
+
     /**
      * getCommentById(댓글 페이지 개수 API)
      * @param board_id 
@@ -550,10 +549,8 @@ export class BoardController {
      async getCommentCount(
          @Query("board_id") board_id : number
      ){
-
         if(board_id != undefined){
             if(isNaN(board_id)){
-                
                 throw new HttpException('board_id가 없습니다.', HttpStatus.CONFLICT)
             }
         }
@@ -577,7 +574,6 @@ export class BoardController {
         const user: any = req.user;
         const writer : number = user.id;
 
-
         await this.commentService.getCommentByUserId(comment_id, writer);
         await this.commentService.deleteCommentById(comment_id);
     }
@@ -595,14 +591,11 @@ export class BoardController {
     async createReComment(
         @Req() req :Request,
         @Body(ValidationPipe) createReCommentDTO : CreateReCommentDTO
-    ) : Promise<void> {
+    ) {
         const user: any = req.user;
         const writer : number = user.id;
-
-
-
-        await this.reCommentService.createReComment(createReCommentDTO,writer);
-        
+        const res = await this.reCommentService.createReComment(createReCommentDTO,writer);
+        return res;
     }
     /**
      * getReCommentById(답글 호출 API)

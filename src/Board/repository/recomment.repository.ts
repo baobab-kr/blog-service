@@ -6,14 +6,20 @@ import { CreateReCommentDTO } from "./dto/create-board.dto";
 @EntityRepository(ReComment)
 export class ReCommentRepository extends Repository<ReComment>{
     
-    async createReComment(createReCommentDTO:CreateReCommentDTO , writer:number):Promise<void>{
+    async createReComment(createReCommentDTO:CreateReCommentDTO , writer:number){
         
         const {comment_id, content, recomment_status} = createReCommentDTO;
         const date : Date = new Date();
         const recomment = this.create({
             content, comment_id, date,writer, recomment_status
         });
-        await this.save(recomment);
+        const savedReComment = await this.save(recomment);
+        console.log(savedReComment);
+        const res = {
+            id: savedReComment.id,
+            content: savedReComment.content
+        }
+        return res;
         
     }//end of createCommnet
     async getReCommentById(comment_id : number, recomment_status : number[],skip : number ,take:number) : Promise<ReComment[]>{

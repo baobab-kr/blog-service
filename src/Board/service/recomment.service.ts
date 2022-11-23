@@ -24,8 +24,9 @@ export class ReCommentService {
      * @param createReCommentDTO 
      * @returns 
      */
-    async createReComment(createReCommentDTO: CreateReCommentDTO , writer : number ) : Promise<void>{
-        await this.ReCommentRepository.createReComment(createReCommentDTO,writer);
+    async createReComment(createReCommentDTO: CreateReCommentDTO , writer : number ){
+        const res = await this.ReCommentRepository.createReComment(createReCommentDTO,writer);
+        return res;
     }
     /**
      * getReCommentByCommentId(답글 호출 함수)
