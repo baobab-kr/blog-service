@@ -20,13 +20,21 @@ export class ReCommentRepository extends Repository<ReComment>{
             content: savedReComment.content
         }
         return res;
-        
     }//end of createCommnet
+
+    /**
+    * createFilteringReComment(필터링답글내용생성)
+    * @param createFilteringReCommentDTO 
+    * @returns 
+    */
+     async createFilteringReComment(id:number, filteringContent: string){
+        const savedReComment = await this.findOne({id: id});
+        savedReComment.content = filteringContent
+        await this.save(savedReComment)
+    }//end of createFilteringReCommnet
+
     async getReCommentById(comment_id : number, recomment_status : number[],skip : number ,take:number) : Promise<ReComment[]>{
         const comment_idValue :number = typeof comment_id == typeof {} ?Number(Object.values(comment_id)[0]) : Number(comment_id);
-        
-
-
         const comment = await this.createQueryBuilder("re_comment")
         .leftJoin("re_comment.writer","users")
         .select(["re_comment.id","re_comment.content","re_comment.date"])

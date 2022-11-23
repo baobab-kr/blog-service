@@ -4,7 +4,7 @@ import { BoardService } from '../service/board.service';
 import { Board } from '../repository/entity/board.entity';
 import { Comment } from '../repository/entity/comment.entity';
 import { ReComment } from '../repository/entity/recomment.entity';
-import { CreateBoardDTO, CreateCommentDTO, CreateReCommentDTO, CreateFilteringCommentDTO } from '../repository/dto/create-board.dto';
+import { CreateBoardDTO, CreateCommentDTO, CreateReCommentDTO, CreateFilteringCommentDTO, CreateFilteringReCommentDTO } from '../repository/dto/create-board.dto';
 import { UpdateBoardDTO } from '../repository/dto/update-board.dto';
 import { CommentService } from '../service/commnet.service';
 import { ReCommentService } from '../service/recomment.service';
@@ -597,6 +597,23 @@ export class BoardController {
         const res = await this.reCommentService.createReComment(createReCommentDTO,writer);
         return res;
     }
+
+    /**
+     * createComment(답글 생성 필터링 API)
+     * @param createFilteringReCommentDTO
+     * @returns void
+     */
+     @Post("/CreateFilteringReComment")
+     @HttpCode(200)
+     @UseGuards(JwtAccessTokenGuard)
+     @ApiOperation({summary : "답글 필터링 수정 API", description : "생성된 답글을 필터링하여 재저장한다."})
+     @ApiCreatedResponse({type : "void"})
+     async createFilteringReComment(
+         @Body(ValidationPipe) createFilteringReCommentDTO : CreateFilteringReCommentDTO
+     )  {
+         await this.reCommentService.createFilteringReComment(createFilteringReCommentDTO);
+     }
+
     /**
      * getReCommentById(답글 호출 API)
      * @param id 

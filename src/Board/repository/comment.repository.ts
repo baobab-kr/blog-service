@@ -26,16 +26,16 @@ export class CommentRepository extends Repository<Comment>{
         return res
     }//end of createCommnet
 
-        /**
-     * createComment(필터링댓글내용생성)
-     * @param createFilteringCommentDTO 
-     * @returns 
-     */
-         async createFilteringComment(comment_id:number, filteringContent: string){
-            const savedComment = await this.findOne({id: comment_id});
-            savedComment.content = filteringContent
-            await this.save(savedComment)
-        }//end of createFilteringCommnet
+    /**
+    * createComment(필터링댓글내용생성)
+    * @param createFilteringCommentDTO 
+    * @returns 
+    */
+    async createFilteringComment(comment_id:number, filteringContent: string){
+        const savedComment = await this.findOne({id: comment_id});
+        savedComment.content = filteringContent
+        await this.save(savedComment)
+    }//end of createFilteringCommnet
     
     async getCommentById(board_id : number,comment_status : number[], skip :number, take :number) : Promise<Comment[]>{
         const board_idValue :number = typeof board_id == typeof {} ?Number(Object.values(board_id)[0]) : Number(board_id);

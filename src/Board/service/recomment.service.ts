@@ -1,11 +1,12 @@
 import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BoardRepository } from '../repository/board.repository';
-import { CreateReCommentDTO } from '../repository/dto/create-board.dto';
+import { CreateFilteringReCommentDTO, CreateReCommentDTO } from '../repository/dto/create-board.dto';
 
 import { CommentRepository } from '../repository/comment.repository';
 import { ReCommentRepository } from '../repository/recomment.repository';
 import { ReComment } from '../repository/entity/recomment.entity';
+import axios, { AxiosResponse } from 'axios';
 
 
 @Injectable()
@@ -28,6 +29,35 @@ export class ReCommentService {
         const res = await this.ReCommentRepository.createReComment(createReCommentDTO,writer);
         return res;
     }
+
+        /**
+     * CreateFilteringReCommnet(답글 필터링 함수)
+     * @param createFilteringReCommentDTO 
+     * @returns CommentData
+     */
+    async createFilteringReComment(createFilteringReCommentDTO: CreateFilteringReCommentDTO){
+        const filteringContent = await this.filteringContent(createFilteringReCommentDTO.content);
+        await this.ReCommentRepository.createFilteringReComment(createFilteringReCommentDTO.id, filteringContent);
+    }
+
+    async filteringContent(content: string){
+        const url: string = process.env.FILTERING_BASE_URL;
+        const request = {
+            comment: content
+        }
+        try {
+            const response: AxiosResponse = await axios.post(url, request, {
+                headers: {
+                    accept: 'application/json',
+                },
+                });
+            content = response.data;
+            return content;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
     /**
      * getReCommentByCommentId(답글 호출 함수)
      * @param id 

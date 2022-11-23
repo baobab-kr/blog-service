@@ -108,7 +108,7 @@ export class CreateFilteringCommentDTO{
 export class CreateFilteringReCommentDTO{
     @IsNotEmpty({message : "값이 입력되지 않았습니다."})
     @ApiProperty()
-    comment_id : number;
+    id : number;
 
     
     @IsNotEmpty({message : "값이 입력되지 않았습니다."})

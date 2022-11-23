@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BoardRepository } from '../repository/board.repository';
-import { CreateCommentDTO, CreateFilteringCommentDTO } from '../repository/dto/create-board.dto';
+import { CreateCommentDTO, CreateFilteringCommentDTO, CreateFilteringReCommentDTO } from '../repository/dto/create-board.dto';
 import { CommentRepository } from '../repository/comment.repository';
 import { ReCommentRepository } from '../repository/recomment.repository';
 import { Comment } from '../repository/entity/comment.entity';
@@ -29,8 +29,8 @@ export class CommentService {
         return res;
     }
 
-        /**
-     * CreateCommnet(댓글 필터링 함수)
+    /**
+     * CreateFilteringCommnet(댓글 필터링 함수)
      * @param createFilteringCommentDTO 
      * @returns CommentData
      */
@@ -38,7 +38,6 @@ export class CommentService {
             const filteringContent = await this.filteringContent(createFilteringCommentDTO.content);
             await this.CommentRepository.createFilteringComment(createFilteringCommentDTO.comment_id, filteringContent);
         }
-
     
     /**
      * getCommentByBoardId(댓글 확인 함수)
