@@ -20,7 +20,7 @@ export class CommentRepository extends Repository<Comment>{
         });
         const savedComment = await this.save(comment);
         const res = {
-            commentId: savedComment.id,
+            comment_id: savedComment.id,
             content: savedComment.content
         }
         return res
@@ -35,14 +35,7 @@ export class CommentRepository extends Repository<Comment>{
             const savedComment = await this.findOne({id: comment_id});
             savedComment.content = filteringContent
             await this.save(savedComment)
-        }//end of createCommnet
-
-    
-    // async createFilteringComment(id: number, filteringContent: string){
-    //     const savedComment = await this.findOne({id: id});
-    //     savedComment.content = filteringContent
-    //     await this.save(user)
-    // }//end of createCommnet
+        }//end of createFilteringCommnet
     
     async getCommentById(board_id : number,comment_status : number[], skip :number, take :number) : Promise<Comment[]>{
         const board_idValue :number = typeof board_id == typeof {} ?Number(Object.values(board_id)[0]) : Number(board_id);

@@ -501,7 +501,6 @@ export class BoardController {
      @ApiOperation({summary : "댓글 필터링 수정 API", description : "생성된 댓글을 필터링하여 재저장한다."})
      @ApiCreatedResponse({type : "void"})
      async createFilteringComment(
-         @Req() req: Request,
          @Body(ValidationPipe) createFilteringCommentDTO : CreateFilteringCommentDTO
      )  {
          await this.commentService.createFilteringComment(createFilteringCommentDTO);
