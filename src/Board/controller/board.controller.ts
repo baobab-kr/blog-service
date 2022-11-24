@@ -131,9 +131,13 @@ export class BoardController {
     @Body("title") title: string
     ){
         
+        const board = await this.boardService.getBoardMainofTitle(page,title);
 
+        if(board.length <= 0){
+            return {"message" : "Board값이 없습니다."}
+        }
 
-        return await this.boardService.getBoardMainofTitle(page,title);
+        return board;
     }
 
     /**
