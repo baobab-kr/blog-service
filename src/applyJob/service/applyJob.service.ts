@@ -8,6 +8,8 @@ import { Users } from '../../users/entity/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { IsNotEmpty, isEmpty } from 'class-validator';
+import { BlobServiceClient, BlockBlobClient } from '@azure/storage-blob';
+import * as dayjs from 'dayjs';
 
 @Injectable()
 export class ApplyJobService{
@@ -87,6 +89,55 @@ export class ApplyJobService{
             throw new HttpException('해당 유저가 없습니다.', HttpStatus.CONFLICT)
         }
     }
+
+
+    /**
+     * getBlobClient(BlobClient연결)
+     * @param imageName 
+     * @returns 
+     */
+     getBlobClient(imageName:string):BlockBlobClient{
+        const blobClientService = BlobServiceClient.fromConnectionString(process.env.AZURE_CONNECTIONS);
+        const containerClient = blobClientService.getContainerClient(process.env.AZURE_BLOB_CONTAINER_NAME);
+        const blobClient = containerClient.getBlockBlobClient(imageName);
+        return blobClient;
+    }
+
+    /**
+     * profile_upload(profile_upload 업로드)
+     * @param file 
+     * @returns 
+     */
+    async profile_upload(id, file){
+        const fileName = file.originalname.trim().replace(/(.png|.jpg|.jpeg|.gif|\s)$/gi,'');
+        const fileuploadtime = dayjs().format("YYMMDDHHmmss");
+        const uploadFileName = "PR" + fileuploadtime + fileName;
+        const blobClient = this.getBlobClient(uploadFileName);
+        await blobClient.uploadData(file.buffer);
+
+        if(id){
+            await this.applyJobRepository.update({id:id},{profile : uploadFileName})
+        }
+        
+        
+        return uploadFileName;
+    }
+
+    /**
+     * getThumbnail(이미지 다운로드)
+     * @param fileName 
+     * @returns 
+     */
+    async getImage(fileName){
+        var blobClient = this.getBlobClient(fileName);
+        const isExist:Boolean = await blobClient.exists();
+        if (!isExist) {
+            blobClient = this.getBlobClient('profile-default');
+        }
+        var blobDownloaded = await blobClient.download();
+        return blobDownloaded.readableStreamBody;
+    }
+
 
     async deleteRecruit(id){
         /*
