@@ -75,6 +75,7 @@ export class ApplyJobRepository extends Repository<ApplyJob>{
             "apply_jobs.educationStatus"
             ])
         .where(`apply_jobs.jobs_id = ${jobs_id}`)
+        .orderBy("apply_jobs.id","DESC")
         .getMany();
         
 
@@ -98,6 +99,7 @@ export class ApplyJobRepository extends Repository<ApplyJob>{
             "apply_jobs.educationStatus"
             ])
         .where(`apply_jobs.id = ${id}`)
+        .orderBy("apply_jobs.id","DESC")
         .getOne();
         
 
@@ -142,6 +144,7 @@ export class ApplyJobRepository extends Repository<ApplyJob>{
                 "jobs.logo"])
 
         .where(`apply_jobs.user_id = ${user_id}`)
+        .orderBy("apply_jobs.id","DESC")
         .getMany();
         
 

@@ -14,7 +14,6 @@ export class ReCommentRepository extends Repository<ReComment>{
             content, comment_id, date,writer, recomment_status
         });
         const savedReComment = await this.save(recomment);
-        console.log(savedReComment);
         const res = {
             id: savedReComment.id,
             content: savedReComment.content
@@ -41,6 +40,7 @@ export class ReCommentRepository extends Repository<ReComment>{
         .addSelect(["users.id","users.userid","users.username","users.email","users.role","users.avatar_image","users.techStack","users.socialUrl"])
         .where("re_comment.comment_id = :comment_id",{comment_id : comment_idValue})
         .andWhere(`re_comment.recomment_status IN(:recomment_status)`,{recomment_status})
+        .orderBy("re_comment.id","DESC")
         .skip(skip)
         .take(take)
         .getMany()

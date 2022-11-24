@@ -47,6 +47,7 @@ export class CommentRepository extends Repository<Comment>{
         .addSelect(["users.id","users.userid","users.username","users.email","users.role","users.avatar_image","users.techStack","users.socialUrl"])
         .where("comment.board_id = :board_id",{board_id : board_idValue})
         .andWhere(`comment.comment_status IN(:comment_status)`,{comment_status})
+        .orderBy("comment.id","DESC")
         .skip(skip)
         .take(take)
         .getMany()
