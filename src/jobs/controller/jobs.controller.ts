@@ -130,44 +130,44 @@ export class JobsController{
          * getJobs_inUser_forHeadHunt(관리자의 공지사항 조회 API)
          * @returns 
          */
-     @Get("/getJobs_inUser_forHeadHunt")
-     @HttpCode(200)
-     @ApiOperation({
-         summary:'해드헌트의 공지사항 user_id 조회 API',
-         description:'user_id에 해당하는 모든 게시물 반환, 해드헌트 계정만 사용 가능 role:1',
-     })
-     async getJobs_inUser_forHeadHunt( 
-         @Req() req: Request,
-         @Query() SelectJobsHeadHuntDTO : SelectJobsHeadHuntDTO
-     ){
- 
-         const headhunt_status = 1;
-        
+    @Get("/getJobs_inUser_forHeadHunt")
+    @HttpCode(200)
+    @ApiOperation({
+        summary:'해드헌트의 공지사항 user_id 조회 API',
+        description:'user_id에 해당하는 모든 게시물 반환, 해드헌트 계정만 사용 가능 role:1',
+    })
+    async getJobs_inUser_forHeadHunt( 
+        @Req() req: Request,
+        @Query() SelectJobsHeadHuntDTO : SelectJobsHeadHuntDTO
+    ){
+
+        const headhunt_status = 1;
+    
 
 
-        if(Object.keys(req.cookies).includes("AccessToken") ){
-            const user_id_inPayload : number = await this.jobsService.userIdInCookie(req.cookies.AccessToken);
-            let users = await this.jobsService.getUser(user_id_inPayload);
-            SelectJobsHeadHuntDTO.user_id = user_id_inPayload;
-            if(users.role == headhunt_status){
-                const jobs = await this.jobsService.getJobs_inUser_forHeadHunt(SelectJobsHeadHuntDTO);
+    if(Object.keys(req.cookies).includes("AccessToken") ){
+        const user_id_inPayload : number = await this.jobsService.userIdInCookie(req.cookies.AccessToken);
+        let users = await this.jobsService.getUser(user_id_inPayload);
+        SelectJobsHeadHuntDTO.user_id = user_id_inPayload;
+        if(users.role == headhunt_status){
+            const jobs = await this.jobsService.getJobs_inUser_forHeadHunt(SelectJobsHeadHuntDTO);
 
-                if(jobs.length <= 0){
-                    return { "message" : "값이 없습니다." }
-                }
-
-                return jobs;
-            }else{
-                throw new HttpException('해드헌트만 이용가능한 기능입니다.', HttpStatus.CONFLICT)
+            if(jobs.length <= 0){
+                return { "message" : "값이 없습니다." }
             }
+
+            return jobs;
         }else{
-            throw new HttpException('로그인을 해야 사용할 수 있는 기능입니다.', HttpStatus.CONFLICT)
+            throw new HttpException('해드헌트만 이용가능한 기능입니다.', HttpStatus.CONFLICT)
         }
+    }else{
+        throw new HttpException('로그인을 해야 사용할 수 있는 기능입니다.', HttpStatus.CONFLICT)
+    }
+    
         
-         
-         
- 
-     }
+        
+
+    }
     @Get("/getJobsAll_ForServiceAdmin")
     @HttpCode(200)
     @ApiOperation({
@@ -228,6 +228,40 @@ export class JobsController{
                 await this.jobsService.Approval_Jobs_ForServiceAdmin(id);
             }else{
                 throw new HttpException('관리자만 이용가능한 기능입니다.', HttpStatus.CONFLICT)
+            }
+        }else{
+            throw new HttpException('로그인을 해야 사용할 수 있는 기능입니다.', HttpStatus.CONFLICT)
+        }
+        
+    }
+
+
+
+    @Patch("/unapproved_Jobs_ForServiceAdmin")
+    @HttpCode(200)
+    @ApiOperation({
+        summary:'채용 공고 미승인 API',
+        description:'채용공고 status를 미승인으로 수정한다. 헤드헌트 이상이 사용 가능 1, 2 ',
+    })
+    @ApiBody({schema : {example : {
+        id : 1
+    } }})
+    async unapproved_Jobs_ForServiceAdmin( 
+        @Req() req: Request,
+        @Body("id") id : number
+    ){
+
+
+        const admin_status = 1;
+
+        if(Object.keys(req.cookies).includes("AccessToken") ){
+            const user_id_inPayload : number = await this.jobsService.userIdInCookie(req.cookies.AccessToken);
+            let users = await this.jobsService.getUser(user_id_inPayload);
+
+            if(users.role >= admin_status){
+                await this.jobsService.unapproved_Jobs_ForServiceAdmin(id);
+            }else{
+                throw new HttpException('헤드헌트 혹은 서비스관리자만 이용가능한 기능입니다.', HttpStatus.CONFLICT)
             }
         }else{
             throw new HttpException('로그인을 해야 사용할 수 있는 기능입니다.', HttpStatus.CONFLICT)

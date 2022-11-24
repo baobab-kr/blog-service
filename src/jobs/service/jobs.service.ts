@@ -183,6 +183,12 @@ export class JobsService{
 
 
     }
+    async unapproved_Jobs_ForServiceAdmin(id : number){
+        await this.jobsRepository.unapproved_Jobs_ForServiceAdmin(id);
+        
+    }
+
+
     async Delete_Jobs(id : number){
         await this.jobsRepository.delete(id);
     }

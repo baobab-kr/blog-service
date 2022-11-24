@@ -61,8 +61,8 @@ export class JobsRepository extends Repository<Jobs>{
         }
         if(startDate == "Invalid Date" || endDate == "Invalid Date"){
             if(CreateJobsDTO.startDate == null && CreateJobsDTO.endDate == null){
-                startDate = "00000000";
-                endDate = "99999999";
+                startDate = null;
+                endDate = null;
             }else{
                 throw new HttpException('it`s no  date', HttpStatus.CONFLICT)
             }
@@ -174,9 +174,9 @@ export class JobsRepository extends Repository<Jobs>{
             throw new HttpException('변수 타입 초기화 실패', HttpStatus.CONFLICT)
         }
         
-
-        let where = `jobs.startDate <= ${dateNow} AND jobs.endDate >= ${dateNow}`;
-        where += ` AND jobs.approvalStatus = ${apStatus} AND jobs.jobStatus = ${jpStatus}`
+        
+        
+        let where = ` jobs.approvalStatus = ${apStatus} AND jobs.jobStatus = ${jpStatus}`
         if(location != undefined){
             where += ` AND jobs.location LIKE '%${location}%'`;
         }
@@ -193,11 +193,15 @@ export class JobsRepository extends Repository<Jobs>{
             where += ` AND jobs.companyName LIKE '%${companyName}%'`;
         }
         if(startDate != undefined){
-            where += ` AND jobs.startDate >= ${startDate}`;
+            where += ` AND (jobs.startDate >= ${startDate} OR jobs.startDate IS NULL)`;
         }
         if(endDate != undefined ){
-            where += ` AND jobs.startDate <= ${endDate}`;
+            where += ` AND (jobs.endDate <= ${endDate} OR jobs.endDate IS NULL)`;
         }
+        if(endDate == undefined && startDate == undefined){
+            where += ` AND ((jobs.startDate <= ${dateNow} AND jobs.endDate >= ${dateNow}) OR (jobs.startDate IS NULL AND jobs.endDate IS NULL))`;
+        }
+        
 
         const jobs = await this.createQueryBuilder("jobs")
         .select([
@@ -220,6 +224,7 @@ export class JobsRepository extends Repository<Jobs>{
             "jobs.license" ,
             "jobs.logo"])
         .where(where)
+        .orderBy("jobs.id","DESC")
         .skip(skip)
         .take(take)
         .getMany()
@@ -273,11 +278,12 @@ export class JobsRepository extends Repository<Jobs>{
             where += ` AND jobs.companyName LIKE '%${companyName}%'`;
         }
         if(startDate != undefined){
-            where += ` AND jobs.startDate >= ${startDate}`;
+            where += ` AND (jobs.startDate >= ${startDate} OR jobs.startDate IS NULL)`;
         }
         if(endDate != undefined ){
-            where += ` AND jobs.startDate <= ${endDate}`;
+            where += ` AND (jobs.endDate <= ${endDate} OR jobs.endDate IS NULL)`;
         }
+        
 
         const jobs = await this.createQueryBuilder("jobs")
         .select([
@@ -300,6 +306,7 @@ export class JobsRepository extends Repository<Jobs>{
             "jobs.license" ,
             "jobs.logo"])
         .where(where)
+        .orderBy("jobs.id","DESC")
         .getMany()
 
         return jobs;  
@@ -354,10 +361,13 @@ export class JobsRepository extends Repository<Jobs>{
             where += ` AND jobs.companyName LIKE '%${companyName}%'`;
         }
         if(startDate != undefined){
-            where += ` AND jobs.startDate >= ${startDate}`;
+            where += ` AND (jobs.startDate >= ${startDate} OR jobs.startDate IS NULL)`;
         }
         if(endDate != undefined ){
-            where += ` AND jobs.startDate <= ${endDate}`;
+            where += ` AND (jobs.endDate <= ${endDate} OR jobs.endDate IS NULL)`;
+        }
+        if(endDate == undefined && startDate == undefined){
+            where += ` AND (jobs.startDate IS NULL AND jobs.endDate IS NULL)`;
         }
 
         const jobs = await this.createQueryBuilder("jobs")
@@ -381,7 +391,7 @@ export class JobsRepository extends Repository<Jobs>{
             "jobs.license" ,
             "jobs.logo"])
         .where(where)
-        .orderBy("jobs.id","ASC")
+        .orderBy("jobs.id","DESC")
         .skip(skip)
         .take(take)
         .getMany()
@@ -391,6 +401,20 @@ export class JobsRepository extends Repository<Jobs>{
 
     async Approval_Jobs_ForServiceAdmin(id : number){
         let approvalStatus = 1;
+
+        let updateQuery = await getConnection()
+        .createQueryBuilder()
+        .update(Jobs)
+        .set({
+            approvalStatus
+        })
+        .where(`id = ${id}`)
+        .execute();
+    }
+
+
+    async unapproved_Jobs_ForServiceAdmin(id : number){
+        let approvalStatus = 0;
 
         let updateQuery = await getConnection()
         .createQueryBuilder()
