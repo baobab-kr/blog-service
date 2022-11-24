@@ -411,5 +411,19 @@ export class JobsRepository extends Repository<Jobs>{
         .where(`id = ${id}`)
         .execute();
     }
+
+
+    async unapproved_Jobs_ForServiceAdmin(id : number){
+        let approvalStatus = 0;
+
+        let updateQuery = await getConnection()
+        .createQueryBuilder()
+        .update(Jobs)
+        .set({
+            approvalStatus
+        })
+        .where(`id = ${id}`)
+        .execute();
+    }
 }
 
