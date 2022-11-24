@@ -40,17 +40,17 @@ export class CreateApplyJobDTO{
     })
     email : Object
 
-    @IsNotEmpty({message : "techStack 값이 입력되지 않았습니다."})
     @ApiProperty({
         default : "string",
         description : "개발자가 갖은 개발 스택",
+        required : false
     })
     techStack : Object
 
-    @IsNotEmpty({message : "careerYear 값이 입력되지 않았습니다."})
     @ApiProperty({
         default : 1,
         description : "경력",
+        required : false
     })
     careerYear : Object
 
@@ -62,10 +62,10 @@ export class CreateApplyJobDTO{
     resumeUrl : Object
 
 
-    @IsNotEmpty({message : "socialUrl 값이 입력되지 않았습니다."})
     @ApiProperty({
         default : "string",
         description : "소개용 url",
+        required : false
     })
     socialUrl : Object
 
