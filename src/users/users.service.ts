@@ -163,11 +163,13 @@ export class UsersService {
         newUser.userid = userid
         newUser.email = email
         newUser.username = username
+        newUser.role = 0
         await this.usersRepository.save(newUser)
       } else {
         user.userid = userid
         user.email = email
         user.username = username
+        user.role = 0
         await this.usersRepository.save(user)
       }
       
