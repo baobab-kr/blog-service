@@ -418,37 +418,36 @@ export class JobsController{
 
     }
 
-
-
     @Post("/nts_businessman")
     @HttpCode(200)
+    @ApiOperation({
+        summary:'사업자확인 API',
+        description:'사업자 번호를 입력하면 사업자가 맞는지 반환한다 \"-\" 하이픈 제거됨',
+    })
+    @ApiBody({schema : {example : {business_number : "string"}}})
     async nts_businessman(
-        @Res() res ,
-        @Req() req,
         @Body("business_number") b_no : string
-    ){
-        const serviceKey = "I5OxGPqEJSf88oOEtR9HcQIWGmvCgPbiVP9RlqeUFd2Hqd1SsilZLjti5vqPpwl8kD%2BjystU%2BgJDzDyNb3mJfA%3D%3D"
+    ) : Promise<Object>{
+        const serviceKey = "I5OxGPqEJSf88oOEtR9HcQIWGmvCgPbiVP9RlqeUFd2Hqd1SsilZLjti5vqPpwl8kD%2BjystU%2BgJDzDyNb3mJfA%3D%3D";
         const axios = require("axios");
+        
 
-        axios({
+        const result = await axios({
             method : "post",
             url : `https://api.odcloud.kr/api/nts-businessman/v1/status?serviceKey=${serviceKey}`,
             data : {
-                b_no : [
-                    b_no
-                ]
+                b_no : [b_no.replace(/-/gi,"")]
             }
-            
-            //responseType : "stream"
-        }).then((response) => {
-            
-            console.log(response)
+        }).then(function (response){
+            return response.data.data[0];
+        });
 
-            console.log(response.data)
-        })
-
+        //throw new HttpException('board_id가 없습니다.', HttpStatus.CONFLICT)
+        return result;
 
     }
+
+    
 
 
 

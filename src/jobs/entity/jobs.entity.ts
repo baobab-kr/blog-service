@@ -98,7 +98,7 @@ export class Jobs extends BaseEntity{
 
     @Column({
         nullable:false,
-        type:'longtext'
+        type:'text'
     })
     url : string
 
