@@ -93,7 +93,7 @@ export class BoardRepository extends Repository<Board> {
         .addSelect(["tag"])
         .addSelect(["users.id","users.userid","users.username","users.email","users.role","users.avatar_image","users.techStack","users.socialUrl"])
         .addSelect(["likes"])
-        .where("board.title LIKE :title",{title})
+        .where(`board.title LIKE "%${title}%"`)
         .andWhere(`board.board_status IN(:board_status)`,{board_status}) 
         .orderBy("board.id","DESC")
         .skip(skip)
