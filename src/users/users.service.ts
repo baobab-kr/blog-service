@@ -347,7 +347,6 @@ export class UsersService {
 
   async deleteProfile(fileName){
     const fileNameValue: string = typeof fileName !== typeof "" ? Object.values(fileName)[0] : fileName
-    console.log(fileNameValue);
     let blobClient = this.getBlobClient(fileNameValue);
     await blobClient.deleteIfExists();
   }
