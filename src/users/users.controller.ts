@@ -283,6 +283,8 @@ export class UsersController {
   @HttpCode(200)
   async deleteUser(@Body() userid: string ): Promise<void> {
     await this.usersService.deleteUser(userid);
+    console.log(userid);
+    await this.usersService.deleteProfile(userid);
   }
 
   @ApiOperation({
