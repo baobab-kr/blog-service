@@ -15,6 +15,7 @@ import { BlobServiceClient, BlockBlobClient } from '@azure/storage-blob';
 import * as dayjs from 'dayjs'
 import { CommentRepository } from '../repository/comment.repository';
 import { ReCommentRepository } from '../repository/recomment.repository';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class BoardService {
@@ -75,7 +76,10 @@ export class BoardService {
      * @returns 
      */
     async uploadThumbnail(file){
-        const fileName = file.originalname.trim().replace(/(.png|.jpg|.jpeg|.gif|\s)$/gi,'');
+        let fileoriginalname = file.originalname.trim().replace(/(.png|.jpg|.jpeg|.gif|\s)$/gi,'');
+        const encryptedFileName = bcrypt.hashSync(fileoriginalname, 10); 
+        let fileName = encryptedFileName.trim().replace(/[-\/\\^$*+?.()|[\]{}]/g, '');
+
         const fileuploadtime = dayjs().format("YYMMDDHHmmss");
         const uploadFileName = "D" + fileuploadtime + fileName;
         const blobClient = this.getBlobClient(uploadFileName);
@@ -275,7 +279,8 @@ export class BoardService {
      * @param UpdateBoardDTO 
      * @returns void
      */
-    async updateBoard(UpdateBoardDTO:UpdateBoardDTO, id :number, file? : File) : Promise<void>{
+    async updateBoard(UpdateBoardDTO:UpdateBoardDTO,  file? : File) : Promise<void>{
+        const id : number = UpdateBoardDTO.board_id;
         
         const idValue :number = typeof id == typeof {} ?Number(Object.values(id)[0]) : Number(id);
         
@@ -547,6 +552,7 @@ export class BoardService {
      * @returns 
      */
     async CheckBoardById(id : number) : Promise<void>{
+
         if(id == undefined){
             throw new HttpException('ID 입력을 잘못 하였습니다.', HttpStatus.CONFLICT)
         }

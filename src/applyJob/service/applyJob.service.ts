@@ -10,6 +10,7 @@ import { Repository } from 'typeorm';
 import { IsNotEmpty, isEmpty } from 'class-validator';
 import { BlobServiceClient, BlockBlobClient } from '@azure/storage-blob';
 import * as dayjs from 'dayjs';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class ApplyJobService{
@@ -108,8 +109,11 @@ export class ApplyJobService{
      * @param file 
      * @returns 
      */
-    async profile_upload(id, file){
-        const fileName = file.originalname.trim().replace(/(.png|.jpg|.jpeg|.gif|\s)$/gi,'');
+    async profile_upload(id : number, file : any){
+        let fileoriginalname = file.originalname.trim().replace(/(.png|.jpg|.jpeg|.gif|\s)$/gi,'');
+        const encryptedFileName = bcrypt.hashSync(fileoriginalname, 10); 
+        let fileName = encryptedFileName.trim().replace(/[-\/\\^$*+?.()|[\]{}]/g, '');
+
         const fileuploadtime = dayjs().format("YYMMDDHHmmss");
         const uploadFileName = "PR" + fileuploadtime + fileName;
         const blobClient = this.getBlobClient(uploadFileName);

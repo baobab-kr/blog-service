@@ -12,6 +12,9 @@ import { ToastUiDTO } from '../dto/toast_ui_jobs.dto';
 import { CompanyLicenseDTO } from '../dto/image-jobs-dto';
 import { CampanyLogoDTO } from '../dto/Logo-jobs-dto';
 import { SelectJobsForServiceAdminDTO } from '../dto/select-jobs-service-admin.dto';
+import * as dayjs from 'dayjs'
+import axios from 'axios';
+import * as fs from 'fs';
 
 @Controller("jobs")
 @ApiTags("Baobab_Jobs")
@@ -422,7 +425,7 @@ export class JobsController{
     @HttpCode(200)
     @ApiOperation({
         summary:'사업자확인 API',
-        description:'사업자 번호를 입력하면 사업자가 맞는지 반환한다 \"-\" 하이픈 제거됨',
+        description:'사업자 번호를 입력하면 사업자가 맞는지 반환한다 \"-\" 하이픈 제거됨, 사용가능한 사업자 번호면 \"등록된 사업자등록번호\" 반환, 아닐경우 \"등록되지 않은 사업자등록번호\" 반환함 ',
     })
     @ApiBody({schema : {example : {business_number : "string"}}})
     async nts_businessman(
@@ -439,7 +442,12 @@ export class JobsController{
                 b_no : [b_no.replace(/-/gi,"")]
             }
         }).then(function (response){
-            return response.data.data[0];
+            if(response.data.data[0].tax_type == "국세청에 등록되지 않은 사업자등록번호입니다."){
+                return "등록되지 않은 사업자등록번호"
+            }else{
+
+                return "등록된 사업자등록번호";
+            }
         });
 
         //throw new HttpException('board_id가 없습니다.', HttpStatus.CONFLICT)
@@ -447,7 +455,84 @@ export class JobsController{
 
     }
 
+
     
+    
+    @Post("/check_businessman_image")
+    @UseInterceptors(FileInterceptor("image"))
+    @HttpCode(200)
+    async check_businessman_image(
+        //@Body("filename") filename : string,
+        @UploadedFile() file : any
+    ) {
+        const secretKey = "WUtURXpSd09TdnJGTHBxTXBQVGJGYmphUGhyTG94RE4=";
+        const axios = require("axios");
+        const headers = {
+            "Content-Type" : "application/json",
+            "X-OCR-SECRET" : "WUtURXpSd09TdnJGTHBxTXBQVGJGYmphUGhyTG94RE4="
+        }
+        const url = `https://vp7t7va0ux.apigw.ntruss.com/custom/v1/19433/85f4c1eeeb80064410fc1353e40201299c23ce6f8b5ac87d881a0e02ee049ba0/general`;
+/*  
+        const localfilepath = await this.jobsService.uploadFileDisk(file);
+        var fileFormat = localfilepath.split(".");
+        let fileEXT = '';
+        if( localfilepath.indexOf("jpg")){  
+          fileEXT = "jpg"   
+        }else if( localfilepath.indexOf("png")){
+          fileEXT = "png"
+        }*/
+        //console.log(fileEXT)   
+        //console.log("file" +JSON.stringify(file))   
+        let encode = Buffer.from(file.buffer).toString('base64');
+        
+        //let d = fs.readFileSync('C:/File/blog-service_updateversion/blog-service/dist/jobs/service/uploads/1669962513728.jpg', 'base64');
+    
+        //console.log(file);
+        //console.log(`인코드 : ${encode}` );
+
+        const result = await axios({
+            method : "post",
+            headers : {
+                "Content-Type" : "application/json",
+                "X-OCR-SECRET" : "WUtURXpSd09TdnJGTHBxTXBQVGJGYmphUGhyTG94RE4="
+            },  
+            url : url,
+            data : {
+                "images" :[{
+                    "format"  :"jpg",
+                    "name" : "medium",
+                    "data" : encode,
+                    "url" : "https://dainfc.com/file_data/dainstore/2021/09/07/3750ef61244636d1d84f1e30743c92ab.jpg"
+                }
+                ],
+                "lang" : "ko",
+                "requestId" : "string",
+                "resultType" : "string",
+                "timestamp"  : dayjs(),
+                "version" : "V1"
+            }
+        }).then(function (response){
+                    
+            console.log('requestWithBase64 response:', response.data)
+                
+            if (response.status === 200) {
+                console.log('requestWithBase64 response:', response.data)
+                console.log('성공?');   
+                
+            }else{
+                console.log('error')
+            }
+            
+        }).catch(e => {
+            console.warn('requestWithBase64 error', e.response.status)
+        });
+        
+        //console.log(result);
+
+
+        return 
+
+    }
 
 
 
