@@ -1,12 +1,12 @@
-import { Body, Controller, Get, HttpCode, Patch, Post, Query, Req, HttpException, HttpStatus, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Patch, Post, Query, Req, HttpException, HttpStatus, Res, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
 import { ApplyJobService } from '../service/applyJob.service';
 import { CreateApplyJobDTO } from '../dto/create-applyJob.dto';
 import { UpdateApplyJobDTO } from '../dto/update-applyJob.dto';
 import { Request } from "express";
 import { SelectJobsDTO } from 'src/jobs/dto/select-jobs.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadProfileDTO } from '../dto/upload-profile-dto';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 
 
 @Controller("ApplyJob")
@@ -166,6 +166,7 @@ export class ApplyJobController{
     ){
         return await this.applyJobService.getApplyJobsAll_inUser(user_id);
     }
+    
 
 
     @Post("/UploadProfile")
@@ -178,10 +179,10 @@ export class ApplyJobController{
     })
     @ApiBody({description:"applyJobs Profile 이미지 삽입",type:UploadProfileDTO})
     async uploadLogo(
-        @Body("id") id : number,
-        @UploadedFile() file
+        @UploadedFile() file : any,
+        @Body("id") id : number
     ){
-        
+        console.log(file)
         return await this.applyJobService.profile_upload(id,file);
     }
 

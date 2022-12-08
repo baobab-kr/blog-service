@@ -423,10 +423,9 @@ export class BoardController {
     ) : Promise<void>{
         const user: any = req.user;
         const writer : number = user.id;
-
-        await this.boardService.CheckBoardById(id);
+        await this.boardService.CheckBoardById(UpdateBoardDTO.board_id);
         
-        await this.boardService.updateBoard(UpdateBoardDTO, id);
+        await this.boardService.updateBoard(UpdateBoardDTO);
     }
 
     /**

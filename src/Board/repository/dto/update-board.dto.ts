@@ -6,13 +6,19 @@ import { CreateBoardDTO } from "./create-board.dto";
 
 export class UpdateBoardDTO extends PartialType(CreateBoardDTO) {
 
-    @ApiProperty()
-    board_id? : string;
+    @ApiProperty({
+        default : 1,
+        required : false
+    })
+    board_id? : number;
 
     @MaxLength(30,{message : "입력가능 글자 수를 초과하였습니다."})
     @IsString()
     @Matches(/^[ㄱ-ㅎ|가-힣|a-z|A-Z|0-9|\s~|\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]+$/)
-    @ApiProperty()
+    @ApiProperty({
+        default : "string",
+        required : false
+    })
     title? : string;
 
     
@@ -20,18 +26,30 @@ export class UpdateBoardDTO extends PartialType(CreateBoardDTO) {
     @MaxLength(200,{message : "입력가능 글자 수를 초과하였습니다."})
     @IsString()
     @Matches(/^[ㄱ-ㅎ|가-힣|a-z|A-Z|0-9|\s~|\{\}\[\]\/?.,;:|\)*~`!^\-_+<>@\#$%&\\\=\(\'\"]+$/)
-    @ApiProperty()
+    @ApiProperty({
+        default : "string",
+        required : false
+    })
     description? : string;
 
     
     @IsString()
-    @ApiProperty()
+    @ApiProperty({
+        default : "string",
+        required : false
+    })
     content? : string;
 
-    @ApiProperty()
+    @ApiProperty({
+        default : 1,
+        required : false
+    })
     board_status? : number; 
 
-    @ApiProperty()
+    @ApiProperty({
+        default : [],
+        required : false
+    })
     tag_name? : string[];
 
 
