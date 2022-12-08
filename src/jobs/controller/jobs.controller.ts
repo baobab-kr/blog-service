@@ -439,7 +439,7 @@ export class JobsController{
             method : "post",
             url : `https://api.odcloud.kr/api/nts-businessman/v1/status?serviceKey=${serviceKey}`,
             data : {
-                b_no : [b_no.replace(/-/gi,"")]
+                b_no : [b_no.replace(/-|\s/gi,"")]
             }
         }).then(function (response){
             if(response.data.data[0].tax_type == "국세청에 등록되지 않은 사업자등록번호입니다."){
