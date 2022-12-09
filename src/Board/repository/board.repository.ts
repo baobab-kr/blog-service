@@ -59,6 +59,7 @@ export class BoardRepository extends Repository<Board> {
         .addSelect(["users.id","users.userid","users.username","users.email","users.role","users.avatar_image","users.techStack","users.socialUrl"])
         .addSelect(["likes"])
         .andWhere(`board.board_status IN(:board_status)`,{board_status}) 
+        .orderBy("board.id","DESC")
         .skip(skip)
         .take(take)
         .getMany()
@@ -73,7 +74,16 @@ export class BoardRepository extends Repository<Board> {
      * @param title 
      * @returns Board[]
      */
-    async getBoardMainofTitle(skip : number , take: number, board_status : number[], title : string){
+    async getBoardMainofTitle(page:number , title : string){
+
+        const board_status : number[]  = [0] ;
+
+        //페이지네이션
+        const limit : number  = 15 ; 
+        const pageVale : number = typeof page == typeof {} ?Number(Object.values(page)[0]) : Number(page);
+        const skip : number  = pageVale * limit;
+        const take : number = skip + limit;
+
         
         let board = await this.createQueryBuilder("board")
         .leftJoin("board.tags","tag")
@@ -81,10 +91,13 @@ export class BoardRepository extends Repository<Board> {
         .leftJoin("board.likes","likes")
         .select(["board.id","board.title","board.description","board.content","board.thumbnail","board.views","board.date","board.board_status","board.likes_count"])
         .addSelect(["tag"])
-        .addSelect(["users.id","users.userid","users.username","users.email","users.role","users.avatar_image"])
+        .addSelect(["users.id","users.userid","users.username","users.email","users.role","users.avatar_image","users.techStack","users.socialUrl"])
         .addSelect(["likes"])
-        .where("board.title LIKE :title",{title})
+        .where(`board.title LIKE "%${title}%"`)
         .andWhere(`board.board_status IN(:board_status)`,{board_status}) 
+        .orderBy("board.id","DESC")
+        .skip(skip)
+        .take(take)
         .getMany()
 
         return board;
@@ -104,6 +117,7 @@ export class BoardRepository extends Repository<Board> {
         .addSelect(["likes"])
         .where(`board.id IN(:tag_id)`,{tag_id})
         .andWhere(`board.board_status IN(:board_status)`,{board_status}) 
+        .orderBy("board.id","DESC")
         .skip(skip)
         .take(take)
         .getMany()
@@ -119,6 +133,7 @@ export class BoardRepository extends Repository<Board> {
         .andWhere(`board.board_status IN(:board_status)`,{board_status}) 
         .groupBy("board.id")
         .having(`Count(DISTINCT tag.tag_name) = ${tag_name.length} `)
+        .orderBy("board.id","DESC")
         .skip(skip)
         .take(take)
         .getMany()
@@ -227,6 +242,7 @@ export class BoardRepository extends Repository<Board> {
         //.addSelect(["users.id","users.userid","users.username","users.email","users.role","users.avatar_image"])
         .where(`board.writer = :writer`,{writer})
         .andWhere(`board.board_status IN(:board_status)`,{board_status}) 
+        .orderBy("board.id","DESC")
         .skip(skip)
         .take(take)
         .getMany()
@@ -256,6 +272,7 @@ export class BoardRepository extends Repository<Board> {
         //.addSelect(["users.id","users.userid","users.username","users.email","users.role","users.avatar_image"])
         .where(`board.writer = :writer`,{writer})
         .andWhere(`board.board_status IN(:board_status)`,{board_status}) 
+        .orderBy("board.id","DESC")
         .skip(skip)
         .take(take)
         .getMany()
@@ -289,6 +306,7 @@ export class BoardRepository extends Repository<Board> {
         .andWhere(`board.writer = :writer`,{writer})
         .andWhere(`board.board_status IN(:board_status)`,{board_status}) 
         //.andWhere(`likes.user_id = :writer`,{writer})
+        .orderBy("board.id","DESC")
         .skip(skip)
         .take(take)
         .getMany()
@@ -317,6 +335,7 @@ export class BoardRepository extends Repository<Board> {
         .where(`tag.tag_name IN(:tag_name) `,{tag_name})
         .andWhere(`board.writer = :writer`,{writer})
         .andWhere(`board.board_status IN(:board_status)`,{board_status}) 
+        .orderBy("board.id","DESC")
         .skip(skip)
         .take(take)
         .getMany()

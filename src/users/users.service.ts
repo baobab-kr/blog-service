@@ -18,10 +18,7 @@ export class UsersService {
     ) {};
 
   async createUser(userid: string, email: string, username: string, password: string, inputVerifyCode: number, role: number, techStack: string) {
-    //await this.checkUserIdExists(userid);
-    //await this.checkUserNameExists(username);
-    //await this.checkEmailExists(email);
-    //await this.checkMemberJoinEmail(username, inputVerifyCode);
+    await this.checkMemberJoinEmail(username, inputVerifyCode);
     await this.saveUserUsingQueryRunnner(userid, email, username, password, role, techStack);
   }
 
@@ -48,6 +45,68 @@ export class UsersService {
       accessTokenExpires,
       refreshTokenExpires,
     };
+  }
+
+  async githubLogin(code: string)  {
+    // 1. 액세스 토큰이 일치하는지 깃허브 서버에 전달하여 검증
+    // 1-1. 일치한다면 2. 로 이동
+    // 1-2. 일치하지 않으면 401 오류 반환
+    const { access_token } = await this.authService.getGithubAccessToken(code);
+
+    // 2. 깃허브 서버에서 반환한 액세스 토큰으로 사용자 정보 요청
+    // 2-1. 일치한다면 3. 로 이동
+    // 2-2. 일치하지 않는다면 401 오류 반환
+    const githubUserInfo = await this.authService.getGithubUserInfo(access_token);
+
+    // 3. 반환받은 사용자 정보를 데이터베이스에 저장
+    // 이때, 업데이트 된 깃허브 정보를 실시간으로 동기화할 수 없으므로 로그인할 때마다 불러와서 새롭게 저장이 필요함
+    await this.saveGithubUserUsingQueryRunnner(githubUserInfo.userid, githubUserInfo.email, githubUserInfo.username);
+    await this.saveAvatarImgUrlUsingQueryRunnner(githubUserInfo.userid, githubUserInfo.avatar_image);
+    await this.saveSocialUrlUsingQueryRunnner(githubUserInfo.userid, githubUserInfo.socialUrl);
+
+    // 4. 바오밥 서비스의 액세스 토큰 및 리프레쉬 토큰 발급
+    const savedUserInfo: any = await this.getUserInfo(githubUserInfo.userid);
+    const payload: Payload = {
+      id: savedUserInfo.id,
+      username: savedUserInfo.username
+    }
+    const { accessToken, accessOption, accessTokenExpires } = await this.authService.getCookieWithJwtAccessToken(payload);
+    const { refreshToken, refreshOption, refreshTokenExpires } = await this.authService.getCookieWithJwtRefreshToken(savedUserInfo);
+    await this.updateRefreshTokenInUser(refreshToken, savedUserInfo);
+    
+    // 5. 컨트롤러에 반환
+    const resUserDto: any = savedUserInfo
+    resUserDto.password = undefined
+    resUserDto.currentRefreshToken = undefined
+    return {
+      accessToken,
+      accessOption,
+      refreshToken,
+      refreshOption,
+      user: resUserDto,
+      accessTokenExpires,
+      refreshTokenExpires,
+    };
+  }
+
+  async saveAvatarImgUrlUsingQueryRunnner(userid: string, avatar_image_url: string) {
+    const queryRunner = this.connection.createQueryRunner();
+    
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const userIdValue: string = typeof userid !== typeof "" ? Object.values(userid)[0] : userid
+      const user = await this.usersRepository.findOne({userid: userIdValue});
+      user.userid = userid
+      user.avatar_image = avatar_image_url
+      await this.usersRepository.save(user)
+      
+      await queryRunner.commitTransaction();
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async checkUserIdExists(userid: string) {
@@ -90,6 +149,38 @@ export class UsersService {
     }
   }
   
+  private async saveGithubUserUsingQueryRunnner(userid: string, email: string, username: string) {
+    const queryRunner = this.connection.createQueryRunner();
+    
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    
+    try {
+      const userIdValue: string = typeof userid !== typeof "" ? Object.values(userid)[0] : userid
+      const user = await this.usersRepository.findOne({userid: userIdValue});
+      if (user === undefined) { 
+        const newUser = new Users(); 
+        newUser.userid = userid
+        newUser.email = email
+        newUser.username = username
+        newUser.role = 0
+        await this.usersRepository.save(newUser)
+      } else {
+        user.userid = userid
+        user.email = email
+        user.username = username
+        user.role = 0
+        await this.usersRepository.save(user)
+      }
+      
+      await queryRunner.commitTransaction();
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
   private async saveUserUsingQueryRunnner(userid: string,  email: string, username: string, password: string, role: number, techStack: string) {
     const queryRunner = this.connection.createQueryRunner();
     
@@ -244,6 +335,7 @@ export class UsersService {
   }
 
   async getProfile(fileName){
+    console.log(fileName);
     var blobClient = this.getBlobClient(fileName);
     const isExist:Boolean = await blobClient.exists();
     if (!isExist) {
@@ -251,6 +343,12 @@ export class UsersService {
     }
     var blobDownloaded = await blobClient.download();
     return blobDownloaded.readableStreamBody;
+  }
+
+  async deleteProfile(fileName){
+    const fileNameValue: string = typeof fileName !== typeof "" ? Object.values(fileName)[0] : fileName
+    let blobClient = this.getBlobClient(fileNameValue);
+    await blobClient.deleteIfExists();
   }
 
   async createSocialUrl(userid: string, socialUrl: string) {
@@ -277,5 +375,15 @@ export class UsersService {
   async createDescription(userid: string, description: string) {
     await this.checkUserIdNotExists(userid);
     await this.saveDescriptionUsingQueryRunnner(userid, description);
+  }
+
+  async checkRole(userid: string) {
+    const userIdValue: string = typeof userid !== typeof "" ? Object.values(userid)[0] : userid;
+    const user = await this.usersRepository.findOne({userid: userIdValue});
+    if(user === undefined) {
+      throw new HttpException('Not Found UserID', HttpStatus.NOT_FOUND)
+    } else {
+      return user.role;
+    }
   }
 }

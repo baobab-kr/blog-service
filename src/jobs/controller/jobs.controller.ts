@@ -12,6 +12,9 @@ import { ToastUiDTO } from '../dto/toast_ui_jobs.dto';
 import { CompanyLicenseDTO } from '../dto/image-jobs-dto';
 import { CampanyLogoDTO } from '../dto/Logo-jobs-dto';
 import { SelectJobsForServiceAdminDTO } from '../dto/select-jobs-service-admin.dto';
+import * as dayjs from 'dayjs'
+import axios from 'axios';
+import * as fs from 'fs';
 
 @Controller("jobs")
 @ApiTags("Baobab_Jobs")
@@ -95,8 +98,13 @@ export class JobsController{
         @Query() SelectJobsDTO : SelectJobsDTO
      ){
 
-         const jobs = await this.jobsService.getJobsAll(SelectJobsDTO);
-         return jobs;
+        const jobs = await this.jobsService.getJobsAll(SelectJobsDTO);
+
+        if(jobs.length <= 0){
+        return { "message" : "값이 없습니다." }
+        }
+
+        return jobs;
  
      }
     
@@ -125,39 +133,44 @@ export class JobsController{
          * getJobs_inUser_forHeadHunt(관리자의 공지사항 조회 API)
          * @returns 
          */
-     @Get("/getJobs_inUser_forHeadHunt")
-     @HttpCode(200)
-     @ApiOperation({
-         summary:'해드헌트의 공지사항 user_id 조회 API',
-         description:'user_id에 해당하는 모든 게시물 반환, 해드헌트 계정만 사용 가능 role:1',
-     })
-     async getJobs_inUser_forHeadHunt( 
-         @Req() req: Request,
-         @Query() SelectJobsHeadHuntDTO : SelectJobsHeadHuntDTO
-     ){
- 
-         const headhunt_status = 1;
-        
+    @Get("/getJobs_inUser_forHeadHunt")
+    @HttpCode(200)
+    @ApiOperation({
+        summary:'해드헌트의 공지사항 user_id 조회 API',
+        description:'user_id에 해당하는 모든 게시물 반환, 해드헌트 계정만 사용 가능 role:1',
+    })
+    async getJobs_inUser_forHeadHunt( 
+        @Req() req: Request,
+        @Query() SelectJobsHeadHuntDTO : SelectJobsHeadHuntDTO
+    ){
+
+        const headhunt_status = 1;
+    
 
 
-        if(Object.keys(req.cookies).includes("AccessToken") ){
-            const user_id_inPayload : number = await this.jobsService.userIdInCookie(req.cookies.AccessToken);
-            let users = await this.jobsService.getUser(user_id_inPayload);
-            SelectJobsHeadHuntDTO.user_id = user_id_inPayload;
-            if(users.role == headhunt_status){
-                const jobs = await this.jobsService.getJobs_inUser_forHeadHunt(SelectJobsHeadHuntDTO);
-                return jobs;
-            }else{
-                throw new HttpException('해드헌트만 이용가능한 기능입니다.', HttpStatus.CONFLICT)
+    if(Object.keys(req.cookies).includes("AccessToken") ){
+        const user_id_inPayload : number = await this.jobsService.userIdInCookie(req.cookies.AccessToken);
+        let users = await this.jobsService.getUser(user_id_inPayload);
+        SelectJobsHeadHuntDTO.user_id = user_id_inPayload;
+        if(users.role == headhunt_status){
+            const jobs = await this.jobsService.getJobs_inUser_forHeadHunt(SelectJobsHeadHuntDTO);
+
+            if(jobs.length <= 0){
+                return { "message" : "값이 없습니다." }
             }
+
+            return jobs;
         }else{
-            throw new HttpException('로그인을 해야 사용할 수 있는 기능입니다.', HttpStatus.CONFLICT)
+            throw new HttpException('해드헌트만 이용가능한 기능입니다.', HttpStatus.CONFLICT)
         }
+    }else{
+        throw new HttpException('로그인을 해야 사용할 수 있는 기능입니다.', HttpStatus.CONFLICT)
+    }
+    
         
-         
-         
- 
-     }
+        
+
+    }
     @Get("/getJobsAll_ForServiceAdmin")
     @HttpCode(200)
     @ApiOperation({
@@ -177,6 +190,11 @@ export class JobsController{
 
             if(users.role == admin_status){
                 const jobs = await this.jobsService.getJobsAll_ForServiceAdmin(SelectJobsForServiceAdminDTO);
+                
+                if(jobs.length <= 0){
+                    return { "message" : "값이 없습니다." }
+                }
+                
                 return jobs;
             }else{
                 throw new HttpException('관리자만 이용가능한 기능입니다.', HttpStatus.CONFLICT)
@@ -213,6 +231,40 @@ export class JobsController{
                 await this.jobsService.Approval_Jobs_ForServiceAdmin(id);
             }else{
                 throw new HttpException('관리자만 이용가능한 기능입니다.', HttpStatus.CONFLICT)
+            }
+        }else{
+            throw new HttpException('로그인을 해야 사용할 수 있는 기능입니다.', HttpStatus.CONFLICT)
+        }
+        
+    }
+
+
+
+    @Patch("/unapproved_Jobs_ForServiceAdmin")
+    @HttpCode(200)
+    @ApiOperation({
+        summary:'채용 공고 미승인 API',
+        description:'채용공고 status를 미승인으로 수정한다. 헤드헌트 이상이 사용 가능 1, 2 ',
+    })
+    @ApiBody({schema : {example : {
+        id : 1
+    } }})
+    async unapproved_Jobs_ForServiceAdmin( 
+        @Req() req: Request,
+        @Body("id") id : number
+    ){
+
+
+        const admin_status = 1;
+
+        if(Object.keys(req.cookies).includes("AccessToken") ){
+            const user_id_inPayload : number = await this.jobsService.userIdInCookie(req.cookies.AccessToken);
+            let users = await this.jobsService.getUser(user_id_inPayload);
+
+            if(users.role >= admin_status){
+                await this.jobsService.unapproved_Jobs_ForServiceAdmin(id);
+            }else{
+                throw new HttpException('헤드헌트 혹은 서비스관리자만 이용가능한 기능입니다.', HttpStatus.CONFLICT)
             }
         }else{
             throw new HttpException('로그인을 해야 사용할 수 있는 기능입니다.', HttpStatus.CONFLICT)
@@ -369,35 +421,116 @@ export class JobsController{
 
     }
 
-
-
     @Post("/nts_businessman")
     @HttpCode(200)
+    @ApiOperation({
+        summary:'사업자확인 API',
+        description:'사업자 번호를 입력하면 사업자가 맞는지 반환한다 \"-\" 하이픈 제거됨, 사용가능한 사업자 번호면 \"등록된 사업자등록번호\" 반환, 아닐경우 \"등록되지 않은 사업자등록번호\" 반환함 ',
+    })
+    @ApiBody({schema : {example : {business_number : "string"}}})
     async nts_businessman(
-        @Res() res ,
-        @Req() req,
         @Body("business_number") b_no : string
-    ){
-        const serviceKey = "I5OxGPqEJSf88oOEtR9HcQIWGmvCgPbiVP9RlqeUFd2Hqd1SsilZLjti5vqPpwl8kD%2BjystU%2BgJDzDyNb3mJfA%3D%3D"
+    ) : Promise<Object>{
+        const serviceKey = "I5OxGPqEJSf88oOEtR9HcQIWGmvCgPbiVP9RlqeUFd2Hqd1SsilZLjti5vqPpwl8kD%2BjystU%2BgJDzDyNb3mJfA%3D%3D";
         const axios = require("axios");
+        
 
-        axios({
+        const result = await axios({
             method : "post",
             url : `https://api.odcloud.kr/api/nts-businessman/v1/status?serviceKey=${serviceKey}`,
             data : {
-                b_no : [
-                    b_no
-                ]
+                b_no : [b_no.replace(/-|\s/gi,"")]
+            }
+        }).then(function (response){
+            if(response.data.data[0].tax_type == "국세청에 등록되지 않은 사업자등록번호입니다."){
+                return "등록되지 않은 사업자등록번호"
+            }else{
+
+                return "등록된 사업자등록번호";
+            }
+        });
+
+        //throw new HttpException('board_id가 없습니다.', HttpStatus.CONFLICT)
+        return result;
+
+    }
+
+
+    
+    
+    @Post("/check_businessman_image")
+    @UseInterceptors(FileInterceptor("image"))
+    @HttpCode(200)
+    async check_businessman_image(
+        //@Body("filename") filename : string,
+        @UploadedFile() file : any
+    ) {
+        const secretKey = "WUtURXpSd09TdnJGTHBxTXBQVGJGYmphUGhyTG94RE4=";
+        const axios = require("axios");
+        const headers = {
+            "Content-Type" : "application/json",
+            "X-OCR-SECRET" : "WUtURXpSd09TdnJGTHBxTXBQVGJGYmphUGhyTG94RE4="
+        }
+        const url = `https://vp7t7va0ux.apigw.ntruss.com/custom/v1/19433/85f4c1eeeb80064410fc1353e40201299c23ce6f8b5ac87d881a0e02ee049ba0/general`;
+/*  
+        const localfilepath = await this.jobsService.uploadFileDisk(file);
+        var fileFormat = localfilepath.split(".");
+        let fileEXT = '';
+        if( localfilepath.indexOf("jpg")){  
+          fileEXT = "jpg"   
+        }else if( localfilepath.indexOf("png")){
+          fileEXT = "png"
+        }*/
+        //console.log(fileEXT)   
+        //console.log("file" +JSON.stringify(file))   
+        let encode = Buffer.from(file.buffer).toString('base64');
+        
+        //let d = fs.readFileSync('C:/File/blog-service_updateversion/blog-service/dist/jobs/service/uploads/1669962513728.jpg', 'base64');
+    
+        //console.log(file);
+        //console.log(`인코드 : ${encode}` );
+
+        const result = await axios({
+            method : "post",
+            headers : {
+                "Content-Type" : "application/json",
+                "X-OCR-SECRET" : "WUtURXpSd09TdnJGTHBxTXBQVGJGYmphUGhyTG94RE4="
+            },  
+            url : url,
+            data : {
+                "images" :[{
+                    "format"  :"jpg",
+                    "name" : "medium",
+                    "data" : encode,
+                    "url" : "https://dainfc.com/file_data/dainstore/2021/09/07/3750ef61244636d1d84f1e30743c92ab.jpg"
+                }
+                ],
+                "lang" : "ko",
+                "requestId" : "string",
+                "resultType" : "string",
+                "timestamp"  : dayjs(),
+                "version" : "V1"
+            }
+        }).then(function (response){
+                    
+            console.log('requestWithBase64 response:', response.data)
+                
+            if (response.status === 200) {
+                console.log('requestWithBase64 response:', response.data)
+                console.log('성공?');   
+                
+            }else{
+                console.log('error')
             }
             
-            //responseType : "stream"
-        }).then((response) => {
-            
-            console.log(response)
+        }).catch(e => {
+            console.warn('requestWithBase64 error', e.response.status)
+        });
+        
+        //console.log(result);
 
-            console.log(response.data)
-        })
 
+        return 
 
     }
 

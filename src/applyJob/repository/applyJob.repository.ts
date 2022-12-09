@@ -28,10 +28,10 @@ export class ApplyJobRepository extends Repository<ApplyJob>{
             title = String(CreateApplyJobDTO.title);
             name = String(CreateApplyJobDTO.name);
             email = String(CreateApplyJobDTO.email);
-            techStack = String(CreateApplyJobDTO.techStack);
-            careerYear = Number(CreateApplyJobDTO.careerYear);
+            techStack = CreateApplyJobDTO.techStack == undefined ? null : String(CreateApplyJobDTO.techStack)
+            careerYear = isNaN(Number(CreateApplyJobDTO.careerYear))? null : Number(CreateApplyJobDTO.careerYear);
             resumeUrl = String(CreateApplyJobDTO.resumeUrl);
-            socialUrl = String(CreateApplyJobDTO.socialUrl);
+            socialUrl = CreateApplyJobDTO.socialUrl == undefined ? null : String(CreateApplyJobDTO.socialUrl)
             profile = String(CreateApplyJobDTO.profile);
             education = Number(CreateApplyJobDTO.education);
             educationStatus = Number(CreateApplyJobDTO.educationStatus);
@@ -75,6 +75,7 @@ export class ApplyJobRepository extends Repository<ApplyJob>{
             "apply_jobs.educationStatus"
             ])
         .where(`apply_jobs.jobs_id = ${jobs_id}`)
+        .orderBy("apply_jobs.id","DESC")
         .getMany();
         
 
@@ -98,6 +99,7 @@ export class ApplyJobRepository extends Repository<ApplyJob>{
             "apply_jobs.educationStatus"
             ])
         .where(`apply_jobs.id = ${id}`)
+        .orderBy("apply_jobs.id","DESC")
         .getOne();
         
 
@@ -142,6 +144,7 @@ export class ApplyJobRepository extends Repository<ApplyJob>{
                 "jobs.logo"])
 
         .where(`apply_jobs.user_id = ${user_id}`)
+        .orderBy("apply_jobs.id","DESC")
         .getMany();
         
 

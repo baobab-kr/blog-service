@@ -1,10 +1,12 @@
-import { Body, Controller, Get, HttpCode, Patch, Post, Query, Req, HttpException, HttpStatus } from '@nestjs/common';
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { Body, Controller, Get, HttpCode, Patch, Post, Query, Req, HttpException, HttpStatus, Res, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
 import { ApplyJobService } from '../service/applyJob.service';
 import { CreateApplyJobDTO } from '../dto/create-applyJob.dto';
 import { UpdateApplyJobDTO } from '../dto/update-applyJob.dto';
 import { Request } from "express";
 import { SelectJobsDTO } from 'src/jobs/dto/select-jobs.dto';
+import { UploadProfileDTO } from '../dto/upload-profile-dto';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 
 
 @Controller("ApplyJob")
@@ -164,7 +166,41 @@ export class ApplyJobController{
     ){
         return await this.applyJobService.getApplyJobsAll_inUser(user_id);
     }
+    
 
+
+    @Post("/UploadProfile")
+    @HttpCode(200)
+    @ApiConsumes('multipart/form-data')
+    @UseInterceptors(FileInterceptor("Profile"))
+    @ApiOperation({
+        summary:'Profile 업로드',
+        description:'Profile 이미지 업로드 후 파일명 반환, ID와 함께 넣으면 해당하는 채용의 Profile 변경, id는 필수값 아님',
+    })
+    @ApiBody({description:"applyJobs Profile 이미지 삽입",type:UploadProfileDTO})
+    async uploadLogo(
+        @UploadedFile() file : any,
+        @Body("id") id : number
+    ){
+        console.log(file)
+        return await this.applyJobService.profile_upload(id,file);
+    }
+
+    @Get("/getProfile")
+    @HttpCode(200)
+    @ApiOperation({
+        summary:'Profile 반환 API',
+        description:'Profile 파일명을 입력하면 이미지를 반환',
+    })
+    @ApiParam({name:"file_name"})
+    async getToastImage(
+        @Res() res ,
+        @Query("file_name") filename : string
+    ){
+        const file = await this.applyJobService.getImage(filename);
+        return file.pipe(res);
+
+    }
     /*
     @Patch("/DeleteApplyJob")
     @HttpCode(200)

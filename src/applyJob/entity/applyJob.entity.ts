@@ -26,7 +26,7 @@ export class ApplyJob extends BaseEntity{
  
 
     @Column({
-        type : "longtext",
+        type : "text",
         nullable : false
     })
     title : string
@@ -48,7 +48,7 @@ export class ApplyJob extends BaseEntity{
     @Column({
         type : "varchar",
         //length : 100,
-        nullable : false
+        nullable : true
     })
     techStack : string
 
@@ -60,13 +60,13 @@ export class ApplyJob extends BaseEntity{
     careerYear : number
 
     @Column({
-        type : "longtext",
+        type : "text",
         nullable : false
     })
     resumeUrl : string
 
     @Column({
-        type : "longtext",
+        type : "text",
         nullable : true
     })
     socialUrl : string

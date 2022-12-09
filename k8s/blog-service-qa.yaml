@@ -4,7 +4,7 @@ metadata:
   name: blog-service
   namespace: qa
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: blog-service
@@ -127,6 +127,21 @@ spec:
                 configMapKeyRef:
                   name: baobab-qa
                   key: cookie_domain
+            - name: FILTERING_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: baobab-qa
+                  key: filtering_base_url
+            - name: CLIENT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: baobab-qa
+                  key: client_id
+            - name: CLIENT_SECRET
+              valueFrom:
+                configMapKeyRef:
+                  name: baobab-qa
+                  key: client_secret
 ---
 apiVersion: v1
 kind: Service

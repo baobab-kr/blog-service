@@ -16,6 +16,7 @@ import { FileUploadDto } from './dto/file-upload.dto';
 import { TechStackDto } from './dto/tech-Stack.dto';
 import { string } from 'joi';
 import { DescriptionDto } from './dto/description-user.dto';
+import { GithubCodeDto } from './dto/github-code.dto';
 
 @Controller('users')
 @ApiTags('Users API')
@@ -282,6 +283,7 @@ export class UsersController {
   @HttpCode(200)
   async deleteUser(@Body() userid: string ): Promise<void> {
     await this.usersService.deleteUser(userid);
+    await this.usersService.deleteProfile(userid);
   }
 
   @ApiOperation({
@@ -295,5 +297,38 @@ export class UsersController {
   async createDescription(@Body() descriptionDto:DescriptionDto ): Promise<void> {
     const { userid, description } = descriptionDto;
     await this.usersService.createDescription(userid, description);
+  }
+
+  @ApiOperation({
+    summary:'깃허브 로그인 API',
+    description:'깃허브 OAuth 기능을 구현한 API 입니다.',
+  })
+  @ApiResponse({
+    description: '깃허브 로그인 성공 시 깃허브 정보를 데이터베이스에 업데이트하고, 우리 서비스의 액세스 토큰을 반환합니다.'
+  })
+  @Post('/github-login')
+  @HttpCode(200)
+  async githubLogin(@Body() githubCodeDto: GithubCodeDto, @Res({passthrough:true}) res: Response): Promise<any> {
+    const { code } = githubCodeDto;
+    const { accessToken, accessOption, refreshToken, refreshOption, user, accessTokenExpires, refreshTokenExpires } = await this.usersService.githubLogin(code);
+    res.setHeader('ATExpires', + accessTokenExpires);
+    res.setHeader('RTExpires', + refreshTokenExpires);
+    res.cookie('AccessToken', accessToken, accessOption);
+    res.cookie('RefreshToken', refreshToken, refreshOption);
+    return user;
+  }
+
+  @ApiOperation({
+    summary:'유저 role 정보 확인 API',
+    description:'사용자의 role 정보를 확인합니다.',
+  })
+  @ApiResponse({
+    description: '사용자의 role 정보를 반환합니다.'
+  })
+  @Post('/check-role')
+  @HttpCode(200)
+  async checkRole(@Body() userid: string): Promise<number> {
+    const role = await this.usersService.checkRole(userid);
+    return role;
   }
 }

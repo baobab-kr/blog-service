@@ -1,11 +1,10 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsNotEmpty, IsNumber, IsString } from "class-validator";
-import { CreateJobsDTO } from "./create-jobs.dto";
-import { PartialType } from '@nestjs/mapped-types';
+
 
 export class SelectJobsHeadHuntDTO {
 
     @ApiProperty({
+        description : "user의 id값 외래키 ",
         type: "number",
         required : false
     })

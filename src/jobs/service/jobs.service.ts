@@ -11,6 +11,10 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from "@nestjs/typeorm";
 import { SelectJobsHeadHuntDTO } from '../dto/select-jobs-headhunt.dto';
 import { SelectJobsForServiceAdminDTO } from "../dto/select-jobs-service-admin.dto";
+import * as fs from 'fs';
+import { extname } from 'path';
+import { uploadFileURL } from '../../config/multeroptions/multeroption';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class JobsService{
@@ -183,6 +187,12 @@ export class JobsService{
 
 
     }
+    async unapproved_Jobs_ForServiceAdmin(id : number){
+        await this.jobsRepository.unapproved_Jobs_ForServiceAdmin(id);
+        
+    }
+
+
     async Delete_Jobs(id : number){
         await this.jobsRepository.delete(id);
     }
@@ -215,7 +225,10 @@ export class JobsService{
      * @returns 
      */
     async uploadLogo(id, file){
-        const fileName = file.originalname.trim().replace(/(.png|.jpg|.jpeg|.gif|\s)$/gi,'');
+        let fileoriginalname = file.originalname.trim().replace(/(.png|.jpg|.jpeg|.gif|\s)$/gi,'');
+        const encryptedFileName = bcrypt.hashSync(fileoriginalname, 10); 
+        let fileName = encryptedFileName.trim().replace(/[-\/\\^$*+?.()|[\]{}]/g, '');
+        
         const fileuploadtime = dayjs().format("YYMMDDHHmmss");
         const uploadFileName = "CL" + fileuploadtime + fileName;
         const blobClient = this.getBlobClient(uploadFileName);
@@ -234,7 +247,10 @@ export class JobsService{
      * @returns 
      */
      async uploadImage(id, file){
-        const fileName = file.originalname.trim().replace(/(.png|.jpg|.jpeg|.gif|\s)$/gi,'');
+        let fileoriginalname = file.originalname.trim().replace(/(.png|.jpg|.jpeg|.gif|\s)$/gi,'');
+        const encryptedFileName = bcrypt.hashSync(fileoriginalname, 10); 
+        let fileName = encryptedFileName.trim().replace(/[-\/\\^$*+?.()|[\]{}]/g, '');
+
         const fileuploadtime = dayjs().format("YYMMDDHHmmss");
         const uploadFileName = "Li" + fileuploadtime + fileName;
         const blobClient = this.getBlobClient(uploadFileName);
@@ -251,7 +267,10 @@ export class JobsService{
      * @returns 
      */
     async uploadToastUiImage(file){
-        const fileName = file.originalname.trim().replace(/(.png|.jpg|.jpeg|.gif|\s)$/gi,'');
+        let fileoriginalname = file.originalname.trim().replace(/(.png|.jpg|.jpeg|.gif|\s)$/gi,'');
+        const encryptedFileName = bcrypt.hashSync(fileoriginalname, 10); 
+        let fileName = encryptedFileName.trim().replace(/[-\/\\^$*+?.()|[\]{}]/g, '');
+                
         const fileuploadtime = dayjs().format("YYMMDDHHmmss");
         const uploadFileName = "TO" + fileuploadtime + fileName;
         const blobClient = this.getBlobClient(uploadFileName);
@@ -265,19 +284,34 @@ export class JobsService{
      * @param fileName 
      * @returns 
      */
-    async getImage(fileName){
+     async getImage(fileName){
         var blobClient = this.getBlobClient(fileName);
         const isExist:Boolean = await blobClient.exists();
         if (!isExist) {
           blobClient = this.getBlobClient('profile-default');
         }
+        console.log(blobClient.url);
         var blobDownloaded = await blobClient.download();
-        return blobDownloaded.readableStreamBody;
-      }
 
-      async getUser(id){
-        return await this.usersRepository.findOne(id);
+        return blobDownloaded.readableStreamBody;
     }
+
+    async getImageUrl(fileName){
+        var blobClient = this.getBlobClient(fileName);
+        const isExist:Boolean = await blobClient.exists();
+        if (!isExist) {
+          blobClient = this.getBlobClient('profile-default');
+        }
+        console.log(blobClient.url);
+        var blobDownloaded = await blobClient.download();
+
+        return blobClient.url;
+    }
+
+    async getUser(id){
+        return await this.usersRepository.findOne(id);
+    }   
+    
     /**
      * userIdInCookie(쿠키 Access 토큰의 user_id 반환)
      * @param accessToken 
@@ -291,5 +325,26 @@ export class JobsService{
 
         return user_id_inPayload ;
     }
+
+
+    async uploadFileDisk(file: any) {
+
+
+        const uploadFilePath = `uploads`;
+        const fileName = Date.now() + extname(file.originalname);
+        const uploadPath =
+        __dirname + `\\${uploadFilePath + '\\' + fileName}`;
+
+
+        console.log(uploadPath);
+        fs.writeFileSync(uploadPath, file.buffer);
+
+        
+        return uploadFileURL(uploadPath);
+        return uploadFileURL(file.filename);
+        
+      }
+    
+    
 
 }
