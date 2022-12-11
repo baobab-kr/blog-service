@@ -127,6 +127,21 @@ spec:
                 configMapKeyRef:
                   name: baobab-prod-cm
                   key: cookie_domain
+            - name: CLIENT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: baobab-prod-cm
+                  key: cookie_domain
+            - name: CLIENT_SECRET
+              valueFrom:
+                configMapKeyRef:
+                  name: baobab-prod-cm
+                  key: client_secret
+            - name: FILTERING_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: baobab-prod-cm
+                  key: filtering_base_url
 ---
 apiVersion: v1
 kind: Service
