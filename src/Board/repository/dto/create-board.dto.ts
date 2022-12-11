@@ -27,7 +27,7 @@ export class CreateBoardDTO{
 
     
     @IsNotEmpty({message : "값이 입력되지 않았습니다."})
-    @ApiProperty({ type: 'number', description:'0:공개, 1:삭제, 2:비공개' })
+    @ApiProperty({ type: 'number', description:'0:공개, 1:삭제, 2:나만보기' })
     board_status : number; 
 
     @ApiProperty({ type: 'array', description:'tag_name을 배열의 형태로 넣습니다. 필수 입력 데이터가 아닙니다.' })
