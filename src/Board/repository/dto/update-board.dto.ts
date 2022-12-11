@@ -1,5 +1,5 @@
 import { PartialType } from "@nestjs/mapped-types";
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiBody, ApiOkResponse, ApiProperty } from "@nestjs/swagger";
 import { IsString, Matches, MaxLength } from "class-validator";
 import { CreateBoardDTO } from "./create-board.dto";
 
@@ -46,11 +46,18 @@ export class UpdateBoardDTO extends PartialType(CreateBoardDTO) {
     })
     board_status? : number; 
 
+    
+
     @ApiProperty({
         default : [],
         required : false
     })
     tag_name? : string[];
 
+    @ApiProperty({
+        required : false,
+        type : "file"
+    })
 
+        thumbnail? : any
 }

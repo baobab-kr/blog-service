@@ -230,7 +230,16 @@ export class BoardRepository extends Repository<Board> {
      * @param board_status 
      * @returns 
      */
-    async getBoardPersonal(skip : number , take: number, writer : number, board_status : number[]){
+    async getBoardPersonal(page :number, writer : number){
+       //status 공개, 비공개
+       const board_status : number[]  = [0,2] ;
+        
+       //페이지네이션
+       const limit : number = 15 ; 
+       const pageVale : number = typeof page == typeof {} ?Number(Object.values(page)[0]) : Number(page);
+       const skip : number  = pageVale * limit;
+       const take : number = skip + limit;
+
         const board = await this.createQueryBuilder("board")
         
         .leftJoin("board.tags","tag")
@@ -258,14 +267,21 @@ export class BoardRepository extends Repository<Board> {
      * @param board_status 
      * @returns 
      */
-    async getBoardGuest(skip : number , take: number, writer : number, board_status : number[], login_id : number){
-        
+    async getBoardGuest(page :number, writer : number){
+        //status 공개
+        const board_status : number[] = [0] ;
+
+        //페이지네이션
+        const limit : number = 15 ; 
+        const pageVale : number = typeof page == typeof {} ?Number(Object.values(page)[0]) : Number(page);
+        const skip : number= pageVale * limit;
+        const take : number = skip + limit;
 
         const board = await this.createQueryBuilder("board")
         
         .leftJoin("board.tags","tag")
         //.leftJoin("board.writer","users")
-        .leftJoin("board.likes","likes",`likes.user_id =  ${login_id}`)
+        .leftJoin("board.likes","likes",`likes.user_id =  ${writer}`)
         .select(["board.id","board.title","board.description","board.content","board.thumbnail","board.views","board.date","board.board_status","board.likes_count"])
         .addSelect(["tag"])
         .addSelect(["likes"])
@@ -289,8 +305,13 @@ export class BoardRepository extends Repository<Board> {
      * @param board_status 
      * @returns 
      */
-    async getBoardPersonalTag(skip : number , take: number, writer : number, tag_name : string[], board_status : number[]){
+    async getBoardPersonalTag(page: number, writer : number, tag_name : string[]){
+        const board_status : number[]  = [0,2] ;
         
+        const limit : number = 15 ; 
+        const pageVale : number = typeof page == typeof {} ?Number(Object.values(page)[0]) : Number(page);
+        const skip : number= pageVale * limit;
+        const take : number = skip + limit;
 
         const board = await this.createQueryBuilder("board")
         
@@ -323,11 +344,19 @@ export class BoardRepository extends Repository<Board> {
      * @param board_status 
      * @returns 
      */
-    async getBoardGuestTag(skip : number , take: number, writer : number, tag_name : string[], board_status : number[], login_id : number){
+    async getBoardGuestTag(page: number, writer : number, tag_name : string[]){
+        const board_status : number[]  = [0] ;
+        
+        //페이지네이션
+        const limit : number = 15 ; 
+        const pageVale : number = typeof page == typeof {} ?Number(Object.values(page)[0]) : Number(page);
+        const skip : number= pageVale * limit;
+        const take : number = skip + limit;
+
         const board = await this.createQueryBuilder("board")
         .leftJoin("board.tags","tag")
         //.leftJoin("board.writer","users")
-        .leftJoin("board.likes","likes",`likes.user_id =  ${login_id}`)
+        .leftJoin("board.likes","likes",`likes.user_id =  ${writer}`)
         .select(["board.id","board.title","board.description","board.content","board.thumbnail","board.views","board.date","board.board_status","board.likes_count"])
         .addSelect(["tag"])
         //.addSelect(["users.id","users.userid","users.username","users.email","users.role","users.avatar_image"])

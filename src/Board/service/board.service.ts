@@ -87,6 +87,8 @@ export class BoardService {
         
         return uploadFileName;
     }
+
+
     /**
      * getThumbnail(썸네일 다운로드)
      * @param fileName 
@@ -167,24 +169,12 @@ export class BoardService {
      * @param writer 
      * @returns 
      */
-     async getBoardPersonal(page:number, writer : number) : Promise<Board[]> {
+     async getBoardPersonal(page:number, user_id : number) : Promise<Board[]> {
 
-        //status 공개, 비공개
-        const status : number[]  = [0,2] ;
-        
-        //페이지네이션
-        const limit : number = 15 ; 
-        const pageVale : number = typeof page == typeof {} ?Number(Object.values(page)[0]) : Number(page);
-        const skip : number  = pageVale * limit;
-        const take : number = skip + limit;
-
-        const board = await this.boardRepository.getBoardPersonal(skip, take,writer, status)
+        const board = await this.boardRepository.getBoardPersonal(page, user_id)
 
 
         return board;
-        
-        
-        
     }
     /**
      * getBoardGuest(게스트용 개인페이지 호출 함수)
@@ -192,17 +182,9 @@ export class BoardService {
      * @param writer 
      * @returns 
      */
-    async getBoardGuest(page:number, writer : number, login_id? : number) : Promise<Board[]> {
-        //status 공개
-        const status : number[] = [0] ;
+    async getBoardGuest(page:number, user_id : number) : Promise<Board[]> {
 
-        //페이지네이션
-        const limit : number = 15 ; 
-        const pageVale : number = typeof page == typeof {} ?Number(Object.values(page)[0]) : Number(page);
-        const skip : number= pageVale * limit;
-        const take : number = skip + limit;
-        
-        const board = await this.boardRepository.getBoardGuest(skip, take,writer, status,login_id == undefined? -1 : login_id)
+        const board = await this.boardRepository.getBoardGuest(page, user_id)
         
         return board;
     }
@@ -216,14 +198,9 @@ export class BoardService {
      * @returns 
      */
     async getBoardPersonalTag(page:number, writer : number, tag_name : string[]):Promise<Board[]>{
-        const status : number[]  = [0,2] ;
-        
-        const limit : number = 15 ; 
-        const pageVale : number = typeof page == typeof {} ?Number(Object.values(page)[0]) : Number(page);
-        const skip : number= pageVale * limit;
-        const take : number = skip + limit;
+ 
 
-        const board = await this.boardRepository.getBoardPersonalTag(skip, take, writer, tag_name, status);
+        const board = await this.boardRepository.getBoardPersonalTag(page, writer, tag_name);
 
         return board;
     }
@@ -235,16 +212,10 @@ export class BoardService {
      * @param tag_name
      * @returns 
      */
-     async getBoardGuestTag(page:number, writer : number, tag_name : string[], login_id? : number):Promise<Board[]>{
-        const status : number[]  = [0] ;
+     async getBoardGuestTag(page:number, writer : number, tag_name : string[]):Promise<Board[]>{
+
         
-        //페이지네이션
-        const limit : number = 15 ; 
-        const pageVale : number = typeof page == typeof {} ?Number(Object.values(page)[0]) : Number(page);
-        const skip : number= pageVale * limit;
-        const take : number = skip + limit;
-        
-        const board = await this.boardRepository.getBoardGuestTag(skip, take, writer, tag_name, status,login_id == undefined? -1 : login_id);
+        const board = await this.boardRepository.getBoardGuestTag(page, writer, tag_name);
 
 
         return board;
@@ -456,15 +427,25 @@ export class BoardService {
         
     }
     
-    public async tagCount(writer : number){
+    public async tagCount(writer : number, type : string){
         const board_id = await this.getBoardByUserId(writer);
-        
+        let board_status : number[] = [0] ; 
+
+        if(type == "본인계정접속"){
+            board_status = [0,2]
+        }else if(type == "게스트"){
+            board_status = [0]
+        }
+
+
         if(board_id.length > 0){
-            return await this.tagRepository.tagCount(board_id);
+            return await this.tagRepository.tagCount(board_id,board_status);
         }
         return ;
        
     }
+
+    
 
     /**
      * getBoardByUserId()
@@ -615,6 +596,35 @@ export class BoardService {
             throw new HttpException('해당 태그가 존재하지 않습니다.', HttpStatus.CONFLICT)
         }
         return tag;
+    }
+
+
+
+    async checked_login(req, user_id):Promise<string>{
+        const token = Object.keys(req.cookies).includes("AccessToken");
+
+        let result = "";
+        
+
+        if(token){
+            const user_id_inPayload : number = await this.userIdInCookie(req.cookies.AccessToken);
+            if(user_id == undefined){
+                result = "본인계정접속"
+            }else{
+                if(user_id_inPayload == user_id){
+                    result = "본인계정접속"
+                }else{
+                    result = "게스트"
+                }
+            }
+        
+        }
+        else if(user_id != undefined){
+            result = "게스트"
+        }else{
+            result = "로그인안함"
+        }
+        return result ;
     }
     
 }
