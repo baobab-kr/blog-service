@@ -22,7 +22,7 @@ export class TagRepository extends Repository<Tag>{
 
         const tag = await this.createQueryBuilder("tag")
         .leftJoin("tag.board_id","board")
-        .select("tag.tag_name")
+        .select("tag.tag_name as tag_name")
         .addSelect("Count(tag.tag_name) as tag_count")
         .where("tag.board_id IN(:board_id)", { board_id: board_id })
         .andWhere(`board.board_status IN(${board_status})`)

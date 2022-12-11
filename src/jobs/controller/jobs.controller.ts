@@ -492,17 +492,14 @@ export class JobsController{
 
         const result = await axios({
             method : "post",
-            headers : {
-                "Content-Type" : "application/json",
-                "X-OCR-SECRET" : "WUtURXpSd09TdnJGTHBxTXBQVGJGYmphUGhyTG94RE4="
-            },  
+            headers : headers,  
             url : url,
             data : {
                 "images" :[{
                     "format"  :"jpg",
                     "name" : "medium",
                     "data" : encode,
-                    "url" : "https://dainfc.com/file_data/dainstore/2021/09/07/3750ef61244636d1d84f1e30743c92ab.jpg"
+                    "url" : "https://www.dainfc.com/file_data/dainstore/2021/09/07/3750ef61244636d1d84f1e30743c92ab.jpg"
                 }
                 ],
                 "lang" : "ko",
@@ -523,8 +520,10 @@ export class JobsController{
                 console.log('error')
             }
             
-        }).catch(e => {
-            console.warn('requestWithBase64 error', e.response.status)
+        })
+        
+        .catch(e => {
+            console.warn('requestWithBase64 error', e.response)
         });
         
         //console.log(result);
