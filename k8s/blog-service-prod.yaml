@@ -131,7 +131,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: baobab-prod-cm
-                  key: cookie_domain
+                  key: client_id
             - name: CLIENT_SECRET
               valueFrom:
                 configMapKeyRef:
