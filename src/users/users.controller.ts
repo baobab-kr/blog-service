@@ -283,6 +283,7 @@ export class UsersController {
   @HttpCode(200)
   async deleteUser(@Body() userid: string ): Promise<void> {
     await this.usersService.deleteUser(userid);
+    await this.usersService.deleteProfile(userid);
   }
 
   @ApiOperation({
@@ -315,5 +316,19 @@ export class UsersController {
     res.cookie('AccessToken', accessToken, accessOption);
     res.cookie('RefreshToken', refreshToken, refreshOption);
     return user;
+  }
+
+  @ApiOperation({
+    summary:'유저 role 정보 확인 API',
+    description:'사용자의 role 정보를 확인합니다.',
+  })
+  @ApiResponse({
+    description: '사용자의 role 정보를 반환합니다.'
+  })
+  @Post('/check-role')
+  @HttpCode(200)
+  async checkRole(@Body() userid: string): Promise<number> {
+    const role = await this.usersService.checkRole(userid);
+    return role;
   }
 }

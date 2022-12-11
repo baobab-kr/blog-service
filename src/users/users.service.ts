@@ -335,6 +335,7 @@ export class UsersService {
   }
 
   async getProfile(fileName){
+    console.log(fileName);
     var blobClient = this.getBlobClient(fileName);
     const isExist:Boolean = await blobClient.exists();
     if (!isExist) {
@@ -342,6 +343,12 @@ export class UsersService {
     }
     var blobDownloaded = await blobClient.download();
     return blobDownloaded.readableStreamBody;
+  }
+
+  async deleteProfile(fileName){
+    const fileNameValue: string = typeof fileName !== typeof "" ? Object.values(fileName)[0] : fileName
+    let blobClient = this.getBlobClient(fileNameValue);
+    await blobClient.deleteIfExists();
   }
 
   async createSocialUrl(userid: string, socialUrl: string) {
@@ -368,5 +375,15 @@ export class UsersService {
   async createDescription(userid: string, description: string) {
     await this.checkUserIdNotExists(userid);
     await this.saveDescriptionUsingQueryRunnner(userid, description);
+  }
+
+  async checkRole(userid: string) {
+    const userIdValue: string = typeof userid !== typeof "" ? Object.values(userid)[0] : userid;
+    const user = await this.usersRepository.findOne({userid: userIdValue});
+    if(user === undefined) {
+      throw new HttpException('Not Found UserID', HttpStatus.NOT_FOUND)
+    } else {
+      return user.role;
+    }
   }
 }
