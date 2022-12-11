@@ -161,41 +161,25 @@ export class BoardController {
         let tagCount ;
         let writer;
 
-        //로그인 검증
-        if(Object.keys(req.cookies).includes("AccessToken") ){
-            
-            const user_id_inPayload : number = await this.boardService.userIdInCookie(req.cookies.AccessToken);
+        
+        const checked_login :string = await this.boardService.checked_login(req, user_id);
+        
 
+        if(checked_login == "본인계정접속"){
+            let user_id_inPayload : number = await this.boardService.userIdInCookie(req.cookies.AccessToken);
 
-            //호출 페이지와 로그인 정보 비교
-            if(user_id == undefined){
-                //개인 자신 페이지 호출
-                board = await this.boardService.getBoardPersonal(page,user_id_inPayload);
-                tagCount = await this.boardService.tagCount(user_id_inPayload);
-                writer = await this.boardService.getUserById(user_id_inPayload);
-            }else{
-                if(user_id_inPayload == user_id){
-                    //개인 로그인 한 user가 호출 user_id 같아 자신의 페이지를 호출
-                    board = await this.boardService.getBoardPersonal(page,user_id_inPayload);
-                    tagCount = await this.boardService.tagCount(user_id_inPayload);
-                    writer = await this.boardService.getUserById(user_id_inPayload);
-                }else{
-                    //게스트 로그인한 user와 호출 user가 다름
-                    board = await this.boardService.getBoardGuest(page,user_id,user_id_inPayload);
-                    tagCount = await this.boardService.tagCount(user_id);
-                    writer = await this.boardService.getUserById(user_id)
-                }
-            }
-            
-
-        }
-        else if(user_id != undefined){
-            //게스트 user_id 입력됐고 로그인 안된 상태
+            board = await this.boardService.getBoardPersonal(page,user_id_inPayload);
+            tagCount = await this.boardService.tagCount(user_id_inPayload,checked_login);
+            writer = await this.boardService.getUserById(user_id_inPayload);
+        }else if(checked_login == "게스트"){
             
             board = await this.boardService.getBoardGuest(page,user_id);
-            tagCount = await this.boardService.tagCount(user_id);
+            tagCount = await this.boardService.tagCount(user_id,checked_login);
             writer = await this.boardService.getUserById(user_id)
+        }else if(checked_login == "로그인안함"){
+            throw new HttpException('로그인정보와 user_id가 없습니다.', HttpStatus.CONFLICT)
         }
+        
 
         if(board == undefined || !(board.length > 0)){
             const noBoard = {
@@ -231,34 +215,23 @@ export class BoardController {
         @Body("user_id") user_id : number
     ){
 
-        let tagCount ;
-        if(Object.keys(req.cookies).includes("AccessToken") ){
-            
-            const user_id_inPayload : number = await this.boardService.userIdInCookie(req.cookies.AccessToken);
+        let tagCount
+        let board_status ;
+        const checked_login :string = await this.boardService.checked_login(req, user_id);
+        
 
-
-            //호출 페이지와 로그인 정보 비교
-            if(user_id == undefined){
-                //개인 자신 페이지 호출
-                tagCount = await this.boardService.tagCount(user_id_inPayload);
-                
-            }else{
-                if(user_id_inPayload == user_id){
-                    //개인 로그인 한 user가 호출 user_id 같아 자신의 페이지를 호출
-                    tagCount = await this.boardService.tagCount(user_id_inPayload);
-                    
-                }else{
-                    //게스트 로그인한 user와 호출 user가 다름
-                    tagCount = await this.boardService.tagCount(user_id);
-                }
-            }
-            
-
+        if(checked_login == "본인계정접속"){
+            let user_id_inPayload : number = await this.boardService.userIdInCookie(req.cookies.AccessToken);
+            board_status = [0,2]
+            tagCount = await this.boardService.tagCount(user_id_inPayload,checked_login);
+        }else if(checked_login == "게스트"){
+            board_status = [0]
+            tagCount = await this.boardService.tagCount(user_id,checked_login);
+ 
+        }else if(checked_login == "로그인안함"){
+            throw new HttpException('로그인정보와 user_id가 없습니다.', HttpStatus.CONFLICT)
         }
-        else if(user_id != undefined){
-            //게스트 user_id 입력됐고 로그인 안된 상태
-            tagCount = await this.boardService.tagCount(user_id);
-        }
+        
 
         return tagCount 
 
@@ -282,37 +255,18 @@ export class BoardController {
         
         let writer;
 
-        //로그인 검증
-        if(Object.keys(req.cookies).includes("AccessToken") ){
-            
-            const user_id_inPayload : number = await this.boardService.userIdInCookie(req.cookies.AccessToken);
-
-
-            //호출 페이지와 로그인 정보 비교
-            if(user_id == undefined){
-                //개인 자신 페이지 호출
-                writer = await this.boardService.getUserById(user_id_inPayload);
-            }else{
-                if(user_id_inPayload == user_id){
-                    //개인 로그인 한 user가 호출 user_id 같아 자신의 페이지를 호출
-                    writer = await this.boardService.getUserById(user_id_inPayload);
-                }else{
-                    //게스트 로그인한 user와 호출 user가 다름
-                    writer = await this.boardService.getUserById(user_id)
-                }
-            }
-            
-
-        }
-        else if(user_id != undefined){
-            //게스트 user_id 입력됐고 로그인 안된 상태
-            
+        const checked_login :string = await this.boardService.checked_login(req, user_id);
+    
+        if(checked_login == "본인계정접속"){
+            let user_id_inPayload : number = await this.boardService.userIdInCookie(req.cookies.AccessToken);
+            writer = await this.boardService.getUserById(user_id_inPayload);
+        }else if(checked_login == "게스트"){
             writer = await this.boardService.getUserById(user_id)
+ 
+        }else if(checked_login == "로그인안함"){
+            throw new HttpException('로그인정보와 user_id가 없습니다.', HttpStatus.CONFLICT)
         }
-
-        
-        
-        
+       
         return writer;
     }
     /**
@@ -336,30 +290,18 @@ export class BoardController {
     ):Promise<Object>{
         let board ;
 
-        //로그인 검증
-        if(Object.keys(req.cookies).includes("AccessToken") ){
-            
-            //payload의 user_id 값 반환
-            const user_id_inPayload : number = await this.boardService.userIdInCookie(req.cookies.AccessToken);
-
-            //로그인만 했을 경우
-            if(user_id == undefined){
-                board = await this.boardService.getBoardPersonalTag(page,user_id_inPayload,tag_name);
-            }
-            else{
-                //로그인한 user와 작성자가 같을 때
-                if(user_id_inPayload == user_id){
-                    board = await this.boardService.getBoardPersonalTag(page,user_id_inPayload,tag_name);
-                }else{
-                    board = await this.boardService.getBoardGuestTag(page,user_id,tag_name);
-                }
-            }
-            
-
-        }
-        else if(user_id != undefined){
+        const checked_login :string = await this.boardService.checked_login(req, user_id);
+    
+        if(checked_login == "본인계정접속"){
+            let user_id_inPayload : number = await this.boardService.userIdInCookie(req.cookies.AccessToken);
+            board = await this.boardService.getBoardPersonalTag(page,user_id_inPayload,tag_name);
+        }else if(checked_login == "게스트"){
             board = await this.boardService.getBoardGuestTag(page,user_id,tag_name);
+ 
+        }else if(checked_login == "로그인안함"){
+            throw new HttpException('로그인정보와 user_id가 없습니다.', HttpStatus.CONFLICT)
         }
+        
 
         if(board == undefined || !(board.length > 0)){
             const noBoard = {"message" : "Board값이 없습니다."}
@@ -412,20 +354,24 @@ export class BoardController {
 
     @Patch("BoardUpdate")
     @HttpCode(200)
+    @UseInterceptors(FileInterceptor("thumbnail"))
     @UseGuards(JwtAccessTokenGuard)
     @ApiOperation({summary : "게시물 업데이트 API", description : "게시물을 수정, 삭제 할 수 있음<br>title , description, content, board_status, tag_name 필수 입력값 아님"})
     @ApiCreatedResponse({type : "void"})
     @ApiBody({type:UpdateBoardDTO})
+    @ApiConsumes('multipart/form-data')
     async updateBoard(
         @Req() req: Request,
         @Body("board_id") id : number,
-        @Body() UpdateBoardDTO : UpdateBoardDTO
+        @Body() UpdateBoardDTO : UpdateBoardDTO,
+        @UploadedFile() file,
     ) : Promise<void>{
         const user: any = req.user;
         const writer : number = user.id;
+
         await this.boardService.CheckBoardById(UpdateBoardDTO.board_id);
         
-        await this.boardService.updateBoard(UpdateBoardDTO);
+        await this.boardService.updateBoard(UpdateBoardDTO, file);
     }
 
     /**
