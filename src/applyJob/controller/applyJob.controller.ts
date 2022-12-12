@@ -172,7 +172,7 @@ export class ApplyJobController{
     @Post("/UploadProfile")
     @HttpCode(200)
     @ApiConsumes('multipart/form-data')
-    @UseInterceptors(FileInterceptor("Profile"))
+    @UseInterceptors(FileInterceptor("file"))
     @ApiOperation({
         summary:'Profile 업로드',
         description:'Profile 이미지 업로드 후 파일명 반환, ID와 함께 넣으면 해당하는 채용의 Profile 변경, id는 필수값 아님',

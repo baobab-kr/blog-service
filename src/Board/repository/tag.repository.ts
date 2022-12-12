@@ -17,13 +17,16 @@ export class TagRepository extends Repository<Tag>{
         
     }
 
-    async tagCount(board_id : number[]){
-        const tag = getRepository(Tag)
-        .createQueryBuilder()
-        .select("tag_name")
-        .addSelect("Count(tag_name) as tag_count")
-        .where("board_id IN (:board_id)", { board_id: board_id })
-        .groupBy("tag_name")
+    async tagCount(board_id : number[],board_status:number[]){
+
+
+        const tag = await this.createQueryBuilder("tag")
+        .leftJoin("tag.board_id","board")
+        .select("tag.tag_name as tag_name")
+        .addSelect("Count(tag.tag_name) as tag_count")
+        .where("tag.board_id IN(:board_id)", { board_id: board_id })
+        .andWhere(`board.board_status IN(${board_status})`)
+        .groupBy("tag.tag_name")
         .getRawMany();
 
         return tag;
