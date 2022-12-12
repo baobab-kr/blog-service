@@ -22,6 +22,9 @@ export class ApplyJobRepository extends Repository<ApplyJob>{
         let profile : string
         let education : number
         let educationStatus : number
+
+
+
         try{
             jobs_Id = Number(CreateApplyJobDTO.jobs_Id);
             user_id = Number(CreateApplyJobDTO.user_id);
@@ -29,7 +32,7 @@ export class ApplyJobRepository extends Repository<ApplyJob>{
             name = String(CreateApplyJobDTO.name);
             email = String(CreateApplyJobDTO.email);
             techStack = CreateApplyJobDTO.techStack == undefined ? null : String(CreateApplyJobDTO.techStack)
-            careerYear = isNaN(Number(CreateApplyJobDTO.careerYear))? null : Number(CreateApplyJobDTO.careerYear);
+            careerYear = isNaN(Number(CreateApplyJobDTO.careerYear)) || CreateApplyJobDTO.careerYear == null ? null : Number(CreateApplyJobDTO.careerYear);
             resumeUrl = String(CreateApplyJobDTO.resumeUrl);
             socialUrl = CreateApplyJobDTO.socialUrl == undefined ? null : String(CreateApplyJobDTO.socialUrl)
             profile = String(CreateApplyJobDTO.profile);
@@ -169,20 +172,25 @@ export class ApplyJobRepository extends Repository<ApplyJob>{
         let profile : string
         let education : number
         let educationStatus : number
-        try{
-            jobs_Id = updateApplyJobs.jobs_Id != undefined ? Number(updateApplyJobs.jobs_Id) : applyJobs.jobs_Id;
-            user_id = updateApplyJobs.user_id != undefined ? Number(updateApplyJobs.user_id) : applyJobs.user_id;
-            title = updateApplyJobs.title != undefined ? String(updateApplyJobs.title) : applyJobs.title;
-            name = updateApplyJobs.name != undefined ? String(updateApplyJobs.name) : applyJobs.name;
-            email = updateApplyJobs.email != undefined ? String(updateApplyJobs.email) : applyJobs.email;
-            techStack = updateApplyJobs.techStack != undefined ? String(updateApplyJobs.techStack) : applyJobs.techStack;
-            careerYear = updateApplyJobs.careerYear != undefined ? Number(updateApplyJobs.careerYear) : applyJobs.careerYear;
-            resumeUrl = updateApplyJobs.resumeUrl != undefined ? String(updateApplyJobs.resumeUrl) : applyJobs.resumeUrl;
-            socialUrl = updateApplyJobs.socialUrl != undefined ? String(updateApplyJobs.socialUrl) : applyJobs.socialUrl;
-            profile = updateApplyJobs.profile != undefined ? String(updateApplyJobs.profile) : applyJobs.profile;
-            education = updateApplyJobs.education != undefined ? Number(updateApplyJobs.education) : applyJobs.education;
-            educationStatus = updateApplyJobs.educationStatus != undefined ? Number(updateApplyJobs.educationStatus) : applyJobs.educationStatus;
 
+        
+        try{
+            jobs_Id = updateApplyJobs.jobs_Id !== undefined ? Number(updateApplyJobs.jobs_Id) : applyJobs.jobs_Id;
+            user_id = updateApplyJobs.user_id !== undefined ? Number(updateApplyJobs.user_id) : applyJobs.user_id;
+            title = updateApplyJobs.title !== undefined ? String(updateApplyJobs.title) : applyJobs.title;
+            name = updateApplyJobs.name !== undefined ? String(updateApplyJobs.name) : applyJobs.name;
+            email = updateApplyJobs.email !== undefined ? String(updateApplyJobs.email) : applyJobs.email;
+            techStack = updateApplyJobs.techStack !== undefined ? String(updateApplyJobs.techStack) : applyJobs.techStack;
+            careerYear = updateApplyJobs.careerYear !== undefined ? Number(updateApplyJobs.careerYear) : applyJobs.careerYear;
+            resumeUrl = updateApplyJobs.resumeUrl !== undefined ? String(updateApplyJobs.resumeUrl) : applyJobs.resumeUrl;
+            socialUrl = updateApplyJobs.socialUrl !== undefined ? String(updateApplyJobs.socialUrl) : applyJobs.socialUrl;
+            profile = updateApplyJobs.profile !== undefined ? String(updateApplyJobs.profile) : applyJobs.profile;
+            education = updateApplyJobs.education !== undefined ? Number(updateApplyJobs.education) : applyJobs.education;
+            educationStatus = updateApplyJobs.educationStatus !== undefined ? Number(updateApplyJobs.educationStatus) : applyJobs.educationStatus;
+            
+            if(updateApplyJobs.careerYear == null){
+                careerYear = null
+            }
         }catch(e){
             throw new HttpException('변수 타입 초기화 실패', HttpStatus.CONFLICT)
         }
