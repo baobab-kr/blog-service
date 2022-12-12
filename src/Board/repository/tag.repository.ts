@@ -16,7 +16,7 @@ export class TagRepository extends Repository<Tag>{
         return tag;
         
     }
-
+    
     async tagCount(board_id : number[],board_status:number[]){
 
 
