@@ -272,23 +272,42 @@ export class BoardService {
 
         }
 
-        //태그 수정
-        if(UpdateBoardDTO.tag_name!=undefined){
-            if(UpdateBoardDTO.tag_name.length > 0){
-                    const tags_id = await this.tagRepository.find({board_id : Number(idValue)})
-                
-                    await this.tagRepository.delete({board_id : Number(idValue)});
-                    
-                    const tag = this.createTag(id,UpdateBoardDTO.tag_name);
-                }
-            }
+
+        const tags_id = await this.tagRepository.find({board_id : Number(idValue)})
+  
+       
+
+        //await this.tagRepository.deleteTag(arr);
+        //console.log(await this.tagRepository.remove({board_id : Number(idValue)}))
+
+        
+        const tag = this.createTag(id,UpdateBoardDTO.tag_name);
         await this.boardRepository.save(board);
         
+        /*
+        //태그 수정
+        if(UpdateBoardDTO.tag_name!=undefined){
+
+            console.log()
+            if(UpdateBoardDTO.tag_name.length > 0){
+                    
+                    
+                    
+                }
+            }*/
+
         
         
         
-        
-        
+    }
+
+    async deleteTag(board_id : number){
+        const tag = await this.tagRepository.createQueryBuilder("tag")
+        .delete()
+        .where(`tag.board_id = ${board_id}`)
+        .execute();
+
+
     }
     /**
      * deleteBoard(게시물 삭제 함수)
@@ -626,5 +645,8 @@ export class BoardService {
         }
         return result ;
     }
+
+
+    
     
 }

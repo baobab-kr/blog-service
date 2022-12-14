@@ -370,6 +370,7 @@ export class BoardController {
         const writer : number = user.id;
 
         await this.boardService.CheckBoardById(UpdateBoardDTO.board_id);
+        await this.boardService.deleteTag(UpdateBoardDTO.board_id);
         
         await this.boardService.updateBoard(UpdateBoardDTO, file);
     }
