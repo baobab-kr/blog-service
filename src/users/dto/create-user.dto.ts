@@ -26,7 +26,7 @@ export class CreateUserDto {
   @Transform(params => params.value.trim()) 
   @IsString()
   @MinLength(2)
-  @MaxLength(9)
+  @MaxLength(20)
   @Matches(
     /^[ㄱ-ㅎ가-힣A-Za-z0-9+]*$/,
     {
